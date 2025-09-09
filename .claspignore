@@ -1,0 +1,14 @@
+# ignore all filesc
+**/**
+
+# except the extensionsc
+!appsscript.json
+!**/*.gs
+!**/*.js
+!**/*.ts
+!**/*.html
+
+# ignore even valid files if inc
+.git/**
+node_modules/**
+**/*.d.ts
