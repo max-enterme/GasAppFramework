@@ -19,7 +19,7 @@ namespace StringHelper {
     }
 
     export function formatDate(date: Date, format: string, tz?: string | null): string {
-        // GAS 環境では Utilities + Session を使用。その他環境では軽量フォーマッタ。
+        // Use Utilities + Session in GAS environment. Fallback to lightweight formatter in other environments.
         try {
             if (typeof Utilities !== 'undefined' && typeof Session !== 'undefined' && Session.getScriptTimeZone) {
                 const zone = typeof tz === 'string' && tz.trim() ? tz : Session.getScriptTimeZone()
