@@ -1,4 +1,13 @@
+/**
+ * Repository Codec Utilities - Key encoding and decoding
+ */
+
 namespace Repository.Codec {
+    /**
+     * Creates a simple key codec with configurable delimiter
+     * @param delim Delimiter character (default: '|')
+     * @returns KeyCodec instance for stringify/parse operations
+     */
     export function simple<TEntity extends object, Key extends keyof TEntity>(delim = '|') {
         const esc = (s: string) => s.replace(/\\/g, '\\\\').replace(new RegExp(`[${delim}]`, 'g'), m => '\\' + m)
         return {

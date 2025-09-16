@@ -6,10 +6,10 @@ namespace EventSystem.Adapters.GAS {
             fn(ctx);
         }
     }
-    export class SystemClock implements Shared.Ports.Clock {
+    export class SystemClock implements Shared.Types.Clock {
         now() { return new Date(); }
     }
-    export class GasLogger implements Shared.Ports.Logger {
+    export class GasLogger implements Shared.Types.Logger {
         info(m: string) { Logger.log(m); }
         error(m: string) { Logger.log(m); }
     }

@@ -1,4 +1,14 @@
+/**
+ * StringHelper - String templating and formatting utilities
+ */
+
 namespace StringHelper {
+    /**
+     * Format string with indexed placeholders {0}, {1}, etc.
+     * @param formatText Template string with {n} placeholders
+     * @param args Values to substitute into placeholders
+     * @returns Formatted string
+     */
     export function formatString(formatText: string, ...args: Array<string | number>): string {
         let out = String(formatText)
         for (const [i, arg] of args.entries()) {

@@ -1,3 +1,7 @@
+/**
+ * GasDI Container - Dependency Injection Container
+ */
+
 namespace GasDI {
     type Lifetime = GasDI.Ports.Lifetime
     type Token<T = any> = GasDI.Ports.Token<T>
@@ -6,6 +10,9 @@ namespace GasDI {
         | { kind: 'value'; token: Token<T>; value: T }
         | { kind: 'factory'; token: Token<T>; lifetime: Lifetime; make: () => T }
 
+    /**
+     * Dependency injection container with support for multiple lifetimes
+     */
     export class Container {
         static readonly DEFAULT_SCOPE = 'default'
 

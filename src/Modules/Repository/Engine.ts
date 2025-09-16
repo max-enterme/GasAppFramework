@@ -1,11 +1,20 @@
+/**
+ * Repository Engine - Core repository functionality
+ */
+
 namespace Repository.Engine {
     type Idx = Map<string, number>
 
+    /**
+     * Creates a repository instance with the provided dependencies
+     * @param deps Configuration object with schema, store, codec, and optional logger
+     * @returns Repository instance with CRUD operations
+     */
     export function create<TEntity extends object, Key extends keyof TEntity>(deps: {
         schema: Repository.Ports.Schema<TEntity, Key>
         store: Repository.Ports.Store<TEntity>
         keyCodec: Repository.Ports.KeyCodec<TEntity, Key>
-        logger?: Shared.Ports.Logger
+        logger?: Shared.Types.Logger
     }) {
         const logger = deps.logger ?? { info: (_: string) => { }, error: (_: string) => { } }
         let rows: TEntity[] = []

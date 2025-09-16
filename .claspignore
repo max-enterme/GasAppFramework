@@ -1,13 +1,22 @@
-# Ignore node_modules and build outputs
+# Build outputs and dependencies
 node_modules/**
 dist/**
 build/**
 
-# Ignore node tooling/test files
+# Node.js tooling and test files
 test_node/**
-.eslintrc.cjs
-.eslintignore
-jest.config.cjs
+*.test.ts
+*.spec.ts
 
+# Development configuration files
+.eslintrc.*
+.eslintignore
+jest.config.*
+tsconfig.json
+package*.json
+
+# IDE and system files
 .vs/
+.vscode/
 .git/
+*.log
