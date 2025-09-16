@@ -79,7 +79,7 @@ namespace Spec_Workflow_Extended {
         TAssert.equals(inv.calls.map(c => c.name), ['h1', 'h2', 'h3'], 'handlers should be called in order')
         TAssert.isTrue(inv.calls[0].ctx.paramsJson !== null, 'h1 receives paramsJson')
         TAssert.isTrue(inv.calls[0].ctx.workflowId === 'wf', 'ctx.workflowId is wf')
-    })
+    }, 'EventSystem')
 
     T.it('sets instance to done after last step', () => {
         const { WF, inst } = newEngine()
@@ -88,7 +88,7 @@ namespace Spec_Workflow_Extended {
         const stored = inst.get(id)!
         TAssert.isTrue(stored.done === true, 'instance should be done')
         TAssert.equals(stored.cursor, 3, 'cursor should be at steps length')
-    })
+    }, 'EventSystem')
 
     T.it('enqueues resume when a step throws (retry path)', () => {
         const { WF, inv, enq, inst } = newEngine()
@@ -101,7 +101,7 @@ namespace Spec_Workflow_Extended {
         const s = inst.get(id)!
         TAssert.isTrue(s.done === false, 'instance should not be done after error')
         TAssert.equals(s.cursor, 1, 'cursor should remain at failing step index')
-    })
+    }, 'EventSystem')
 
     T.it('respects softTimeLimitMs (engine budget): stops mid-way and enqueues', () => {
         // 1ステップ実行ごとに 2ms 進むようにして、予算 2ms で中断を誘発
@@ -111,7 +111,7 @@ namespace Spec_Workflow_Extended {
         TAssert.isTrue(inv.calls.length >= 1, 'at least first step should run')
         TAssert.isTrue(inv.calls.length < 3, 'should not complete all steps within tight budget')
         TAssert.isTrue(enq.calls.length >= 1, 'should enqueue to continue')
-    })
+    }, 'EventSystem')
 
     T.it('respects per-step timeoutMs: breaks after step hits its timeout and enqueues', () => {
         const { WF, defs, inv, enq } = newEngine({ softTimeLimitMs: 60000, advanceBy: { h2: 5 } })
@@ -125,5 +125,5 @@ namespace Spec_Workflow_Extended {
         TAssert.equals(inv.calls.map(c => c.name).slice(0, 2), ['h1', 'h2'], 'h1 then h2 should run')
         TAssert.isTrue(inv.calls.length < 3, 'timeout should stop before h3')
         TAssert.isTrue(enq.calls.length >= 1, 'should enqueue to continue after timeout break')
-    })
+    }, 'EventSystem')
 }

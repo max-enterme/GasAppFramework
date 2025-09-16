@@ -12,7 +12,7 @@ namespace Spec_GasDI {
         TAssert.isTrue(a === 3.14, 'value ok')
         TAssert.isTrue(n1 !== n2, 'transient new each time')
         TAssert.isTrue(g1 === g2, 'singleton same instance')
-    })
+    }, 'GasDI')
 
     T.it('scoped lifetime differs per scope', () => {
         const root = new GasDI.Container()
@@ -24,7 +24,7 @@ namespace Spec_GasDI {
         const b1 = s2.resolve<any>('req')
         TAssert.isTrue(a1 === a2, 'same scope same instance')
         TAssert.isTrue(a1 !== b1, 'different scope different instance')
-    })
+    }, 'GasDI')
 
     T.it('decorators: property and parameter injection with Root', () => {
         GasDI.Root.registerValue('answer', 42)
@@ -46,12 +46,12 @@ namespace Spec_GasDI {
         TAssert.equals(out.a, 42, 'property injected')
         TAssert.equals(out.b, 42, 'method param injected')
         TAssert.equals(out.hi, 'hi', 'constructor param injected')
-    })
+    }, 'GasDI')
 
     T.it('optional injection does not throw when token missing', () => {
         @GasDI.Decorators.Resolve()
         class Foo { constructor(@GasDI.Decorators.Inject('missing', true) public x?: any) { } }
         const f = new (Foo as any)()
         TAssert.isTrue(f.x === undefined, 'optional param left undefined')
-    })
+    }, 'GasDI')
 }

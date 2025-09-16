@@ -18,14 +18,14 @@ namespace Spec_Locking {
         const eng = Locking.Engine.create({ store: new MemStore(), clock: new FixedClock(Date.now()), rand: new Rand() })
         const r1 = eng.acquire('docA', 'r', 10000, 'u1')
         TAssert.isTrue(r1.ok === true, 'reader1 should acquire')
-    })
+    }, 'Locking')
 
     T.it('writer denied when readers exist', () => {
         const eng = Locking.Engine.create({ store: new MemStore(), clock: new FixedClock(Date.now()), rand: new Rand() })
         const r1 = eng.acquire('docA', 'r', 10000, 'u1')
         const w1 = eng.acquire('docA', 'w', 10000, 'u2')
         TAssert.isTrue(r1.ok === true && w1.ok === false, 'writer should be denied')
-    })
+    }, 'Locking')
 
     T.it('extend and release work', () => {
         const eng = Locking.Engine.create({ store: new MemStore(), clock: new FixedClock(Date.now()), rand: new Rand() })
@@ -35,5 +35,5 @@ namespace Spec_Locking {
         TAssert.isTrue(ex.ok === true, 'extend ok')
         const rl = eng.release('docB', w.token)
         TAssert.isTrue(rl.ok === true, 'release ok')
-    })
+    }, 'Locking')
 }
