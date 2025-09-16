@@ -15,25 +15,25 @@ module.exports = {
         "test/_framework/**"
     ],
     rules: {
-        // GAS の namespace を許容
+        // Allow GAS namespaces
         "@typescript-eslint/no-namespace": "off",
         "no-inner-declarations": "off",
         "no-redeclare": "off",
 
-        // 空ブロックは catch だけ許容
+        // Allow empty blocks only in catch statements
         "no-empty": ["error", { "allowEmptyCatch": true }],
 
-        // 空関数の警告はオフ（namespace スタイル対策）
+        // Turn off empty function warnings (namespace style compatibility)
         "no-empty-function": "off",
         "@typescript-eslint/no-empty-function": "off",
 
-        // any を許可
+        // Allow any type
         "@typescript-eslint/no-explicit-any": "off",
 
         // GAS compatibility: triple slash references needed for type declarations
         "@typescript-eslint/triple-slash-reference": "off",
 
-        // 未使用変数チェック（特定の名前や "_" 始まりは許容）
+        // Check for unused variables (allow specific names and those starting with "_")
         "@typescript-eslint/no-unused-vars": ["warn", {
             "argsIgnorePattern": "^_",
             "varsIgnorePattern": "^(Shared|GasDI|Repository|Routing|EventSystem|StringHelper|Spec_.*|TestHelpers|_)$"
