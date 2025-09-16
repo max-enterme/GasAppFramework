@@ -57,8 +57,7 @@ export function loadNamespaceTs(...relPaths: string[]) {
  * Create code to extract a namespace (handles dotted namespaces)
  */
 function createNamespaceExtractor(namespaceName: string): string {
-    const parts = namespaceName.split('.')
-    let accessPath = namespaceName
+    const accessPath = namespaceName
     
     return `
         try { 
@@ -87,7 +86,12 @@ function setNestedNamespace(namespaceName: string, value: any): void {
         current = current[part]
     }
     
-    // Set the final value
+    // Set the final value by merging with existing namespace
     const finalPart = parts[parts.length - 1]
-    current[finalPart] = value
+    if (current[finalPart] && typeof current[finalPart] === 'object' && typeof value === 'object') {
+        // Merge objects instead of overwriting
+        Object.assign(current[finalPart], value)
+    } else {
+        current[finalPart] = value
+    }
 }

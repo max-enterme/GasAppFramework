@@ -47,7 +47,7 @@ describe('Routing Engine (Node.js)', () => {
     test('should handle wildcard routes', () => {
         const router = Routing.create()
         
-        router.register('/files/*', (ctx: any) => `Wildcard matched`)
+        router.register('/files/*', (_ctx: any) => `Wildcard matched`)
         
         const result = router.dispatch('/files/documents/test.txt', {} as any)
         expect(result).toBe('Wildcard matched')
