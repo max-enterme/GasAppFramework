@@ -31,8 +31,10 @@ namespace TestHelpers {
         export class MockClock implements Shared.Types.Clock {
             private currentTime: Date;
 
-            constructor(initialTime: Date = new Date()) {
-                this.currentTime = new Date(initialTime.getTime());
+            constructor(initialTime?: Date) {
+                // Use a specific valid date if no initial time provided to avoid GAS Date() issues
+                const baseTime = initialTime || new Date(2024, 0, 15, 10, 0, 0); // Jan 15, 2024 10:00:00
+                this.currentTime = new Date(baseTime.getTime());
             }
 
             now(): Date {
@@ -222,7 +224,7 @@ namespace TestHelpers {
             ) {}
 
             getDataRange(): MockRange {
-                return new MockRange(this.data);
+                return new MockRange(this.data, 0, 0, this.data.length, this.data[0]?.length || 0);
             }
 
             getRange(row: number, col: number, numRows?: number, numCols?: number): MockRange {
@@ -231,15 +233,7 @@ namespace TestHelpers {
                 const endRow = numRows ? startRow + numRows : this.data.length;
                 const endCol = numCols ? startCol + numCols : (this.data[0]?.length || 0);
                 
-                const rangeData: any[][] = [];
-                for (let r = startRow; r < endRow && r < this.data.length; r++) {
-                    const rowData: any[] = [];
-                    for (let c = startCol; c < endCol && c < (this.data[r]?.length || 0); c++) {
-                        rowData.push(this.data[r][c]);
-                    }
-                    rangeData.push(rowData);
-                }
-                return new MockRange(rangeData);
+                return new MockRange(this.data, startRow, startCol, endRow, endCol);
             }
 
             appendRow(values: any[]): void {
@@ -271,29 +265,58 @@ namespace TestHelpers {
         }
 
         export class MockRange {
-            constructor(private data: any[][]) {}
+            constructor(
+                private sheetData: any[][],
+                private startRow: number = 0,
+                private startCol: number = 0,
+                private endRow?: number,
+                private endCol?: number
+            ) {
+                this.endRow = endRow ?? sheetData.length;
+                this.endCol = endCol ?? (sheetData[0]?.length || 0);
+            }
 
             getValues(): any[][] {
-                return this.data.map(row => [...row]);
+                const result: any[][] = [];
+                for (let r = this.startRow; r < this.endRow! && r < this.sheetData.length; r++) {
+                    const rowData: any[] = [];
+                    for (let c = this.startCol; c < this.endCol! && c < (this.sheetData[r]?.length || 0); c++) {
+                        rowData.push(this.sheetData[r][c]);
+                    }
+                    result.push(rowData);
+                }
+                return result;
             }
 
             setValues(values: any[][]): void {
-                this.data = values.map(row => [...row]);
+                // Ensure sheet has enough rows and columns
+                for (let r = 0; r < values.length; r++) {
+                    const targetRow = this.startRow + r;
+                    while (this.sheetData.length <= targetRow) {
+                        this.sheetData.push([]);
+                    }
+                    
+                    for (let c = 0; c < values[r].length; c++) {
+                        const targetCol = this.startCol + c;
+                        while (this.sheetData[targetRow].length <= targetCol) {
+                            this.sheetData[targetRow].push('');
+                        }
+                        this.sheetData[targetRow][targetCol] = values[r][c];
+                    }
+                }
             }
 
             setValue(value: any): void {
                 // For single cell ranges, set the first cell
-                if (this.data.length > 0 && this.data[0].length > 0) {
-                    this.data[0][0] = value;
-                }
+                this.setValues([[value]]);
             }
 
             getNumRows(): number {
-                return this.data.length;
+                return Math.min(this.endRow! - this.startRow, this.sheetData.length - this.startRow);
             }
 
             getNumColumns(): number {
-                return this.data[0]?.length || 0;
+                return Math.min(this.endCol! - this.startCol, (this.sheetData[this.startRow]?.length || 0) - this.startCol);
             }
         }
 

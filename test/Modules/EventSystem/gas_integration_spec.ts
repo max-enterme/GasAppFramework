@@ -300,16 +300,34 @@ namespace Spec_EventSystem_GAS {
             const invoker = new EventSystem.Adapters.GAS.GlobalInvoker();
             const runLogger = new EventSystem.Adapters.GAS.LogOnlyRunLogger();
             
+            // Create required dependencies for trigger
+            const mockCheckpoint = {
+                get: (jobId: string) => null,
+                set: (jobId: string, iso: string) => {}
+            };
+            const mockLock = {
+                tryWait: (ms: number) => true,
+                release: () => {}
+            };
+            const mockLockFactory = {
+                acquire: () => mockLock
+            };
+            const mockClock = {
+                now: () => new Date('2024-01-15T14:00:00Z')
+            };
+            
             const trigger = EventSystem.Trigger.create({
-                jobs: jobStore,
-                scheduler,
-                invoker,
-                runLogger
+                jobStore: jobStore,
+                checkpoint: mockCheckpoint,
+                invoker: invoker,
+                lock: mockLockFactory,
+                clock: mockClock,
+                scheduler: scheduler,
+                runlog: runLogger
             });
             
             // Test: Run trigger (should execute hourly job)
-            const testTime = new Date('2024-01-15T14:00:00Z'); // Top of hour
-            trigger.run(testTime);
+            trigger.tick(); // Use tick() instead of run()
             
             // Verify: Handler was called and execution was logged
             TAssert.isTrue(handlerCalled, 'Handler should be called by trigger');
