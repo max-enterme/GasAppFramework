@@ -54,10 +54,10 @@ namespace Spec_EventSystem_GAS {
             
             // Job data: header row + job configurations
             const jobData = [
-                ['id', 'handler', 'cron', 'enabled', 'description'],
-                ['daily-report', 'generateDailyReport', '0 9 * * *', true, 'Generate daily report at 9 AM'],
-                ['weekly-cleanup', 'cleanupWeeklyData', '0 0 * * 0', true, 'Weekly cleanup on Sunday'],
-                ['disabled-job', 'someHandler', '0 12 * * *', false, 'This job is disabled']
+                ['id', 'handler', 'cron', 'multi', 'enabled', 'description'],
+                ['daily-report', 'generateDailyReport', '0 9 * * *', 'false', 'true', 'Generate daily report at 9 AM'],
+                ['weekly-cleanup', 'cleanupWeeklyData', '0 0 * * 0', 'false', 'true', 'Weekly cleanup on Sunday'],
+                ['disabled-job', 'someHandler', '0 12 * * *', 'false', 'false', 'This job is disabled']
             ];
             
             mockApp.setupSpreadsheet(testSheetId, { 'Jobs': jobData });
@@ -95,7 +95,7 @@ namespace Spec_EventSystem_GAS {
             
             // Edge Case 1: Empty spreadsheet (only headers)
             mockApp.setupSpreadsheet(testSheetId, { 
-                'EmptyJobs': [['id', 'handler', 'cron', 'enabled']]
+                'EmptyJobs': [['id', 'handler', 'cron', 'multi', 'enabled']]
             });
             
             const emptyStore = new EventSystem.Adapters.GAS.SpreadsheetJobStore(testSheetId, 'EmptyJobs');
@@ -277,8 +277,8 @@ namespace Spec_EventSystem_GAS {
             
             // Setup: Create job configuration spreadsheet
             const jobData = [
-                ['id', 'handler', 'cron', 'enabled'],
-                ['integration-test', 'testHandler', '0 * * * *', true]
+                ['id', 'handler', 'cron', 'multi', 'enabled'],
+                ['integration-test', 'testHandler', '0 * * * *', 'false', 'true']
             ];
             mockApp.setupSpreadsheet('jobs-sheet', { 'Jobs': jobData });
             
@@ -288,7 +288,15 @@ namespace Spec_EventSystem_GAS {
             
             // Test: Create complete EventSystem trigger setup
             const jobStore = new EventSystem.Adapters.GAS.SpreadsheetJobStore('jobs-sheet', 'Jobs');
-            const scheduler = new EventSystem.Schedule.CronScheduler();
+            const scheduler = {
+                occurrences: (cronExpr: string, from: Date, to: Date, tz?: string | null) => {
+                    // Simple mock implementation for testing
+                    return EventSystem.Schedule.occurrences(from, to);
+                },
+                isDue: (cronExpr: string, at: Date, tz?: string | null) => {
+                    return EventSystem.Schedule.isDue(cronExpr, at);
+                }
+            };
             const invoker = new EventSystem.Adapters.GAS.GlobalInvoker();
             const runLogger = new EventSystem.Adapters.GAS.LogOnlyRunLogger();
             

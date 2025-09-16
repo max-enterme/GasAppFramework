@@ -152,7 +152,7 @@ namespace Spec_Locking_GAS {
             };
             
             const store = new Locking.Adapters.GAS.PropertiesStore();
-            const mockClock = new TestHelpers.Doubles.MockClock(new Date('2024-01-15T10:00:00Z'));
+            const mockClock = new TestHelpers.Doubles.MockClock(new Date(2024, 0, 15, 10, 0, 0));
             const logger = new TestHelpers.Doubles.MockLogger();
             
             const lockEngine = Locking.Engine.create({

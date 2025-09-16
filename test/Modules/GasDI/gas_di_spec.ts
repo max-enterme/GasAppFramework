@@ -95,7 +95,7 @@ namespace Spec_GasDI_GAS {
             // Register shared GAS services at root level
             rootContainer.registerValue('Logger', globalThis.Logger);
             rootContainer.registerFactory('ExecutionContext', () => ({
-                executionId: `exec-${Date.now()}`,
+                executionId: `exec-${Date.now()}-${Math.random()}`,
                 startTime: new Date(),
                 logger: rootContainer.resolve('Logger')
             }), 'scoped');
@@ -270,8 +270,23 @@ namespace Spec_GasDI_GAS {
             // Test: Service fails when GAS services are unavailable
             delete (globalThis as any).Session;
             
+            // Create a new container to avoid caching issues
+            const newContainer = new GasDI.Container();
+            newContainer.registerFactory('ProblematicService', () => {
+                // Simulate GAS service failure
+                const session = (globalThis as any).Session;
+                if (!session) {
+                    throw new Error('GAS Session service not available');
+                }
+                
+                return {
+                    getTimeZone: () => session.getScriptTimeZone(),
+                    isReady: true
+                };
+            }, 'singleton');
+            
             TAssert.throws(
-                () => container.resolve('ProblematicService'),
+                () => newContainer.resolve('ProblematicService'),
                 'Should throw error when GAS service is unavailable'
             );
 

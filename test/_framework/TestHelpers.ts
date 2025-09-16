@@ -246,6 +246,20 @@ namespace TestHelpers {
                 this.data.push([...values]);
             }
 
+            getLastColumn(): number {
+                return Math.max(0, ...this.data.map(row => row.length));
+            }
+
+            getLastRow(): number {
+                return this.data.length;
+            }
+
+            deleteRow(rowIndex: number): void {
+                if (rowIndex > 0 && rowIndex <= this.data.length) {
+                    this.data.splice(rowIndex - 1, 1); // Convert to 0-based
+                }
+            }
+
             // Helper for tests
             setData(data: any[][]): void {
                 this.data = data.map(row => [...row]);
@@ -265,6 +279,13 @@ namespace TestHelpers {
 
             setValues(values: any[][]): void {
                 this.data = values.map(row => [...row]);
+            }
+
+            setValue(value: any): void {
+                // For single cell ranges, set the first cell
+                if (this.data.length > 0 && this.data[0].length > 0) {
+                    this.data[0][0] = value;
+                }
             }
 
             getNumRows(): number {
