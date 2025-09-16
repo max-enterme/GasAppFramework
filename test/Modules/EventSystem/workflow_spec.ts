@@ -1,11 +1,6 @@
-/// <reference path="../../_framework/Assert.ts" />
-/// <reference path="../../_framework/Test.ts" />
-/// <reference path="../../_framework/Runner.ts" />
-/// <reference path="../../_framework/GasReporter.ts" />
-/// <reference path="../../../src/Modules/EventSystem/Core.Types.d.ts" />
-/// <reference path="../../../src/Modules/EventSystem/Workflow.Engine.ts" />
-
 namespace Spec_Workflow_Extended {
+    import Workflow = EventSystem
+
     // --- Test doubles ---
     class Defs implements Workflow.Ports.DefinitionStore {
         private defs: Workflow.Ports.Definition[] = [
@@ -109,7 +104,7 @@ namespace Spec_Workflow_Extended {
     })
 
     T.it('respects softTimeLimitMs (engine budget): stops mid-way and enqueues', () => {
-        // 1ƒXƒeƒbƒvÀs‚²‚Æ‚É 2ms i‚Ş‚æ‚¤‚É‚µ‚ÄA—\Z 2ms ‚Å’†’f‚ğ—U”­
+        // 1ã‚¹ãƒ†ãƒƒãƒ—å®Ÿè¡Œã”ã¨ã« 2ms é€²ã‚€ã‚ˆã†ã«ã—ã¦ã€äºˆç®— 2ms ã§ä¸­æ–­ã‚’èª˜ç™º
         const { WF, inv, enq } = newEngine({ softTimeLimitMs: 2, advanceBy: { h1: 2, h2: 2, h3: 2 } })
         const id = WF.start('wf')
         WF.resume(id)
@@ -122,7 +117,7 @@ namespace Spec_Workflow_Extended {
         const { WF, defs, inv, enq } = newEngine({ softTimeLimitMs: 60000, advanceBy: { h2: 5 } })
         defs.setSteps([
             { workflowId: 'wf', index: 0, handler: 'h1', paramsJson: null, timeoutMs: null },
-            { workflowId: 'wf', index: 1, handler: 'h2', paramsJson: null, timeoutMs: 1 }, // h2 ‚Ì‹–—e 1ms
+            { workflowId: 'wf', index: 1, handler: 'h2', paramsJson: null, timeoutMs: 1 }, // h2 ã®è¨±å®¹ 1ms
             { workflowId: 'wf', index: 2, handler: 'h3', paramsJson: null, timeoutMs: null }
         ])
         const id = WF.start('wf')

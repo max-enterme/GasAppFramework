@@ -3,9 +3,9 @@ namespace Repository.Engine {
 
     export function create<TEntity extends object, Key extends keyof TEntity>(deps: {
         schema: Repository.Ports.Schema<TEntity, Key>
-        store: Repository.Ports.Store<TEntity, Key>
+        store: Repository.Ports.Store<TEntity>
         keyCodec: Repository.Ports.KeyCodec<TEntity, Key>
-        logger?: Repository.Ports.Logger
+        logger?: Shared.Ports.Logger
     }) {
         const logger = deps.logger ?? { info: (_: string) => { }, error: (_: string) => { } }
         let rows: TEntity[] = []
@@ -19,16 +19,6 @@ namespace Repository.Engine {
 
         const keyToString = (key: Pick<TEntity, Key>): string => {
             return deps.keyCodec.stringify(key)
-        }
-
-        const parseKeyString = (s: string): Pick<TEntity, Key> => {
-            const arr: any = (deps.keyCodec as any).parse(s)
-            if (Array.isArray(arr)) {
-                const k: any = {}
-                deps.schema.keyParameters.forEach((p, i) => { k[p as string] = arr[i] ?? null })
-                return k
-            }
-            return arr as any
         }
 
         const buildIndex = () => {

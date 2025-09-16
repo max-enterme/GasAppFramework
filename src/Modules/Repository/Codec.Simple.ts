@@ -1,14 +1,6 @@
 namespace Repository.Codec {
     export function simple<TEntity extends object, Key extends keyof TEntity>(delim = '|') {
         const esc = (s: string) => s.replace(/\\/g, '\\\\').replace(new RegExp(`[${delim}]`, 'g'), m => '\\' + m)
-        const unesc = (s: string) => {
-            let out = ''
-            for (let i = 0; i < s.length; i++) {
-                const c = s[i]
-                if (c === '\\' && i + 1 < s.length) { out += s[i + 1]; i++ } else out += c
-            }
-            return out
-        }
         return {
             stringify(key: any): string {
                 const parts: string[] = []

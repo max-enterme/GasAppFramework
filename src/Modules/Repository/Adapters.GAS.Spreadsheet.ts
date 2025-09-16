@@ -7,14 +7,14 @@ namespace Repository.Adapters.GAS {
     }
 
     export class SpreadsheetStore<TEntity extends object, Key extends keyof TEntity>
-        implements Repository.Ports.Store<TEntity, Key> {
+        implements Repository.Ports.Store<TEntity> {
 
         constructor(
             private sheetId: string,
             private sheetName: string,
             private schema: Repository.Ports.Schema<TEntity, Key>,
             private options: Options = {}
-        ){}
+        ) { }
 
         private getSheet_() {
             const ss = SpreadsheetApp.openById(this.sheetId)

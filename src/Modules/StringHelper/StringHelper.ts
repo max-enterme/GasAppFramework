@@ -11,11 +11,8 @@ namespace StringHelper {
     export function formatDate(date: Date, format: string, tz?: string | null): string {
         // GAS 環境では Utilities + Session を使用。その他環境では軽量フォーマッタ。
         try {
-            // @ts-ignore
             if (typeof Utilities !== 'undefined' && typeof Session !== 'undefined' && Session.getScriptTimeZone) {
-                // @ts-ignore
                 const zone = typeof tz === 'string' && tz.trim() ? tz : Session.getScriptTimeZone()
-                // @ts-ignore
                 return Utilities.formatDate(date, zone, format)
             }
         } catch { }
@@ -90,7 +87,7 @@ namespace StringHelper {
         let inD = false
         for (let i = 0; i < input.length; i++) {
             const c = input[i]
-            if (c === '\\') { cur += c; if (i + 1 < input.length) { cur += input[++i] }; continue }
+            if (c === '\\') { cur += c; if (i + 1 < input.length) { cur += input[++i] } continue }
             if (c === '\'' && !inD) { inS = !inS; cur += c; continue }
             if (c === '"' && !inS) { inD = !inD; cur += c; continue }
             if (!inS && !inD) {
@@ -113,7 +110,7 @@ namespace StringHelper {
         const s = src.trim()
         if (!s) return undefined
         if ((s.startsWith('"') && s.endsWith('"')) || (s.startsWith('\'') && s.endsWith('\''))) {
-            try { return JSON.parse(s.replace(/\'/g, '"')) } catch { return s.slice(1, -1) }
+            try { return JSON.parse(s.replace(/'/g, '"')) } catch { return s.slice(1, -1) }
         }
         if (/^\d+(\.\d+)?$/.test(s)) return Number(s)
         if (s === 'true') return true

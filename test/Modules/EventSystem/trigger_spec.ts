@@ -1,11 +1,3 @@
-/// <reference path="../../_framework/Assert.ts" />
-/// <reference path="../../_framework/Test.ts" />
-/// <reference path="../../_framework/Runner.ts" />
-/// <reference path="../../_framework/GasReporter.ts" />
-/// <reference path="../../../src/Modules/EventSystem/Core.Types.d.ts" />
-/// <reference path="../../../src/Modules/EventSystem/Trigger.Engine.ts" />
-/// <reference path="../../../src/Modules/EventSystem/Schedule.Engine.ts" />
-
 namespace Spec_Trigger {
     class FakeJobStore implements EventSystem.Ports.JobStore {
         constructor(private jobs: EventSystem.Ports.Job[]) { }
@@ -17,11 +9,30 @@ namespace Spec_Trigger {
         set(id: string, v: string) { this.m.set(id, v); }
     }
     class FakeInvoker implements EventSystem.Ports.Invoker {
-        calls: any[] = []; invoke(name: string, ctx: any) { this.calls.push({ name, ctx }); }
+        calls: any[] = [];
+        invoke(name: string, ctx: any) { this.calls.push({ name, ctx }); }
     }
-    class FakeLock implements EventSystem.Ports.Lock { private held = false; tryWait() { if (this.held) return false; this.held = true; return true; } release() { this.held = false; } }
-    class FakeLockFactory implements EventSystem.Ports.LockFactory { private lk = new FakeLock(); acquire() { return this.lk; } }
-    class FakeClock implements EventSystem.Ports.Clock { constructor(private d: Date) { } now() { return new Date(this.d.getTime()); } }
+    class FakeLock implements EventSystem.Ports.Lock {
+        private held = false;
+        tryWait() { if (this.held) return false; this.held = true; return true; }
+        release() { this.held = false; }
+    }
+    class FakeLockFactory implements EventSystem.Ports.LockFactory {
+        private lk = new FakeLock();
+        acquire() { return this.lk; }
+    }
+    class FakeClock implements EventSystem.Ports.Clock {
+        constructor(private d: Date) { }
+        now() { return new Date(this.d.getTime()); }
+    }
+    class FakeSchduler implements EventSystem.Ports.Scheduler {
+        occurrences(cronExpr: string, from: Date, to: Date, _tz?: string | null): Date[] {
+            return EventSystem.Schedule.occurrences(from, to);
+        }
+        isDue(cronExpr: string, at: Date, _tz?: string | null): boolean {
+            return EventSystem.Schedule.isDue(cronExpr, at);
+        }
+    }
 
     T.it("multi=false runs only last due occurrence", () => {
         const now = new Date("2025-09-12T00:05:00Z");
@@ -32,7 +43,7 @@ namespace Spec_Trigger {
             invoker: inv,
             lock: new FakeLockFactory(),
             clock: new FakeClock(now),
-            scheduler: EventSystem.Schedule,
+            scheduler: new FakeSchduler(),
         });
         es.tick();
         TAssert.isTrue(inv.calls.length === 1, "should run last only");

@@ -16,9 +16,7 @@ namespace EventSystem.Trigger {
     function ensureTzString(tz?: string | null): string {
         if (typeof tz === "string" && tz.trim()) return tz;
         try {
-            // @ts-ignore GAS
             if (typeof Session !== "undefined" && Session.getScriptTimeZone) {
-                // @ts-ignore
                 return Session.getScriptTimeZone();
             }
         } catch { }

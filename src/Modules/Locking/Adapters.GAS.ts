@@ -13,11 +13,11 @@ namespace Locking.Adapters.GAS {
         }
     }
 
-    export class SystemClock implements Locking.Ports.Clock {
+    export class SystemClock implements Shared.Ports.Clock {
         now(): Date { return new Date() }
     }
 
-    export class GasLogger implements Locking.Ports.Logger {
+    export class GasLogger implements Shared.Ports.Logger {
         info(msg: string): void { Logger.log(msg) }
         error(msg: string): void { Logger.log(msg) }
     }

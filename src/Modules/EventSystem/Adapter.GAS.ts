@@ -6,12 +6,20 @@ namespace EventSystem.Adapters.GAS {
             fn(ctx);
         }
     }
-    export class SystemClock implements EventSystem.Ports.Clock { now() { return new Date(); } }
-    export class GasLogger implements EventSystem.Ports.Logger { info(m: string) { Logger.log(m); } error(m: string) { Logger.log(m); } }
-    export class LogOnlyRunLogger implements EventSystem.Ports.RunLogger { log(e: any) { Logger.log(JSON.stringify(e)); } }
+    export class SystemClock implements Shared.Ports.Clock {
+        now() { return new Date(); }
+    }
+    export class GasLogger implements Shared.Ports.Logger {
+        info(m: string) { Logger.log(m); }
+        error(m: string) { Logger.log(m); }
+    }
+    export class LogOnlyRunLogger implements EventSystem.Ports.RunLogger {
+        log(e: any) { Logger.log(JSON.stringify(e)); }
+    }
 
     export class SpreadsheetJobStore implements EventSystem.Ports.JobStore {
         constructor(private sheetId: string, private sheetName: string) { }
+
         load(): EventSystem.Ports.Job[] {
             const ss = SpreadsheetApp.openById(this.sheetId);
             const sh = ss.getSheetByName(this.sheetName);
@@ -70,9 +78,9 @@ namespace EventSystem.Adapters.GAS {
         }
     }
 
-    export class SpreadsheetDefinitionStore implements Workflow.Ports.DefinitionStore {
+    export class SpreadsheetDefinitionStore implements Ports.DefinitionStore {
         constructor(private sheetId: string, private wfSheet: string, private stepSheet: string) { }
-        loadDefs(): Workflow.Ports.Definition[] {
+        loadDefs(): Ports.Definition[] {
             const ss = SpreadsheetApp.openById(this.sheetId);
             const sh = ss.getSheetByName(this.wfSheet);
             if (!sh) throw new Error(`Sheet not found: ${this.wfSheet}`);
@@ -89,7 +97,7 @@ namespace EventSystem.Adapters.GAS {
             const NAME = header.indexOf("name");
             const ENABLED = idx("enabled");
             const TZ = header.indexOf("defaultTz");
-            const out: Workflow.Ports.Definition[] = [];
+            const out: Ports.Definition[] = [];
             for (const r of rows) {
                 const id = String(r[ID]).trim();
                 if (!id) continue;
@@ -102,7 +110,7 @@ namespace EventSystem.Adapters.GAS {
             }
             return out;
         }
-        loadSteps(workflowId: string): Workflow.Ports.StepDef[] {
+        loadSteps(workflowId: string): Ports.StepDef[] {
             const ss = SpreadsheetApp.openById(this.sheetId);
             const sh = ss.getSheetByName(this.stepSheet);
             if (!sh) throw new Error(`Sheet not found: ${this.stepSheet}`);
@@ -120,7 +128,7 @@ namespace EventSystem.Adapters.GAS {
             const HANDLER = idx("handler");
             const PARAMS = header.indexOf("paramsJson");
             const TIMEOUT = header.indexOf("timeoutMs");
-            const out: Workflow.Ports.StepDef[] = [];
+            const out: Ports.StepDef[] = [];
             for (const r of rows) {
                 if (String(r[WF]).trim() !== workflowId) continue;
                 out.push({
@@ -134,22 +142,22 @@ namespace EventSystem.Adapters.GAS {
             return out.sort((a, b) => a.index - b.index);
         }
     }
-    export class ScriptPropertiesInstanceStore implements Workflow.Ports.InstanceStore {
+    export class ScriptPropertiesInstanceStore implements Ports.InstanceStore {
         constructor(private prefix: string = "wf:inst:") { }
-        create(i: Workflow.Ports.Instance): void {
+        create(i: Ports.Instance): void {
             const p = PropertiesService.getScriptProperties();
             if (p.getProperty(this.prefix + i.instanceId)) throw new Error("instance exists: " + i.instanceId);
             p.setProperty(this.prefix + i.instanceId, JSON.stringify(i));
         }
-        get(instanceId: string): Workflow.Ports.Instance | null {
+        get(instanceId: string): Ports.Instance | null {
             const s = PropertiesService.getScriptProperties().getProperty(this.prefix + instanceId);
             return s ? JSON.parse(s) : null;
         }
-        set(i: Workflow.Ports.Instance): void {
+        set(i: Ports.Instance): void {
             PropertiesService.getScriptProperties().setProperty(this.prefix + i.instanceId, JSON.stringify(i));
         }
     }
-    export class OneTimeTriggerEnqueuer implements Workflow.Ports.Enqueuer {
+    export class OneTimeTriggerEnqueuer implements Ports.Enqueuer {
         constructor(private resumeFnName: string = "workflow_resume") { }
         enqueueResume(instanceId: string, delayMs: number = 0): void {
             const when = new Date(Date.now() + Math.max(0, delayMs));

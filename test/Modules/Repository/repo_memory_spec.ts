@@ -1,14 +1,4 @@
-/// <reference path="../../_framework/Assert.ts" />
-/// <reference path="../../_framework/Test.ts" />
-/// <reference path="../../_framework/Runner.ts" />
-/// <reference path="../../_framework/GasReporter.ts" />
-/// <reference path="../../../src/Modules/Repository/Core.Types.d.ts" />
-/// <reference path="../../../src/Modules/Repository/Errors.ts" />
-/// <reference path="../../../src/Modules/Repository/Codec.Simple.ts" />
-/// <reference path="../../../src/Modules/Repository/Engine.ts" />
-/// <reference path="../../../src/Modules/Repository/Adapters.Memory.ts" />
-
-namespace RepoSpec {
+namespace Spec_Repo {
     type User = { id: string; org: string; name: string; age: number | null }
     type Key = 'id' | 'org'
 
@@ -30,7 +20,7 @@ namespace RepoSpec {
     }
 
     // Compose a codec that lists keys in schema.keyParameters order
-    const codec = (function(){
+    const codec = (function () {
         const c = Repository.Codec.simple<User, Key>(',')
         return {
             stringify(key: Pick<User, Key>): string {
@@ -43,10 +33,10 @@ namespace RepoSpec {
         } as Repository.Ports.KeyCodec<User, Key>
     })()
 
-    class Log implements Repository.Ports.Logger { info(_: string){} error(_: string){} }
+    class Log implements Repository.Ports.Logger { info(_: string) { } error(_: string) { } }
 
     T.it('upsert adds and updates, then find/findAll work', () => {
-        const store = new Repository.Adapters.Memory.Store<User, Key>()
+        const store = new Repository.Adapters.Memory.Store<User>()
         const repo = Repository.Engine.create<User, Key>({ schema, store, keyCodec: codec, logger: new Log() })
         repo.load()
         const r1 = repo.upsert({ id: 'u1', org: 'o1', name: ' Alice ', age: 20 })
@@ -68,7 +58,7 @@ namespace RepoSpec {
     })
 
     T.it('delete removes rows by key', () => {
-        const store = new Repository.Adapters.Memory.Store<User, Key>()
+        const store = new Repository.Adapters.Memory.Store<User>()
         const repo = Repository.Engine.create<User, Key>({ schema, store, keyCodec: codec })
         repo.load()
         repo.upsert([{ id: 'u1', org: 'o1', name: 'n1', age: null }, { id: 'u2', org: 'o1', name: 'n2', age: null }])
@@ -79,14 +69,14 @@ namespace RepoSpec {
     })
 
     T.it('invalid key throws RepositoryError', () => {
-        const store = new Repository.Adapters.Memory.Store<User, Key>()
+        const store = new Repository.Adapters.Memory.Store<User>()
         const repo = Repository.Engine.create<User, Key>({ schema, store, keyCodec: codec })
         repo.load()
         TAssert.throws(() => repo.upsert({ id: '', org: 'o1', name: 'x', age: null }), 'missing key should throw')
     })
 
     T.it('schema hooks onBeforeSave/afterLoad are applied', () => {
-        const store = new Repository.Adapters.Memory.Store<User, Key>()
+        const store = new Repository.Adapters.Memory.Store<User>()
         const repo = Repository.Engine.create<User, Key>({ schema, store, keyCodec: codec })
         repo.load()
         repo.upsert({ id: 'u3', org: 'o1', name: ' Carol  ', age: 33 })

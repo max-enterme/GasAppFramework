@@ -1,8 +1,8 @@
 namespace GasDI {
     type Lifetime = GasDI.Ports.Lifetime
-    type Token<T=any> = GasDI.Ports.Token<T>
+    type Token<T = any> = GasDI.Ports.Token<T>
 
-    type Reg<T=any> =
+    type Reg<T = any> =
         | { kind: 'value'; token: Token<T>; value: T }
         | { kind: 'factory'; token: Token<T>; lifetime: Lifetime; make: () => T }
 
@@ -18,9 +18,9 @@ namespace GasDI {
         constructor(parent?: Container) { this.parent = parent }
 
         createScope(name?: string): Container {
-            const c = new Container(this)
-            ;(c as any)._scopeName = name && name.trim().length ? name : `request-${Date.now()}`
-            return c
+            const child: Container = new Container(this);
+            (child as any)._scopeName = name && name.trim().length ? name : `request-${Date.now()}`;
+            return child;
         }
 
         registerValue<T>(token: Token<T>, value: T): this {

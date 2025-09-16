@@ -1,3 +1,4 @@
+type Brand<K, B> = K & { readonly __brand?: B };
 declare namespace Repository {
     namespace Ports {
         type ErrorCode = 'InvalidKey' | 'HeaderMissing' | 'HeaderDuplicate' | 'CodecError' | 'StoreError'
@@ -22,7 +23,7 @@ declare namespace Repository {
             parse(s: string): Pick<TEntity, Key>
         }
 
-        interface Store<TEntity extends object, Key extends keyof TEntity> {
+        interface Store<TEntity extends object> {
             load(): { rows: TEntity[] }
             saveAdded(rows: TEntity[]): void
             saveUpdated(rows: { index: number; row: TEntity }[]): void

@@ -22,7 +22,7 @@ namespace Routing {
         return segs
     }
 
-    function matchSegments<Ctx, Res>(segs: Segment[], parts: string[]): { ok: true; params: any } | { ok: false } {
+    function matchSegments(segs: Segment[], parts: string[]): { ok: true; params: any } | { ok: false } {
         const params: any = {}
         let i = 0
         for (; i < segs.length; i++) {
@@ -37,7 +37,7 @@ namespace Routing {
         return { ok: true, params }
     }
 
-    export type Router<Ctx=any, Res=any> = {
+    export type Router<Ctx = any, Res = any> = {
         use(mw: Ports.Middleware<Ctx, Res>): Router<Ctx, Res>
         register(path: string, handler: Ports.Handler<Ctx, Res>): Router<Ctx, Res>
         registerAll(map: { [path: string]: Ports.Handler<Ctx, Res> }): Router<Ctx, Res>
@@ -46,7 +46,7 @@ namespace Routing {
         dispatch(path: string, ctx: Ctx): Res
     }
 
-    export function create<Ctx=any, Res=any>(logger?: Ports.Logger): Router<Ctx, Res> {
+    export function create<Ctx = any, Res = any>(logger?: Ports.Logger): Router<Ctx, Res> {
         function specificity(segments: any[]): number {
             let score = 0
             for (const s of segments) {
@@ -58,13 +58,13 @@ namespace Routing {
         }
         const mws: Ports.Middleware<Ctx, Res>[] = []
         const routes: Route<Ctx, Res>[] = []
-        const log = logger ?? { info: (_: string) => {}, error: (_: string) => {} }
+        const log = logger ?? { info: (_: string) => { }, error: (_: string) => { } }
 
         function use(mw: Ports.Middleware<Ctx, Res>): Router<Ctx, Res> {
             mws.push(mw); return api
         }
         function register(path: string, handler: Ports.Handler<Ctx, Res>): Router<Ctx, Res> {
-            routes.push({ path, segments: parsePath(path), handler }); routes.sort((a,b)=>specificity(b.segments)-specificity(a.segments)); return api
+            routes.push({ path, segments: parsePath(path), handler }); routes.sort((a, b) => specificity(b.segments) - specificity(a.segments)); return api
         }
         function registerAll(map: { [path: string]: Ports.Handler<Ctx, Res> }): Router<Ctx, Res> {
             for (const k of Object.keys(map)) register(k, map[k]); return api
@@ -76,7 +76,7 @@ namespace Routing {
         function resolve(path: string): { handler: Ports.Handler<Ctx, Res>, params: any } | null {
             const parts = path.split('/').filter(x => x.length > 0)
             for (const r of routes) {
-                const m = matchSegments<Ctx, Res>(r.segments, parts)
+                const m = matchSegments(r.segments, parts)
                 if ((m as any).ok) {
                     const params = (m as any).params || {}
                     const baseHandler = r.handler

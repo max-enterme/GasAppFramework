@@ -1,10 +1,4 @@
-/// <reference path="../../_framework/Assert.ts" />
-/// <reference path="../../_framework/Test.ts" />
-/// <reference path="../../_framework/Runner.ts" />
-/// <reference path="../../_framework/GasReporter.ts" />
-/// <reference path="../../../src/Modules/StringHelper/StringHelper.ts" />
-
-namespace StringHelperSpec {
+namespace Spec_StringHelper {
     T.it('formatString replaces indexed placeholders', () => {
         const s = StringHelper.formatString('Hello {0}, {1}!', 'Alice', 'World')
         TAssert.equals(s, 'Hello Alice, World!', 'indexed replacement works')

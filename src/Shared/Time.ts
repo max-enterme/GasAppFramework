@@ -3,33 +3,29 @@ namespace Shared.Time {
         const s = (tz ?? '').trim()
         if (s) return s
         try {
-            // @ts-ignore
             if (typeof Session !== 'undefined' && Session.getScriptTimeZone) {
-                // @ts-ignore
                 return Session.getScriptTimeZone() || 'Etc/GMT'
             }
-        } catch {}
+        } catch { }
         return 'Etc/GMT'
     }
 
     export function format(date: Date, pattern: string, tz?: string | null): string {
         const zone = ensureTimeZone(tz)
         try {
-            // @ts-ignore
             if (typeof Utilities !== 'undefined' && Utilities.formatDate) {
-                // @ts-ignore
                 return Utilities.formatDate(date, zone, pattern)
             }
-        } catch {}
+        } catch { }
         // fallback (UTC-like simple tokens)
-        const pad = (n: number, w=2) => String(n).padStart(w,'0')
+        const pad = (n: number, w = 2) => String(n).padStart(w, '0')
         const d = new Date(date.getTime())
         const y = d.getUTCFullYear()
-        const M = pad(d.getUTCMonth()+1)
+        const M = pad(d.getUTCMonth() + 1)
         const dd = pad(d.getUTCDate())
         const H = pad(d.getUTCHours())
         const m = pad(d.getUTCMinutes())
         const s = pad(d.getUTCSeconds())
-        return pattern.replace(/yyyy/g,String(y)).replace(/MM/g,M).replace(/dd/g,dd).replace(/HH/g,H).replace(/mm/g,m).replace(/ss/g,s)
+        return pattern.replace(/yyyy/g, String(y)).replace(/MM/g, M).replace(/dd/g, dd).replace(/HH/g, H).replace(/mm/g, m).replace(/ss/g, s)
     }
 }

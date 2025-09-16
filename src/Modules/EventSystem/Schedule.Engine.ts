@@ -1,6 +1,5 @@
-// Placeholder (replace with your real cron evaluator). Minute-granularity.
 namespace EventSystem.Schedule {
-    export function occurrences(cronExpr: string, from: Date, to: Date, tz?: string | null): Date[] {
+    export function occurrences(from: Date, to: Date): Date[] {
         const out: Date[] = [];
         let cur = new Date(from.getTime());
         cur.setSeconds(0, 0);
@@ -10,7 +9,7 @@ namespace EventSystem.Schedule {
         }
         return out;
     }
-    export function isDue(cronExpr: string, at: Date, tz?: string | null): boolean {
+    export function isDue(cronExpr: string, at: Date): boolean {
         return at.getSeconds() === 0;
     }
 }

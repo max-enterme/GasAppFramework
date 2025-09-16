@@ -1,10 +1,3 @@
-/// <reference path="../../_framework/Assert.ts" />
-/// <reference path="../../_framework/Test.ts" />
-/// <reference path="../../_framework/Runner.ts" />
-/// <reference path="../../_framework/GasReporter.ts" />
-/// <reference path="../../../src/Modules/Locking/Core.Types.d.ts" />
-/// <reference path="../../../src/Modules/Locking/Engine.ts" />
-
 namespace Spec_Locking {
     class MemStore implements Locking.Ports.Store {
         private m = new Map<string, string>()
@@ -16,7 +9,10 @@ namespace Spec_Locking {
         constructor(private t: number) { }
         now(): Date { return new Date(this.t) }
     }
-    class Rand implements Locking.Ports.Random { next() { return 0.123456789 } }
+    class Rand implements Locking.Ports.Random {
+        next(): number { return Math.random(); }
+        uuid(): string { return 'stub-uuid'; }
+    }
 
     T.it('reader can acquire when no writer', () => {
         const eng = Locking.Engine.create({ store: new MemStore(), clock: new FixedClock(Date.now()), rand: new Rand() })

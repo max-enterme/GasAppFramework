@@ -1,24 +1,14 @@
-/// <reference path="../../_framework/Assert.ts" />
-/// <reference path="../../_framework/Test.ts" />
-/// <reference path="../../_framework/Runner.ts" />
-/// <reference path="../../_framework/GasReporter.ts" />
-/// <reference path="../../../src/Modules/GasDI/Core.Types.d.ts" />
-/// <reference path="../../../src/Modules/GasDI/Container.ts" />
-/// <reference path="../../../src/Modules/GasDI/Decorators.ts" />
-/// <reference path="../../../src/Modules/GasDI/GenericFactory.ts" />
-/// <reference path="../../../src/Modules/GasDI/Root.ts" />
-
-namespace GasDISpec {
+namespace Spec_GasDI {
     T.it('register and resolve values/factories with lifetimes', () => {
         const c = new GasDI.Container()
         c.registerValue('pi', 3.14)
         c.registerFactory('now', () => ({ t: Math.random() }), 'transient')
         c.registerFactory('cfg', () => ({ a: 1 }), 'singleton')
         const a = c.resolve<number>('pi')
-        const n1 = c.resolve<{t:number}>('now')
-        const n2 = c.resolve<{t:number}>('now')
-        const g1 = c.resolve<{a:number}>('cfg')
-        const g2 = c.resolve<{a:number}>('cfg')
+        const n1 = c.resolve<{ t: number }>('now')
+        const n2 = c.resolve<{ t: number }>('now')
+        const g1 = c.resolve<{ a: number }>('cfg')
+        const g2 = c.resolve<{ a: number }>('cfg')
         TAssert.isTrue(a === 3.14, 'value ok')
         TAssert.isTrue(n1 !== n2, 'transient new each time')
         TAssert.isTrue(g1 === g2, 'singleton same instance')
@@ -38,13 +28,13 @@ namespace GasDISpec {
 
     T.it('decorators: property and parameter injection with Root', () => {
         GasDI.Root.registerValue('answer', 42)
-        GasDI.Root.registerFactory('svc', () => ({ hello(){ return 'hi' } }), 'singleton')
+        GasDI.Root.registerFactory('svc', () => ({ hello() { return 'hi' } }), 'singleton')
 
         @GasDI.Decorators.Resolve()
         class Demo {
             @GasDI.Decorators.Inject('answer') private a!: number
 
-            constructor(@GasDI.Decorators.Inject('svc') private s?: any) {}
+            constructor(@GasDI.Decorators.Inject('svc') private s?: any) { }
 
             run(@GasDI.Decorators.Inject('answer') x?: number) {
                 return { a: this.a, b: x, hi: this.s!.hello() }
@@ -60,7 +50,7 @@ namespace GasDISpec {
 
     T.it('optional injection does not throw when token missing', () => {
         @GasDI.Decorators.Resolve()
-        class Foo { constructor(@GasDI.Decorators.Inject('missing', true) public x?: any) {} }
+        class Foo { constructor(@GasDI.Decorators.Inject('missing', true) public x?: any) { } }
         const f = new (Foo as any)()
         TAssert.isTrue(f.x === undefined, 'optional param left undefined')
     })

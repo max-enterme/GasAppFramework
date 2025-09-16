@@ -1,5 +1,5 @@
 namespace Repository.Adapters.Memory {
-    export class Store<TEntity extends object, Key extends keyof TEntity> implements Repository.Ports.Store<TEntity, Key> {
+    export class Store<TEntity extends object> implements Repository.Ports.Store<TEntity> {
         private arr: TEntity[] = []
         load(): { rows: TEntity[] } { return { rows: this.arr.slice() } }
         saveAdded(rows: TEntity[]): void { this.arr.push(...rows) }

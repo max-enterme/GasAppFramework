@@ -1,3 +1,4 @@
+type Brand<K, B> = K & { readonly __brand?: B };
 declare namespace Locking {
     namespace Ports {
         interface Clock { now(): Date }

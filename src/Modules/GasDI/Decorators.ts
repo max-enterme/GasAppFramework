@@ -1,5 +1,5 @@
 namespace GasDI.Decorators {
-    type Token<T=any> = GasDI.Ports.Token<T>
+    type Token<T = any> = GasDI.Ports.Token<T>
 
     export function Inject(token: Token, optional = false): PropertyDecorator & ParameterDecorator {
         return function (target: any, propertyKey: string | symbol | undefined, paramIndex?: number) {
@@ -19,7 +19,7 @@ namespace GasDI.Decorators {
         } as any
     }
 
-    export function Resolve(scope?: string): ClassDecorator & MethodDecorator {
+    export function Resolve(): ClassDecorator & MethodDecorator {
         return function (target: any, propertyKey?: string | symbol, descriptor?: PropertyDescriptor): any {
             if (descriptor) {
                 const original = descriptor.value as (...args: any[]) => any
@@ -50,7 +50,7 @@ namespace GasDI.Decorators {
                         // properties
                         const injects = (orig as any)._inject || []
                         for (const it of injects) {
-                            ;(this as any)[it.propertyKey] = GasDI.Root.resolve(it.token, { optional: it.optional })
+                            (this as any)[it.propertyKey] = GasDI.Root.resolve(it.token, { optional: it.optional })
                         }
                         // methods with param injection
                         const keys = Object.keys(injectedParams).filter(k => k !== '__ctor__')
@@ -58,7 +58,7 @@ namespace GasDI.Decorators {
                             const defs = injectedParams[k]
                             const originalMethod = (orig as any).prototype[k]
                             if (typeof originalMethod !== 'function') continue
-                            ;(this as any)[k] = (...margs: any[]) => {
+                            (this as any)[k] = (...margs: any[]) => {
                                 const arr = margs.slice()
                                 for (const d of defs) {
                                     if (arr[d.index] === undefined) {

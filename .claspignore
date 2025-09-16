@@ -1,14 +1,13 @@
-# ignore all filesÅc
-**/**
-
-# except the extensionsÅc
-!appsscript.json
-!**/*.gs
-!**/*.js
-!**/*.ts
-!**/*.html
-
-# ignore even valid files if inÅc
-.git/**
+# Ignore node_modules and build outputs
 node_modules/**
-**/*.d.ts
+dist/**
+build/**
+
+# Ignore node tooling/test files
+test_node/**
+.eslintrc.cjs
+.eslintignore
+jest.config.cjs
+
+.vs/
+.git/

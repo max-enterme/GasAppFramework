@@ -6,9 +6,9 @@ namespace Locking.Engine {
 
     export type Deps = {
         store: Locking.Ports.Store
-        clock: Locking.Ports.Clock
-        rand?: Locking.Ports.Random
-        logger?: Locking.Ports.Logger
+        clock: Shared.Ports.Clock
+        rand?: Shared.Ports.Random
+        logger?: Shared.Ports.Logger
         namespace?: string // storage key prefix, default 'lock:'
     }
 
@@ -42,14 +42,13 @@ namespace Locking.Engine {
         return { ...s, entries: s.entries.filter(e => e.expireMs > nowMs) }
     }
 
-    function genToken(resourceId: string, rand: Locking.Ports.Random | undefined, nowMs: number): string {
+    function genToken(resourceId: string, rand: Shared.Ports.Random | undefined, nowMs: number): string {
         const r = rand ? rand.next() : Math.random()
         return `${resourceId}-${nowMs}-${Math.floor(r * 1e9)}`
     }
 
     export function create(deps: Deps) {
         const ns = (deps.namespace ?? 'lock:')
-        const logger = deps.logger ?? { info: (_: string) => { }, error: (_: string) => { } }
 
         function acquire(resourceId: string, mode: Locking.Mode, ttlMs = DEFAULT_TTL, owner: string | null = null): Locking.AcquireResult {
             const now = deps.clock.now().getTime()

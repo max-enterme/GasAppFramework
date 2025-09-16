@@ -14,9 +14,7 @@ namespace EventSystem.Workflow {
         if (typeof tz === 'string' && tz.trim()) return tz
         try {
             // GAS only
-            // @ts-ignore
             if (typeof Session !== 'undefined' && Session.getScriptTimeZone) {
-                // @ts-ignore
                 return Session.getScriptTimeZone()
             }
         } catch { }
