@@ -29,11 +29,5 @@ declare namespace Repository {
             saveUpdated(rows: { index: number; row: TEntity }[]): void;
             deleteByIndexes(indexes: number[]): void;
         }
-
-        /** Logger interface (alias to common type) */
-        interface Logger extends Shared.Types.Logger {}
-
-        /** Clock interface (alias to common type) */
-        interface Clock extends Shared.Types.Clock {}
     }
 }

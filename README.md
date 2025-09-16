@@ -18,7 +18,6 @@ GasAppFramework/
 │       ├── CommonTypes.d.ts    # Shared interfaces (Logger, Clock, etc.)
 │       ├── ErrorTypes.d.ts     # Error type definitions
 │       ├── Errors.ts           # Base error classes
-│       ├── Ports.d.ts          # Legacy compatibility layer
 │       └── Time.ts             # Time utilities
 └── test/                  # GAS-compatible test framework
     ├── _framework/        # Custom test runner and helpers for GAS
