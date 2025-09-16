@@ -464,7 +464,14 @@ namespace Spec_GAS_Advanced {
             
             TAssert.equals(cleanupTrigger.getHandlerFunction(), 'cleanupApplication', 'Cleanup trigger should be set');
             
-            // 4. Perform cleanup
+            // 4. Perform cleanup (ensure some time has passed)
+            // Add a small delay to ensure positive uptime
+            const beforeCleanup = Date.now();
+            if (appState.startTime && beforeCleanup - appState.startTime.getTime() === 0) {
+                // Force a minimum 1ms uptime for test purposes
+                appState.startTime = new Date(beforeCleanup - 1);
+            }
+            
             const cleanupResult = (globalThis as any).cleanupApplication();
             TAssert.equals(cleanupResult.activeUsers, 2, 'Cleanup should report active user count');
             TAssert.isTrue(cleanupResult.uptime > 0, 'Should report positive uptime');

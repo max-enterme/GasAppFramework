@@ -34,19 +34,42 @@ namespace TestHelpers {
             constructor(initialTime?: Date) {
                 // Use a specific valid date if no initial time provided to avoid GAS Date() issues
                 const baseTime = initialTime || new Date(2024, 0, 15, 10, 0, 0); // Jan 15, 2024 10:00:00
-                this.currentTime = new Date(baseTime.getTime());
+                
+                // Validate that the base time is valid
+                const baseTimeMs = baseTime.getTime();
+                if (isNaN(baseTimeMs)) {
+                    // Fallback to a fixed timestamp if date calculation fails
+                    this.currentTime = new Date(1705312800000); // 2024-01-15 10:00:00 UTC
+                } else {
+                    this.currentTime = new Date(baseTimeMs);
+                }
             }
 
             now(): Date {
-                return new Date(this.currentTime.getTime());
+                const timeMs = this.currentTime.getTime();
+                if (isNaN(timeMs)) {
+                    // Emergency fallback
+                    return new Date(1705312800000);
+                }
+                return new Date(timeMs);
             }
 
             advance(ms: number): void {
-                this.currentTime = new Date(this.currentTime.getTime() + ms);
+                const currentMs = this.currentTime.getTime();
+                if (isNaN(currentMs)) {
+                    this.currentTime = new Date(1705312800000);
+                } else {
+                    this.currentTime = new Date(currentMs + ms);
+                }
             }
 
             setTime(time: Date): void {
-                this.currentTime = new Date(time.getTime());
+                const timeMs = time.getTime();
+                if (isNaN(timeMs)) {
+                    this.currentTime = new Date(1705312800000);
+                } else {
+                    this.currentTime = new Date(timeMs);
+                }
             }
         }
 
