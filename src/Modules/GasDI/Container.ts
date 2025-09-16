@@ -1,3 +1,19 @@
+/**
+ * GasDI Container - Dependency Injection Container
+ * 
+ * Current: Namespace-based module for GAS compatibility
+ * Future ESModule migration pattern:
+ * ```typescript
+ * // Export:
+ * export { Container } from './GasDI/Container'
+ * export type { Lifetime, Token } from './GasDI/Ports'
+ * 
+ * // Import:
+ * import { Container } from './GasDI/Container'
+ * import type { Lifetime, Token } from './GasDI/Ports'
+ * ```
+ */
+
 namespace GasDI {
     type Lifetime = GasDI.Ports.Lifetime
     type Token<T = any> = GasDI.Ports.Token<T>
@@ -6,6 +22,9 @@ namespace GasDI {
         | { kind: 'value'; token: Token<T>; value: T }
         | { kind: 'factory'; token: Token<T>; lifetime: Lifetime; make: () => T }
 
+    /**
+     * Dependency injection container with support for multiple lifetimes
+     */
     export class Container {
         static readonly DEFAULT_SCOPE = 'default'
 

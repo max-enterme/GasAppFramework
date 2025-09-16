@@ -1,6 +1,26 @@
+/**
+ * Repository Engine - Core repository functionality
+ * 
+ * Current: Namespace-based module for GAS compatibility
+ * Future ESModule migration pattern:
+ * ```typescript
+ * // Export:
+ * export { create } from './Repository/Engine'
+ * 
+ * // Import:
+ * import { create as createRepository } from './Repository/Engine'
+ * import type { Schema, Store, KeyCodec } from './Repository/RepositoryPorts'
+ * ```
+ */
+
 namespace Repository.Engine {
     type Idx = Map<string, number>
 
+    /**
+     * Creates a repository instance with the provided dependencies
+     * @param deps Configuration object with schema, store, codec, and optional logger
+     * @returns Repository instance with CRUD operations
+     */
     export function create<TEntity extends object, Key extends keyof TEntity>(deps: {
         schema: Repository.Ports.Schema<TEntity, Key>
         store: Repository.Ports.Store<TEntity>

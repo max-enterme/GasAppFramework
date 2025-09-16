@@ -1,4 +1,23 @@
+/**
+ * Repository Codec Utilities - Key encoding and decoding
+ * 
+ * Current: Namespace-based module for GAS compatibility  
+ * Future ESModule migration pattern:
+ * ```typescript
+ * // Export:
+ * export { simple as createSimpleCodec } from './Repository/Codec'
+ * 
+ * // Import:
+ * import { createSimpleCodec } from './Repository/Codec'
+ * ```
+ */
+
 namespace Repository.Codec {
+    /**
+     * Creates a simple key codec with configurable delimiter
+     * @param delim Delimiter character (default: '|')
+     * @returns KeyCodec instance for stringify/parse operations
+     */
     export function simple<TEntity extends object, Key extends keyof TEntity>(delim = '|') {
         const esc = (s: string) => s.replace(/\\/g, '\\\\').replace(new RegExp(`[${delim}]`, 'g'), m => '\\' + m)
         return {
