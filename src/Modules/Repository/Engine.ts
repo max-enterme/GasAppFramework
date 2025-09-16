@@ -1,9 +1,5 @@
 /**
  * Repository Engine - Core repository functionality
- * 
- * Uses namespace pattern for Google Apps Script compatibility.
- * GAS does not support ES modules (import/export), so the namespace
- * design is the permanent architecture for this framework.
  */
 
 namespace Repository.Engine {

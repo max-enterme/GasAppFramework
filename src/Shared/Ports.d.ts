@@ -1,9 +1,6 @@
 /**
  * Shared Ports - Legacy compatibility file
- * Uses triple-slash references for type inclusion in GAS
  */
-
-/// <reference path="./CommonTypes.d.ts" />
 
 declare namespace Shared {
     namespace Ports {

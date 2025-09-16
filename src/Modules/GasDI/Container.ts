@@ -1,9 +1,5 @@
 /**
  * GasDI Container - Dependency Injection Container
- * 
- * Uses namespace pattern for Google Apps Script compatibility.
- * The namespace design enables modular dependency injection
- * within GAS runtime constraints.
  */
 
 namespace GasDI {

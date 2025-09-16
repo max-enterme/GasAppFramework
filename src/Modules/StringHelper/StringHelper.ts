@@ -1,9 +1,5 @@
 /**
  * StringHelper - String templating and formatting utilities
- * 
- * Uses namespace pattern for Google Apps Script compatibility.
- * Provides string manipulation utilities organized under a
- * single namespace for easy access in GAS environment.
  */
 
 namespace StringHelper {

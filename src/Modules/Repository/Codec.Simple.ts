@@ -1,9 +1,5 @@
 /**
  * Repository Codec Utilities - Key encoding and decoding
- * 
- * Uses namespace pattern for Google Apps Script compatibility.
- * GAS does not support ES modules, so namespaces provide the
- * modular organization needed for this framework.
  */
 
 namespace Repository.Codec {

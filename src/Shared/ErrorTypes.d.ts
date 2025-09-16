@@ -1,6 +1,5 @@
 /**
  * Common error types and codes used across modules
- * Organized in namespaces for Google Apps Script compatibility
  */
 declare namespace Shared {
     namespace Types {
