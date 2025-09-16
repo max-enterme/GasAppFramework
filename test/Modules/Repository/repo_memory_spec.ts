@@ -33,7 +33,7 @@ namespace Spec_Repo {
         } as Repository.Ports.KeyCodec<User, Key>
     })()
 
-    class Log implements Repository.Ports.Logger { info(_: string) { } error(_: string) { } }
+    class Log implements Shared.Types.Logger { info(_: string) { } error(_: string) { } }
 
     T.it('upsert adds and updates, then find/findAll work', () => {
         // Test Case: Normal operation - add new records and update existing ones

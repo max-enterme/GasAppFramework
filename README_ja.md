@@ -18,7 +18,6 @@ GasAppFramework/
 │       ├── CommonTypes.d.ts    # 共有インターフェース (Logger, Clock等)
 │       ├── ErrorTypes.d.ts     # エラータイプ定義
 │       ├── Errors.ts           # ベースエラークラス
-│       ├── Ports.d.ts          # レガシー互換レイヤー
 │       └── Time.ts             # 時間ユーティリティ
 └── test/                  # GAS互換テストフレームワーク
     ├── _framework/        # GAS用カスタムテストランナーとヘルパー
