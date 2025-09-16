@@ -17,12 +17,12 @@ GasAppFramework/
 │   └── Shared/            # Common types, errors, and utilities
 │       ├── CommonTypes.d.ts    # Shared interfaces (Logger, Clock, etc.)
 │       ├── ErrorTypes.d.ts     # Error type definitions
-│       ├── TestHelpers.ts      # Test doubles and utilities
 │       ├── Errors.ts           # Base error classes
 │       ├── Ports.d.ts          # Legacy compatibility layer
 │       └── Time.ts             # Time utilities
 └── test/                  # GAS-compatible test framework
-    ├── _framework/        # Custom test runner for GAS
+    ├── _framework/        # Custom test runner and helpers for GAS
+    │   └── TestHelpers.ts      # Test doubles and utilities
     └── Modules/           # Module-specific tests
 ```
 
