@@ -30,10 +30,13 @@ module.exports = {
         // any を許可
         "@typescript-eslint/no-explicit-any": "off",
 
+        // GAS compatibility: triple slash references needed for type declarations
+        "@typescript-eslint/triple-slash-reference": "off",
+
         // 未使用変数チェック（特定の名前や "_" 始まりは許容）
         "@typescript-eslint/no-unused-vars": ["warn", {
             "argsIgnorePattern": "^_",
-            "varsIgnorePattern": "^(Shared|GasDI|Repository|Routing|EventSystem|StringHelper|Spec_.*|_)$"
+            "varsIgnorePattern": "^(Shared|GasDI|Repository|Routing|EventSystem|StringHelper|Spec_.*|TestHelpers|_)$"
         }]
     }
 };
