@@ -166,4 +166,401 @@ namespace TestHelpers {
             };
         }
     }
+
+    /** GAS Environment Simulation */
+    export namespace GAS {
+        /** Mock SpreadsheetApp for testing Spreadsheet-based operations */
+        export class MockSpreadsheetApp {
+            private spreadsheets: Map<string, MockSpreadsheet> = new Map();
+
+            static install(): void {
+                (globalThis as any).SpreadsheetApp = new MockSpreadsheetApp();
+            }
+
+            static reset(): void {
+                delete (globalThis as any).SpreadsheetApp;
+            }
+
+            openById(id: string): MockSpreadsheet {
+                if (!this.spreadsheets.has(id)) {
+                    this.spreadsheets.set(id, new MockSpreadsheet(id));
+                }
+                return this.spreadsheets.get(id)!;
+            }
+
+            // Helper for tests to set up spreadsheet data
+            setupSpreadsheet(id: string, sheets: { [sheetName: string]: any[][] }): MockSpreadsheet {
+                const ss = new MockSpreadsheet(id);
+                for (const [name, data] of Object.entries(sheets)) {
+                    ss.addSheet(name, data);
+                }
+                this.spreadsheets.set(id, ss);
+                return ss;
+            }
+        }
+
+        export class MockSpreadsheet {
+            private sheets: Map<string, MockSheet> = new Map();
+
+            constructor(public readonly id: string) {}
+
+            getSheetByName(name: string): MockSheet | null {
+                return this.sheets.get(name) || null;
+            }
+
+            addSheet(name: string, data: any[][] = []): MockSheet {
+                const sheet = new MockSheet(name, data);
+                this.sheets.set(name, sheet);
+                return sheet;
+            }
+        }
+
+        export class MockSheet {
+            constructor(
+                public readonly name: string,
+                private data: any[][] = []
+            ) {}
+
+            getDataRange(): MockRange {
+                return new MockRange(this.data);
+            }
+
+            getRange(row: number, col: number, numRows?: number, numCols?: number): MockRange {
+                const startRow = row - 1; // Convert to 0-based
+                const startCol = col - 1;
+                const endRow = numRows ? startRow + numRows : this.data.length;
+                const endCol = numCols ? startCol + numCols : (this.data[0]?.length || 0);
+                
+                const rangeData: any[][] = [];
+                for (let r = startRow; r < endRow && r < this.data.length; r++) {
+                    const rowData: any[] = [];
+                    for (let c = startCol; c < endCol && c < (this.data[r]?.length || 0); c++) {
+                        rowData.push(this.data[r][c]);
+                    }
+                    rangeData.push(rowData);
+                }
+                return new MockRange(rangeData);
+            }
+
+            appendRow(values: any[]): void {
+                this.data.push([...values]);
+            }
+
+            // Helper for tests
+            setData(data: any[][]): void {
+                this.data = data.map(row => [...row]);
+            }
+
+            getData(): any[][] {
+                return this.data.map(row => [...row]);
+            }
+        }
+
+        export class MockRange {
+            constructor(private data: any[][]) {}
+
+            getValues(): any[][] {
+                return this.data.map(row => [...row]);
+            }
+
+            setValues(values: any[][]): void {
+                this.data = values.map(row => [...row]);
+            }
+
+            getNumRows(): number {
+                return this.data.length;
+            }
+
+            getNumColumns(): number {
+                return this.data[0]?.length || 0;
+            }
+        }
+
+        /** Mock ScriptApp for testing triggers and script properties */
+        export class MockScriptApp {
+            private triggers: MockTrigger[] = [];
+            private properties: { [key: string]: string } = {};
+
+            static install(): void {
+                (globalThis as any).ScriptApp = new MockScriptApp();
+            }
+
+            static reset(): void {
+                delete (globalThis as any).ScriptApp;
+            }
+
+            newTrigger(functionName: string): MockTriggerBuilder {
+                return new MockTriggerBuilder(functionName, (trigger) => {
+                    this.triggers.push(trigger);
+                    return trigger;
+                });
+            }
+
+            getScriptTriggers(): MockTrigger[] {
+                return [...this.triggers];
+            }
+
+            deleteTrigger(trigger: MockTrigger): void {
+                const index = this.triggers.indexOf(trigger);
+                if (index >= 0) {
+                    this.triggers.splice(index, 1);
+                }
+            }
+
+            getProjectTriggers(): MockTrigger[] {
+                return this.getScriptTriggers();
+            }
+
+            // Helper for tests
+            reset(): void {
+                this.triggers = [];
+                this.properties = {};
+            }
+        }
+
+        export class MockTriggerBuilder {
+            private eventType: string = '';
+            private source: any = null;
+
+            constructor(
+                private functionName: string,
+                private onCreate: (trigger: MockTrigger) => MockTrigger
+            ) {}
+
+            timeBased(): MockTimeTriggerBuilder {
+                return new MockTimeTriggerBuilder(this.functionName, this.onCreate);
+            }
+
+            create(): MockTrigger {
+                const trigger = new MockTrigger(this.functionName, this.eventType, this.source);
+                return this.onCreate(trigger);
+            }
+        }
+
+        export class MockTimeTriggerBuilder extends MockTriggerBuilder {
+            private interval: string = '';
+
+            everyHours(hours: number): this {
+                this.interval = `${hours}h`;
+                return this;
+            }
+
+            everyDays(days: number): this {
+                this.interval = `${days}d`;
+                return this;
+            }
+
+            at(time: Date): this {
+                this.interval = `at:${time.getTime()}`;
+                return this;
+            }
+
+            create(): MockTrigger {
+                const trigger = new MockTrigger(this.functionName, 'TIME_DRIVEN', { interval: this.interval });
+                return (this as any).onCreate(trigger);
+            }
+        }
+
+        export class MockTrigger {
+            constructor(
+                public readonly handlerFunction: string,
+                public readonly eventType: string,
+                public readonly source: any
+            ) {}
+
+            getHandlerFunction(): string {
+                return this.handlerFunction;
+            }
+
+            getEventType(): string {
+                return this.eventType;
+            }
+
+            getTriggerSource(): any {
+                return this.source;
+            }
+        }
+
+        /** Mock Session service for timezone and user info */
+        export class MockSession {
+            private timezone: string = 'America/New_York';
+            private userEmail: string = 'test@example.com';
+
+            static install(): void {
+                (globalThis as any).Session = new MockSession();
+            }
+
+            static reset(): void {
+                delete (globalThis as any).Session;
+            }
+
+            getScriptTimeZone(): string {
+                return this.timezone;
+            }
+
+            getActiveUser(): { getEmail(): string } {
+                return { getEmail: () => this.userEmail };
+            }
+
+            // Helper for tests
+            setTimeZone(tz: string): void {
+                this.timezone = tz;
+            }
+
+            setUserEmail(email: string): void {
+                this.userEmail = email;
+            }
+        }
+
+        /** Mock Utilities service for date/time operations */
+        export class MockUtilities {
+            static install(): void {
+                (globalThis as any).Utilities = new MockUtilities();
+            }
+
+            static reset(): void {
+                delete (globalThis as any).Utilities;
+            }
+
+            formatDate(date: Date, timeZone: string, format: string): string {
+                // Simple mock - in real GAS this would format properly
+                return `${date.toISOString().split('T')[0]} (${timeZone})`;
+            }
+
+            sleep(milliseconds: number): void {
+                // In GAS this would actually pause execution
+                // For testing, we just record that it was called
+                (this as any).__lastSleepMs = milliseconds;
+            }
+
+            // Helper for tests
+            getLastSleepDuration(): number | undefined {
+                return (this as any).__lastSleepMs;
+            }
+        }
+
+        /** Mock LockService for testing distributed locking */
+        export class MockLockService {
+            private locks: { [key: string]: { acquired: boolean; timeout?: number } } = {};
+
+            static install(): void {
+                (globalThis as any).LockService = new MockLockService();
+            }
+
+            static reset(): void {
+                delete (globalThis as any).LockService;
+            }
+
+            getScriptLock(): MockLock {
+                return new MockLock('script', this);
+            }
+
+            getDocumentLock(): MockLock {
+                return new MockLock('document', this);
+            }
+
+            getUserLock(): MockLock {
+                return new MockLock('user', this);
+            }
+
+            // Internal methods for mock implementation
+            _acquireLock(key: string, timeout?: number): boolean {
+                if (this.locks[key]?.acquired) {
+                    return false; // Already locked
+                }
+                this.locks[key] = { acquired: true, timeout };
+                return true;
+            }
+
+            _releaseLock(key: string): void {
+                if (this.locks[key]) {
+                    this.locks[key].acquired = false;
+                }
+            }
+
+            // Helper for tests
+            reset(): void {
+                this.locks = {};
+            }
+
+            isLocked(type: string): boolean {
+                return this.locks[type]?.acquired || false;
+            }
+        }
+
+        export class MockLock {
+            constructor(
+                private type: string,
+                private lockService: MockLockService
+            ) {}
+
+            tryLock(timeoutInMillis: number): boolean {
+                return this.lockService._acquireLock(this.type, timeoutInMillis);
+            }
+
+            waitLock(timeoutInMillis: number): void {
+                if (!this.lockService._acquireLock(this.type, timeoutInMillis)) {
+                    throw new Error(`Could not acquire ${this.type} lock within ${timeoutInMillis}ms`);
+                }
+            }
+
+            releaseLock(): void {
+                this.lockService._releaseLock(this.type);
+            }
+
+            hasLock(): boolean {
+                return this.lockService.isLocked(this.type);
+            }
+        }
+
+        /** Mock Logger for GAS console logging */
+        export class MockLogger {
+            public logs: string[] = [];
+
+            static install(): void {
+                (globalThis as any).Logger = new MockLogger();
+            }
+
+            static reset(): void {
+                delete (globalThis as any).Logger;
+            }
+
+            log(message: any): void {
+                this.logs.push(String(message));
+            }
+
+            // Helper for tests
+            reset(): void {
+                this.logs = [];
+            }
+
+            getLastLog(): string | undefined {
+                return this.logs[this.logs.length - 1];
+            }
+
+            getAllLogs(): string[] {
+                return [...this.logs];
+            }
+        }
+
+        /** Setup all GAS environment mocks */
+        export function installAll(): void {
+            MockSpreadsheetApp.install();
+            MockScriptApp.install();
+            MockSession.install();
+            MockUtilities.install();
+            MockLockService.install();
+            MockLogger.install();
+        }
+
+        /** Reset all GAS environment mocks */
+        export function resetAll(): void {
+            MockSpreadsheetApp.reset();
+            MockScriptApp.reset();
+            MockSession.reset();
+            MockUtilities.reset();
+            MockLockService.reset();
+            MockLogger.reset();
+        }
+    }
 }
