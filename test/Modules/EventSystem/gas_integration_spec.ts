@@ -302,8 +302,8 @@ namespace Spec_EventSystem_GAS {
             
             // Create required dependencies for trigger
             const mockCheckpoint = {
-                get: (jobId: string) => null,
-                set: (jobId: string, iso: string) => {}
+                get: (_jobId: string) => null,
+                set: (_jobId: string, _iso: string) => {}
             };
             const mockLock = {
                 tryWait: (ms: number) => true,

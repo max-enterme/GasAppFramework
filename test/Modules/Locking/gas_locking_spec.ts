@@ -193,14 +193,14 @@ namespace Spec_Locking_GAS {
             let shouldThrowError = false;
             (globalThis as any).PropertiesService = {
                 getScriptProperties: () => ({
-                    getProperty: (key: string) => {
+                    getProperty: (_key: string) => {
                         if (shouldThrowError) throw new Error('GAS Properties service error');
                         return null;
                     },
-                    setProperty: (key: string, value: string) => {
+                    setProperty: (_key: string, _value: string) => {
                         if (shouldThrowError) throw new Error('GAS Properties service error');
                     },
-                    deleteProperty: (key: string) => {
+                    deleteProperty: (_key: string) => {
                         if (shouldThrowError) throw new Error('GAS Properties service error');
                     }
                 })

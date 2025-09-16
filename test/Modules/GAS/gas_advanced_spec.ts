@@ -30,7 +30,7 @@ namespace Spec_GAS_Advanced {
             TAssert.equals(triggers[0].getHandlerFunction(), 'dailyReport', 'Listed trigger should match created');
             
             // Test: Create hourly trigger
-            const hourlyTrigger = mockScriptApp
+            const _hourlyTrigger = mockScriptApp
                 .newTrigger('hourlyCheck')
                 .timeBased()
                 .everyHours(2)
@@ -152,7 +152,7 @@ namespace Spec_GAS_Advanced {
         TestHelpers.GAS.installAll();
         
         try {
-            const mockLogger = globalThis.Logger as TestHelpers.GAS.MockLogger;
+            const mockLogger = globalThis.Logger as unknown as TestHelpers.GAS.MockLogger;
             
             // Test: Structured error logging
             function logError(error: Error, context: any) {
@@ -196,7 +196,7 @@ namespace Spec_GAS_Advanced {
         
         try {
             const mockUtilities = globalThis.Utilities as TestHelpers.GAS.MockUtilities;
-            const mockLogger = globalThis.Logger as TestHelpers.GAS.MockLogger;
+            const mockLogger = globalThis.Logger as unknown as TestHelpers.GAS.MockLogger;
             
             // Test: Simulate execution time monitoring
             function executeWithTimeLimit(operation: () => void, maxTimeMs: number) {
@@ -272,7 +272,7 @@ namespace Spec_GAS_Advanced {
         
         try {
             const mockScriptApp = globalThis.ScriptApp as TestHelpers.GAS.MockScriptApp;
-            const mockLogger = globalThis.Logger as TestHelpers.GAS.MockLogger;
+            const mockLogger = globalThis.Logger as unknown as TestHelpers.GAS.MockLogger;
             const mockApp = globalThis.SpreadsheetApp as TestHelpers.GAS.MockSpreadsheetApp;
             
             // Setup: Workflow data spreadsheet
@@ -352,7 +352,7 @@ namespace Spec_GAS_Advanced {
         
         try {
             const mockScriptApp = globalThis.ScriptApp as TestHelpers.GAS.MockScriptApp;
-            const mockLogger = globalThis.Logger as TestHelpers.GAS.MockLogger;
+            const mockLogger = globalThis.Logger as unknown as TestHelpers.GAS.MockLogger;
             const mockSession = globalThis.Session as TestHelpers.GAS.MockSession;
             
             // Setup: Application state tracking
