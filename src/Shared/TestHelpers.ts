@@ -1,7 +1,7 @@
 /**
  * Shared Test Helpers and Doubles
  * Consolidates test utilities for better reusability
- * Future ESModule: export { TestDoubles, TestAssertions } from './TestHelpers'
+ * Organized in namespaces for Google Apps Script compatibility
  */
 
 namespace TestHelpers {

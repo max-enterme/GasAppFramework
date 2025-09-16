@@ -1,16 +1,9 @@
 /**
  * Repository Engine - Core repository functionality
  * 
- * Current: Namespace-based module for GAS compatibility
- * Future ESModule migration pattern:
- * ```typescript
- * // Export:
- * export { create } from './Repository/Engine'
- * 
- * // Import:
- * import { create as createRepository } from './Repository/Engine'
- * import type { Schema, Store, KeyCodec } from './Repository/RepositoryPorts'
- * ```
+ * Uses namespace pattern for Google Apps Script compatibility.
+ * GAS does not support ES modules (import/export), so the namespace
+ * design is the permanent architecture for this framework.
  */
 
 namespace Repository.Engine {

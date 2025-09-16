@@ -1,8 +1,15 @@
-# Namespace Organization and ESModule Migration Guide
+# Namespace Organization for Google Apps Script
 
-## Current Namespace Structure
+## Namespace Design Philosophy
 
-The GasAppFramework uses a hierarchical namespace structure optimized for Google Apps Script compatibility:
+The GasAppFramework uses a hierarchical namespace structure specifically designed for Google Apps Script compatibility. Since GAS does not support ES modules (import/export), namespaces provide the necessary modular organization while remaining fully compatible with the GAS runtime environment.
+
+**Key Benefits of Namespace Design:**
+- Full compatibility with Google Apps Script runtime
+- Modular organization without external module systems
+- Clear hierarchy and dependency relationships
+- Type safety through TypeScript namespace declarations
+- No build step required for basic deployment
 
 ```
 Global Namespaces:
@@ -50,46 +57,40 @@ Global Namespaces:
 - `GasDI/Core.Types.d.ts` - DI container interfaces
 - etc.
 
-## ESModule Migration Preparation
+## Namespace Usage Patterns
 
-Each major namespace includes comments showing the future ESModule migration pattern:
-
-### Export Patterns
+### Accessing Module Functionality
 ```typescript
-// Current namespace style
-namespace Repository.Engine {
-    export function create() { /*...*/ }
+// Repository operations
+const repo = Repository.Engine.create({ schema, store, keyCodec })
+const codec = Repository.Codec.simple('|')
+
+// Dependency injection
+const container = new GasDI.Container()
+GasDI.Root.registerValue('config', { key: 'value' })
+
+// String utilities
+const formatted = StringHelper.formatString('Hello {0}!', 'World')
+
+// Event scheduling
+const scheduler = EventSystem.Schedule.create(deps)
+```
+
+### Type Definitions
+```typescript
+// Using shared types
+function createLogger(): Shared.Types.Logger {
+    return { info: console.log, error: console.error }
 }
 
-// Future ESModule export
-export { create } from './Repository/Engine'
-export type { Schema, Store } from './Repository/RepositoryPorts'
+// Module-specific types
+const schema: Repository.Ports.Schema<User, 'id'> = {
+    parameters: ['id', 'name'],
+    keyParameters: ['id'],
+    instantiate: () => ({ id: '', name: '' }),
+    fromPartial: (p) => ({ id: p.id || '', name: p.name || '' })
+}
 ```
-
-### Import Patterns
-```typescript
-// Future ESModule import
-import { create as createRepository } from './Repository/Engine'
-import { simple as createSimpleCodec } from './Repository/Codec'
-import type { Schema, Store, KeyCodec } from './Repository/RepositoryPorts'
-```
-
-### Migration Strategy
-
-1. **Phase 1: Preparation (Current)**
-   - Namespace structure with ESModule comments
-   - Type definition separation
-   - Clear module boundaries
-
-2. **Phase 2: Dual Support**
-   - Add ESModule exports alongside namespaces
-   - Maintain backward compatibility
-   - Update documentation
-
-3. **Phase 3: Migration**
-   - Migrate to pure ESModule structure
-   - Remove namespace declarations
-   - Update all import/export statements
 
 ## Module Dependencies
 
@@ -137,11 +138,14 @@ The refactoring maintains 100% backward compatibility:
 - Original API surfaces preserved
 - Gradual migration path without breaking changes
 
-## Future ESModule Benefits
+## Benefits of Namespace Design for GAS
 
-When migration is complete:
-- Better tree-shaking and bundle optimization
-- Improved IDE support and autocomplete
-- Standard JavaScript module system
-- Better interoperability with Node.js tooling
-- Cleaner dependency management
+The namespace approach provides several advantages specifically for Google Apps Script:
+
+- **GAS Compatibility**: Works natively in the GAS runtime without any module bundling
+- **Zero Build Step**: Can be deployed directly to GAS without transpilation for modules
+- **Clear Organization**: Hierarchical structure makes dependencies and relationships obvious
+- **Type Safety**: Full TypeScript support with namespace-based type definitions
+- **Global Access**: All functionality available globally in the GAS environment
+- **Reduced Complexity**: No need to understand module systems or bundling for basic usage
+- **IDE Support**: Excellent autocomplete and IntelliSense with TypeScript namespace declarations

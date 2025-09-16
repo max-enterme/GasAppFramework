@@ -1,15 +1,9 @@
 /**
  * Repository Codec Utilities - Key encoding and decoding
  * 
- * Current: Namespace-based module for GAS compatibility  
- * Future ESModule migration pattern:
- * ```typescript
- * // Export:
- * export { simple as createSimpleCodec } from './Repository/Codec'
- * 
- * // Import:
- * import { createSimpleCodec } from './Repository/Codec'
- * ```
+ * Uses namespace pattern for Google Apps Script compatibility.
+ * GAS does not support ES modules, so namespaces provide the
+ * modular organization needed for this framework.
  */
 
 namespace Repository.Codec {

@@ -1,6 +1,6 @@
 /**
  * Common shared types used across multiple modules
- * Future ESModule: export { Logger, Clock, Random } from './CommonTypes'
+ * Organized in namespaces for Google Apps Script compatibility
  */
 declare namespace Shared {
     namespace Types {

@@ -1,17 +1,9 @@
 /**
  * GasDI Container - Dependency Injection Container
  * 
- * Current: Namespace-based module for GAS compatibility
- * Future ESModule migration pattern:
- * ```typescript
- * // Export:
- * export { Container } from './GasDI/Container'
- * export type { Lifetime, Token } from './GasDI/Ports'
- * 
- * // Import:
- * import { Container } from './GasDI/Container'
- * import type { Lifetime, Token } from './GasDI/Ports'
- * ```
+ * Uses namespace pattern for Google Apps Script compatibility.
+ * The namespace design enables modular dependency injection
+ * within GAS runtime constraints.
  */
 
 namespace GasDI {

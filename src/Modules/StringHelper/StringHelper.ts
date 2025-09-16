@@ -1,15 +1,9 @@
 /**
  * StringHelper - String templating and formatting utilities
  * 
- * Current: Namespace-based module for GAS compatibility
- * Future ESModule migration pattern:
- * ```typescript
- * // Export:
- * export { formatString, formatDate, resolveString, get } from './StringHelper/StringHelper'
- * 
- * // Import:
- * import { formatString, formatDate, resolveString, get } from './StringHelper/StringHelper'
- * ```
+ * Uses namespace pattern for Google Apps Script compatibility.
+ * Provides string manipulation utilities organized under a
+ * single namespace for easy access in GAS environment.
  */
 
 namespace StringHelper {

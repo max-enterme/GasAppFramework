@@ -1,6 +1,6 @@
 /**
  * Common error types and codes used across modules
- * Future ESModule: export { ErrorCode, DomainErrorCode } from './ErrorTypes'
+ * Organized in namespaces for Google Apps Script compatibility
  */
 declare namespace Shared {
     namespace Types {

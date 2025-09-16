@@ -1,6 +1,6 @@
 /**
  * Repository domain and port interfaces
- * Future ESModule: export { Schema, KeyCodec, Store } from './RepositoryPorts'
+ * Organized in namespaces for Google Apps Script compatibility
  */
 declare namespace Repository {
     namespace Ports {

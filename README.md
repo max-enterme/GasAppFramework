@@ -238,20 +238,26 @@ class UserService {
 - Implement proper caching strategies
 - Batch operations when possible
 
-## 🔄 ESModule Migration Preparation
+## 🏗️ Namespace Architecture for GAS
 
-The framework is structured to support future ES module migration:
+The framework uses a hierarchical namespace design optimized for Google Apps Script:
 
 ```typescript
-// Current namespace style
-namespace Repository.Engine { /*...*/ }
+// Namespace organization provides modular structure
+namespace Repository.Engine { 
+    export function create() { /*...*/ }
+}
 
-// Future ES module style (commented for reference)
-// export { create } from './Repository/Engine'
-// import { create as createRepo } from './Repository/Engine'
+// Access patterns in GAS environment
+const repo = Repository.Engine.create({ schema, store, keyCodec })
+const codec = Repository.Codec.simple('|')
 ```
 
-Type definition files include ESModule preparation comments indicating future export patterns.
+**Why Namespaces for GAS:**
+- Google Apps Script doesn't support ES modules (import/export)
+- Namespaces provide modular organization within GAS constraints
+- Zero build step required for deployment
+- Full TypeScript support with excellent IDE integration
 
 ## 🤝 Contributing
 

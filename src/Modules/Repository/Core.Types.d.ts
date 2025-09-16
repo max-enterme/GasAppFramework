@@ -1,7 +1,7 @@
 /**
  * Repository Core Types - Main type definitions
  * Includes shared types and repository-specific ports
- * Future ESModule: import types from separate modules
+ * Uses triple-slash references for GAS compatibility
  */
 
 /// <reference path="../../Shared/CommonTypes.d.ts" />

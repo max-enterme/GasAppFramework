@@ -1,6 +1,6 @@
 /**
  * Shared Ports - Legacy compatibility file
- * Future ESModule: Re-export from CommonTypes
+ * Uses triple-slash references for type inclusion in GAS
  */
 
 /// <reference path="./CommonTypes.d.ts" />
