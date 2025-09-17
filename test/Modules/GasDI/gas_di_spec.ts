@@ -1,12 +1,68 @@
 /**
- * GAS-Specific Integration Tests for GasDI (Dependency Injection) Module
+ * GasDI (Dependency Injection) Module Tests
  * 
- * These tests cover dependency injection functionality in the Google Apps Script
- * environment, including container scoping, lifecycle management, and integration
- * with GAS global services and objects.
+ * These tests cover both core dependency injection functionality and GAS-specific
+ * integration scenarios, including container scoping, lifecycle management, 
+ * decorators, and integration with GAS global services and objects.
  */
 
 namespace Spec_GasDI_GAS {
+    
+    T.it('register and resolve values/factories with lifetimes', () => {
+        const c = new GasDI.Container()
+        c.registerValue('pi', 3.14)
+        c.registerFactory('now', () => ({ t: Math.random() }), 'transient')
+        c.registerFactory('cfg', () => ({ a: 1 }), 'singleton')
+        const a = c.resolve<number>('pi')
+        const n1 = c.resolve<{ t: number }>('now')
+        const n2 = c.resolve<{ t: number }>('now')
+        const g1 = c.resolve<{ a: number }>('cfg')
+        const g2 = c.resolve<{ a: number }>('cfg')
+        TAssert.isTrue(a === 3.14, 'value ok')
+        TAssert.isTrue(n1 !== n2, 'transient new each time')
+        TAssert.isTrue(g1 === g2, 'singleton same instance')
+    }, 'GasDI')
+
+    T.it('scoped lifetime differs per scope', () => {
+        const root = new GasDI.Container()
+        root.registerFactory('req', () => ({ id: Math.random() }), 'scoped')
+        const s1 = root.createScope('req-1')
+        const s2 = root.createScope('req-2')
+        const a1 = s1.resolve<any>('req')
+        const a2 = s1.resolve<any>('req')
+        const b1 = s2.resolve<any>('req')
+        TAssert.isTrue(a1 === a2, 'same scope same instance')
+        TAssert.isTrue(a1 !== b1, 'different scope different instance')
+    }, 'GasDI')
+
+    T.it('decorators: property and parameter injection with Root', () => {
+        GasDI.Root.registerValue('answer', 42)
+        GasDI.Root.registerFactory('svc', () => ({ hello() { return 'hi' } }), 'singleton')
+
+        @GasDI.Decorators.Resolve()
+        class Demo {
+            @GasDI.Decorators.Inject('answer') private a!: number
+
+            constructor(@GasDI.Decorators.Inject('svc') private s?: any) { }
+
+            run(@GasDI.Decorators.Inject('answer') x?: number) {
+                return { a: this.a, b: x, hi: this.s!.hello() }
+            }
+        }
+
+        const d = new (Demo as any)() as any
+        const out = d.run()
+        TAssert.equals(out.a, 42, 'property injected')
+        TAssert.equals(out.b, 42, 'method param injected')
+        TAssert.equals(out.hi, 'hi', 'constructor param injected')
+    }, 'GasDI')
+
+    T.it('optional injection does not throw when token missing', () => {
+        @GasDI.Decorators.Resolve()
+        class Foo { constructor(@GasDI.Decorators.Inject('missing', true) public x?: any) { } }
+        const f = new (Foo as any)()
+        TAssert.isTrue(f.x === undefined, 'optional param left undefined')
+    }, 'GasDI')
     
     T.it('GasDI Container works with GAS global services', () => {
         // Test Case: Container should properly inject GAS services as dependencies
@@ -41,7 +97,7 @@ namespace Spec_GasDI_GAS {
         } finally {
             TestHelpers.GAS.resetAll();
         }
-    });
+    }, 'GasDI');
 
     T.it('GasDI factory registration with GAS-specific dependencies', () => {
         // Test Case: Factory functions should work with GAS service dependencies
@@ -83,7 +139,7 @@ namespace Spec_GasDI_GAS {
         } finally {
             TestHelpers.GAS.resetAll();
         }
-    });
+    }, 'GasDI');
 
     T.it('GasDI scoped containers in GAS execution contexts', () => {
         // Test Case: Scoped containers should handle GAS execution context isolation
@@ -122,7 +178,7 @@ namespace Spec_GasDI_GAS {
         } finally {
             TestHelpers.GAS.resetAll();
         }
-    });
+    }, 'GasDI');
 
     T.it('GasDI integration with EventSystem triggers', () => {
         // Test Case: Container should integrate with EventSystem for trigger-based execution
@@ -172,7 +228,7 @@ namespace Spec_GasDI_GAS {
         } finally {
             TestHelpers.GAS.resetAll();
         }
-    });
+    }, 'GasDI');
 
     T.it('GasDI container with Repository pattern in GAS', () => {
         // Test Case: Container should support Repository pattern with GAS Spreadsheet backend
@@ -240,7 +296,7 @@ namespace Spec_GasDI_GAS {
         } finally {
             TestHelpers.GAS.resetAll();
         }
-    });
+    }, 'GasDI');
 
     T.it('GasDI error handling with GAS service failures', () => {
         // Test Case: Container should handle GAS service failures gracefully
@@ -295,7 +351,7 @@ namespace Spec_GasDI_GAS {
             TestHelpers.GAS.MockSession.install();
             TestHelpers.GAS.resetAll();
         }
-    });
+    }, 'GasDI');
 
     T.it('GasDI circular dependency detection in GAS context', () => {
         // Test Case: Container should detect and handle circular dependencies
@@ -328,7 +384,7 @@ namespace Spec_GasDI_GAS {
         } finally {
             TestHelpers.GAS.resetAll();
         }
-    });
+    }, 'GasDI');
 
     T.it('GasDI performance with GAS execution time limits', () => {
         // Test Case: Container should perform well within GAS execution constraints
@@ -367,7 +423,7 @@ namespace Spec_GasDI_GAS {
         } finally {
             TestHelpers.GAS.resetAll();
         }
-    });
+    }, 'GasDI');
 
     T.it('Complete GasDI integration in GAS application workflow', () => {
         // Test Case: Full integration test of GasDI in a typical GAS application
@@ -455,5 +511,5 @@ namespace Spec_GasDI_GAS {
         } finally {
             TestHelpers.GAS.resetAll();
         }
-    });
+    }, 'GasDI');
 }
