@@ -80,21 +80,21 @@ namespace Spec_Locking_GAS {
 
             // Test: Acquire write lock
             const writeLock = lockEngine.acquire(resourceId, 'w', 30000, 'user1');
-            TAssert.isTrue(!!writeLock, 'Should acquire write lock');
-            TAssert.equals(writeLock!.mode, 'w', 'Lock mode should be write');
-            TAssert.equals(writeLock!.owner, 'user1', 'Lock owner should be user1');
+            TAssert.isTrue(writeLock.ok, 'Should acquire write lock');
+            TAssert.equals(writeLock.mode, 'w', 'Lock mode should be write');
+            TAssert.equals(writeLock.owner, 'user1', 'Lock owner should be user1');
 
             // Test: Second write lock should fail
             const conflictingLock = lockEngine.acquire(resourceId, 'w', 30000, 'user2');
-            TAssert.isTrue(conflictingLock === null, 'Conflicting write lock should fail');
+            TAssert.isTrue(!conflictingLock.ok, 'Conflicting write lock should fail');
 
             // Test: Release lock
-            const released = lockEngine.release(resourceId, writeLock!.token);
-            TAssert.isTrue(released, 'Should successfully release lock');
+            const released = lockEngine.release(resourceId, writeLock.token);
+            TAssert.isTrue(released.ok, 'Should successfully release lock');
 
             // Test: After release, new lock should succeed
             const newLock = lockEngine.acquire(resourceId, 'r', 30000, 'user2');
-            TAssert.isTrue(!!newLock, 'Should acquire new lock after release');
+            TAssert.isTrue(newLock.ok, 'Should acquire new lock after release');
 
         } finally {
             delete (globalThis as any).PropertiesService;
@@ -165,18 +165,18 @@ namespace Spec_Locking_GAS {
 
             // Test: Acquire lock with short TTL
             const lock = lockEngine.acquire(resourceId, 'w', 5000, 'user1'); // 5 second TTL
-            TAssert.isTrue(!!lock, 'Should acquire lock with short TTL');
+            TAssert.isTrue(lock.ok, 'Should acquire lock with short TTL');
 
             // Test: Before expiration, lock should still block others
             mockClock.advance(3000); // Advance 3 seconds
             const blockedLock = lockEngine.acquire(resourceId, 'w', 5000, 'user2');
-            TAssert.isTrue(blockedLock === null, 'Lock should still block before expiration');
+            TAssert.isTrue(!blockedLock.ok, 'Lock should still block before expiration');
 
             // Test: After expiration, lock should be available
             mockClock.advance(3000); // Advance 3 more seconds (total 6 seconds, past 5 second TTL)
             const expiredLock = lockEngine.acquire(resourceId, 'w', 5000, 'user2');
-            TAssert.isTrue(!!expiredLock, 'Lock should be available after expiration');
-            TAssert.equals(expiredLock!.owner, 'user2', 'New lock should have correct owner');
+            TAssert.isTrue(expiredLock.ok, 'Lock should be available after expiration');
+            TAssert.equals(expiredLock.owner, 'user2', 'New lock should have correct owner');
 
         } finally {
             delete (globalThis as any).PropertiesService;
@@ -218,7 +218,7 @@ namespace Spec_Locking_GAS {
 
             // Test: Normal operation works
             const normalLock = lockEngine.acquire('test-resource', 'r', 30000, 'user1');
-            TAssert.isTrue(!!normalLock, 'Normal lock acquisition should work');
+            TAssert.isTrue(normalLock.ok, 'Normal lock acquisition should work');
 
             // Test: Error during lock operation
             shouldThrowError = true;
@@ -268,20 +268,20 @@ namespace Spec_Locking_GAS {
 
             // Test: First engine acquires lock
             const lock1 = lockEngine1.acquire(resourceId, 'w', 30000, 'script1');
-            TAssert.isTrue(!!lock1, 'First script should acquire lock');
+            TAssert.isTrue(lock1.ok, 'First script should acquire lock');
 
             // Test: Second engine cannot acquire conflicting lock
             const lock2 = lockEngine2.acquire(resourceId, 'w', 30000, 'script2');
-            TAssert.isTrue(lock2 === null, 'Second script should not acquire conflicting lock');
+            TAssert.isTrue(!lock2.ok, 'Second script should not acquire conflicting lock');
 
             // Test: First engine releases lock
-            const released = lockEngine1.release(resourceId, lock1!.token);
-            TAssert.isTrue(released, 'First script should release lock');
+            const released = lockEngine1.release(resourceId, lock1.token);
+            TAssert.isTrue(released.ok, 'First script should release lock');
 
             // Test: Second engine can now acquire lock
             const lock3 = lockEngine2.acquire(resourceId, 'w', 30000, 'script2');
-            TAssert.isTrue(!!lock3, 'Second script should acquire lock after release');
-            TAssert.equals(lock3!.owner, 'script2', 'Lock should have correct owner');
+            TAssert.isTrue(lock3.ok, 'Second script should acquire lock after release');
+            TAssert.equals(lock3.owner, 'script2', 'Lock should have correct owner');
 
         } finally {
             delete (globalThis as any).PropertiesService;
@@ -315,27 +315,27 @@ namespace Spec_Locking_GAS {
             const readLock1 = lockEngine.acquire(resourceId, 'r', 30000, 'reader1');
             const readLock2 = lockEngine.acquire(resourceId, 'r', 30000, 'reader2');
 
-            TAssert.isTrue(!!readLock1, 'First read lock should be acquired');
-            TAssert.isTrue(!!readLock2, 'Second read lock should be compatible');
+            TAssert.isTrue(readLock1.ok, 'First read lock should be acquired');
+            TAssert.isTrue(readLock2.ok, 'Second read lock should be compatible');
 
             // Test: Write lock should be blocked while read locks exist
             const writeLock1 = lockEngine.acquire(resourceId, 'w', 30000, 'writer1');
-            TAssert.isTrue(writeLock1 === null, 'Write lock should be blocked by read locks');
+            TAssert.isTrue(!writeLock1.ok, 'Write lock should be blocked by read locks');
 
             // Test: Release read locks
-            lockEngine.release(resourceId, readLock1!.token);
-            lockEngine.release(resourceId, readLock2!.token);
+            lockEngine.release(resourceId, readLock1.token);
+            lockEngine.release(resourceId, readLock2.token);
 
             // Test: Write lock should now succeed
             const writeLock2 = lockEngine.acquire(resourceId, 'w', 30, 'writer1');
-            TAssert.isTrue(!!writeLock2, 'Write lock should succeed after read locks released');
+            TAssert.isTrue(writeLock2.ok, 'Write lock should succeed after read locks released');
 
             // Test: No other locks should be possible while write lock exists
             const blockedRead = lockEngine.acquire(resourceId, 'r', 30, 'reader3');
             const blockedWrite = lockEngine.acquire(resourceId, 'w', 30, 'writer2');
 
-            TAssert.isTrue(blockedRead === null, 'Read lock should be blocked by write lock');
-            TAssert.isTrue(blockedWrite === null, 'Write lock should be blocked by existing write lock');
+            TAssert.isTrue(!blockedRead.ok, 'Read lock should be blocked by write lock');
+            TAssert.isTrue(!blockedWrite.ok, 'Write lock should be blocked by existing write lock');
 
         } finally {
             delete (globalThis as any).PropertiesService;
@@ -375,11 +375,11 @@ namespace Spec_Locking_GAS {
 
             // Test: First execution acquires distributed lock
             const jobLock = distributedLocking.acquire(jobResourceId, 'w', jobTtl, 'script-instance-1');
-            TAssert.isTrue(!!jobLock, 'Job should acquire distributed lock on first execution');
+            TAssert.isTrue(jobLock.ok, 'Job should acquire distributed lock on first execution');
 
             // Test: Concurrent execution is blocked
             const blockedExecution = distributedLocking.acquire(jobResourceId, 'w', jobTtl, 'script-instance-2');
-            TAssert.isTrue(blockedExecution === null, 'Concurrent job execution should be blocked');
+            TAssert.isTrue(!blockedExecution.ok, 'Concurrent job execution should be blocked');
 
             // Test: Use GAS LockService for critical sections within the job
             const mockLockService = globalThis.LockService as TestHelpers.GAS.MockLockService;
@@ -397,12 +397,12 @@ namespace Spec_Locking_GAS {
             TAssert.isTrue(!scriptLock.hasLock(), 'Should release script lock after critical section');
 
             // Test: Job completes and releases distributed lock
-            const jobCompleted = distributedLocking.release(jobResourceId, jobLock!.token);
-            TAssert.isTrue(jobCompleted, 'Job should release distributed lock on completion');
+            const jobCompleted = distributedLocking.release(jobResourceId, jobLock.token);
+            TAssert.isTrue(jobCompleted.ok, 'Job should release distributed lock on completion');
 
             // Test: New job execution can now proceed
             const newJobExecution = distributedLocking.acquire(jobResourceId, 'w', jobTtl, 'script-instance-3');
-            TAssert.isTrue(!!newJobExecution, 'New job execution should succeed after previous completion');
+            TAssert.isTrue(newJobExecution.ok, 'New job execution should succeed after previous completion');
 
             // Verify logging
             TestHelpers.Assertions.assertLoggerContains(logger, 'info', 'acquired');

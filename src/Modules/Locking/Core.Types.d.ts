@@ -17,6 +17,8 @@ declare namespace Locking {
         ok: true
         token: string
         expireIso: string
+        mode: Mode
+        owner: string | null
     }
     interface Fail {
         ok: false

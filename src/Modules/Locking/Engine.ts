@@ -51,24 +51,36 @@ namespace Locking.Engine {
         const ns = (deps.namespace ?? 'lock:')
 
         function acquire(resourceId: string, mode: Locking.Mode, ttlMs = DEFAULT_TTL, owner: string | null = null): Locking.AcquireResult {
-            const now = deps.clock.now().getTime()
-            const key = keyOf(ns, resourceId)
-            const st = gc(parse(deps.store.get(key)), now)
+            try {
+                const now = deps.clock.now().getTime()
+                const key = keyOf(ns, resourceId)
+                const st = gc(parse(deps.store.get(key)), now)
 
-            // admission
-            if (mode === 'r') {
-                const hasWriter = st.entries.some(e => e.mode === 'w')
-                if (hasWriter) return { ok: false, reason: 'writer-present' }
-            } else { // 'w'
-                const hasAny = st.entries.length > 0
-                if (hasAny) return { ok: false, reason: 'busy' }
+                // admission
+                if (mode === 'r') {
+                    const hasWriter = st.entries.some(e => e.mode === 'w')
+                    if (hasWriter) return { ok: false, reason: 'writer-present' }
+                } else { // 'w'
+                    const hasAny = st.entries.length > 0
+                    if (hasAny) return { ok: false, reason: 'busy' }
+                }
+
+                const token = genToken(resourceId, deps.rand, now)
+                st.entries.push({ token, owner, mode, expireMs: now + Math.max(1, ttlMs) })
+                deps.store.set(key, serialize(st))
+                const expireIso = new Date(now + Math.max(1, ttlMs)).toISOString()
+                
+                if (deps.logger) {
+                    deps.logger.info(`Lock acquired for resource ${resourceId} (${mode}) by ${owner || 'anonymous'}`)
+                }
+                
+                return { ok: true, token, expireIso, mode, owner }
+            } catch (error) {
+                if (deps.logger) {
+                    deps.logger.error('Properties service error')
+                }
+                throw error
             }
-
-            const token = genToken(resourceId, deps.rand, now)
-            st.entries.push({ token, owner, mode, expireMs: now + Math.max(1, ttlMs) })
-            deps.store.set(key, serialize(st))
-            const expireIso = new Date(now + Math.max(1, ttlMs)).toISOString()
-            return { ok: true, token, expireIso }
         }
 
         function extend(resourceId: string, token: string, ttlMs = DEFAULT_TTL): Locking.ExtendResult {
