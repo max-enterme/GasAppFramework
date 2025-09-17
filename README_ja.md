@@ -147,83 +147,18 @@ GASデプロイとNode.js開発の両方に最適化:
 - 宣言ファイル生成
 - デバッグ用ソースマップ
 
-## 🏛️ モジュール説明
+## 🏛️ フレームワークモジュール
 
-### Repository モジュール
-Google Sheetsバックエンドでタイプセーフなデータ永続化を提供。
+フレームワークには以下のモジュールが含まれており、それぞれに包括的なドキュメントが用意されています:
 
-**主要機能:**
-- スキーマベースのエンティティ検証
-- 複雑なキー用のキーエンコーディング/デコーディング
-- 変更追跡付きのupsert操作
-- メモリとスプレッドシートアダプター
+- **[Repository](src/Modules/Repository/README_ja.md)** - Google Sheetsを使った型安全データ永続化
+- **[EventSystem](src/Modules/EventSystem/README_ja.md)** - Cronジョブ、トリガー、ワークフロー自動化  
+- **[GasDI](src/Modules/GasDI/README_ja.md)** - 依存性注入コンテナ
+- **[Routing](src/Modules/Routing/README_ja.md)** - Webアプリケーションリクエストルーティング
+- **[Locking](src/Modules/Locking/README_ja.md)** - 分散ロックと並行制御
+- **[StringHelper](src/Modules/StringHelper/README_ja.md)** - 文字列テンプレートとフォーマットユーティリティ
 
-**使用例:**
-```typescript
-// エンティティスキーマを定義
-const userSchema: Repository.Ports.Schema<User, 'id'> = {
-    parameters: ['id', 'name', 'email'],
-    keyParameters: ['id'],
-    instantiate: () => ({ id: '', name: '', email: '' }),
-    fromPartial: (p) => ({ id: p.id || '', name: p.name || '', email: p.email || '' })
-}
-
-// リポジトリを作成
-const userRepo = Repository.Engine.create({
-    schema: userSchema,
-    store: new Repository.Adapters.GAS.Spreadsheet.Store('your-sheet-id'),
-    keyCodec: Repository.Codec.simple()
-})
-
-// リポジトリを使用
-userRepo.load()
-userRepo.upsert({ id: 'user1', name: 'John', email: 'john@example.com' })
-const user = userRepo.find({ id: 'user1' })
-```
-
-### EventSystem モジュール
-時間ベースのトリガー、ワークフロー、非同期ジョブ処理。
-
-**主要機能:**
-- Cronスタイルのスケジューリング
-- ワークフロー管理
-- GASトリガー統合
-- 分散ジョブキュー
-
-**使用例:**
-```typescript
-// 毎日のレポートスケジュールを作成
-EventSystem.Schedule.cron('0 9 * * *', () => {
-    // 毎日午前9時に実行される処理
-    generateDailyReport()
-})
-
-// ワークフローを定義
-const workflow = EventSystem.Workflow.create([
-    { name: 'validate', handler: validateData },
-    { name: 'process', handler: processData },
-    { name: 'notify', handler: sendNotification }
-])
-```
-
-### GasDI モジュール
-コンポーネントライフサイクル管理用の依存性注入コンテナ。
-
-**使用例:**
-```typescript
-// サービスを登録
-GasDI.Root.registerValue('config', { apiKey: 'secret' })
-GasDI.Root.registerFactory('logger', () => new ConsoleLogger(), 'singleton')
-
-// 注入用デコレーターを使用
-@GasDI.Decorators.Resolve()
-class UserService {
-    constructor(
-        @GasDI.Decorators.Inject('logger') private logger: Logger,
-        @GasDI.Decorators.Inject('config') private config: Config
-    ) {}
-}
-```
+各モジュールディレクトリには、API文書、使用例、テスト戦略を含む詳細なREADMEファイルが含まれています。
 
 ## 🎯 ベストプラクティス
 
@@ -316,7 +251,7 @@ const codec = Repository.Codec.simple('|')
 
 問題、質問、または貢献については:
 1. 既存のドキュメントとテストを確認
-2. モジュール固有のREADMEファイルを確認
+2. **`src/Modules/`ディレクトリ内のモジュール固有のREADMEファイル**を確認
 3. 使用例についてテストケースを調査
 4. バグや機能リクエストはissueを開いてください
 

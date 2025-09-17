@@ -164,87 +164,18 @@ Optimized for both GAS deployment and Node.js development:
 - Declaration file generation
 - Source maps for debugging
 
-## 🏛️ Module Descriptions
+## 🏛️ Framework Modules
 
-### Repository Module
-Provides type-safe data persistence with Google Sheets backend.
+The framework includes the following modules, each with comprehensive documentation:
 
-**Key Features:**
-- Schema-based entity validation
-- Key encoding/decoding for complex keys
-- Upsert operations with change tracking
-- Memory and Spreadsheet adapters
+- **[Repository](src/Modules/Repository/README.md)** - Type-safe data persistence with Google Sheets
+- **[EventSystem](src/Modules/EventSystem/README.md)** - Cron jobs, triggers, and workflow automation  
+- **[GasDI](src/Modules/GasDI/README.md)** - Dependency injection container
+- **[Routing](src/Modules/Routing/README.md)** - Web app request routing
+- **[Locking](src/Modules/Locking/README.md)** - Distributed locks and concurrency control
+- **[StringHelper](src/Modules/StringHelper/README.md)** - String templating and formatting utilities
 
-**Example Usage:**
-```typescript
-// Define entity schema
-const userSchema: Repository.Ports.Schema<User, 'id'> = {
-    parameters: ['id', 'name', 'email'],
-    keyParameters: ['id'],
-    instantiate: () => ({ id: '', name: '', email: '' }),
-    fromPartial: (p) => ({ id: p.id || '', name: p.name || '', email: p.email || '' })
-}
-
-// Create repository
-const userRepo = Repository.Engine.create({
-    schema: userSchema,
-    store: new Repository.Adapters.GAS.Spreadsheet.Store('your-sheet-id'),
-    keyCodec: Repository.Codec.simple()
-})
-
-// Use repository
-userRepo.load()
-userRepo.upsert({ id: 'user1', name: 'John', email: 'john@example.com' })
-const user = userRepo.find({ id: 'user1' })
-```
-
-### EventSystem Module
-Handles scheduled jobs, triggers, and multi-step workflows.
-
-**Key Features:**
-- Cron-based job scheduling
-- Multi-step workflow execution
-- Timezone-aware scheduling
-- Checkpoint recovery for long-running processes
-
-**Example Usage:**
-```typescript
-// Define a simple job
-const jobStore = new EventSystem.Adapters.GAS.SimpleJobStore([{
-    id: 'daily-report',
-    handler: 'generateDailyReport',
-    cron: '0 9 * * *',  // 9 AM daily
-    enabled: true
-}])
-
-// Run scheduler
-const trigger = EventSystem.Trigger.create({
-    jobs: jobStore,
-    scheduler: new EventSystem.Schedule.CronScheduler(),
-    invoker: { invoke: (handler, ctx) => eval(`${handler}(ctx)`) }
-})
-
-trigger.run(new Date())
-```
-
-### GasDI Module
-Dependency injection container for managing component lifecycles.
-
-**Example Usage:**
-```typescript
-// Register services
-GasDI.Root.registerValue('config', { apiKey: 'secret' })
-GasDI.Root.registerFactory('logger', () => new ConsoleLogger(), 'singleton')
-
-// Use decorators for injection
-@GasDI.Decorators.Resolve()
-class UserService {
-    constructor(
-        @GasDI.Decorators.Inject('logger') private logger: Logger,
-        @GasDI.Decorators.Inject('config') private config: Config
-    ) {}
-}
-```
+Each module directory contains detailed README files with API documentation, usage examples, and testing strategies.
 
 ## 🎯 Best Practices
 
@@ -305,7 +236,7 @@ const codec = Repository.Codec.simple('|')
 
 For issues, questions, or contributions:
 1. Check existing documentation and tests
-2. Review module-specific README files
+2. **Review module-specific README files** in `src/Modules/` directories
 3. Examine test cases for usage examples
 4. Open issues for bugs or feature requests
 
