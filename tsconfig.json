@@ -3,7 +3,8 @@
         "target": "ES2020",
         "module": "commonjs",
         "lib": [
-            "es2020"
+            "es2020",
+            "dom"
         ],
         "strict": true,
         "noImplicitReturns": true,
@@ -14,12 +15,14 @@
         "forceConsistentCasingInFileNames": true,
         "outDir": "dist",
         "declaration": true,
-        "sourceMap": true
+        "sourceMap": true,
+        "types": ["google-apps-script", "jest"]
     },
     "include": [
         "src/**/*.ts",
         "test/**/*.ts",
-        "test_node/**/*.ts"
+        "test_node/**/*.ts",
+        "types/**/*.d.ts"
     ],
     "exclude": [
         "node_modules",

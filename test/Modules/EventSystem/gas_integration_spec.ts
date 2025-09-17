@@ -49,7 +49,7 @@ namespace Spec_EventSystem_GAS {
         
         try {
             // Setup: Create mock spreadsheet with job data
-            const mockApp = globalThis.SpreadsheetApp as TestHelpers.GAS.MockSpreadsheetApp;
+            const mockApp = (globalThis as any).SpreadsheetApp as TestHelpers.GAS.MockSpreadsheetApp;
             const testSheetId = 'test-sheet-123';
             
             // Job data: header row + job configurations
@@ -90,7 +90,7 @@ namespace Spec_EventSystem_GAS {
         TestHelpers.GAS.installAll();
         
         try {
-            const mockApp = globalThis.SpreadsheetApp as TestHelpers.GAS.MockSpreadsheetApp;
+            const mockApp = (globalThis as any).SpreadsheetApp as TestHelpers.GAS.MockSpreadsheetApp;
             const testSheetId = 'test-sheet-456';
             
             // Edge Case 1: Empty spreadsheet (only headers)
@@ -142,7 +142,7 @@ namespace Spec_EventSystem_GAS {
         TestHelpers.GAS.installAll();
         
         try {
-            const mockLogger = globalThis.Logger as TestHelpers.GAS.MockLogger;
+            const mockLogger = globalThis.Logger as unknown as TestHelpers.GAS.MockLogger;
             const gasLogger = new EventSystem.Adapters.GAS.GasLogger();
             
             // Test info logging
@@ -167,7 +167,7 @@ namespace Spec_EventSystem_GAS {
         TestHelpers.GAS.installAll();
         
         try {
-            const mockLogger = globalThis.Logger as TestHelpers.GAS.MockLogger;
+            const mockLogger = globalThis.Logger as unknown as TestHelpers.GAS.MockLogger;
             const runLogger = new EventSystem.Adapters.GAS.LogOnlyRunLogger();
             
             const eventData = {
@@ -197,7 +197,7 @@ namespace Spec_EventSystem_GAS {
         TestHelpers.GAS.installAll();
         
         try {
-            const mockSession = globalThis.Session as TestHelpers.GAS.MockSession;
+            const mockSession = globalThis.Session as unknown as TestHelpers.GAS.MockSession;
             
             // Test with different timezones
             const testTimezones = ['America/New_York', 'Europe/London', 'Asia/Tokyo'];
@@ -223,7 +223,7 @@ namespace Spec_EventSystem_GAS {
         TestHelpers.GAS.installAll();
         
         try {
-            const mockUtilities = globalThis.Utilities as TestHelpers.GAS.MockUtilities;
+            const mockUtilities = globalThis.Utilities as unknown as TestHelpers.GAS.MockUtilities;
             
             // Test Utilities.sleep simulation (for workflow delays)
             mockUtilities.sleep(1000);
@@ -247,7 +247,7 @@ namespace Spec_EventSystem_GAS {
         TestHelpers.GAS.installAll();
         
         try {
-            const mockLogger = globalThis.Logger as TestHelpers.GAS.MockLogger;
+            const mockLogger = globalThis.Logger as unknown as TestHelpers.GAS.MockLogger;
             const gasLogger = new EventSystem.Adapters.GAS.GasLogger();
             
             // Test error logging with GAS error objects
@@ -272,8 +272,8 @@ namespace Spec_EventSystem_GAS {
         TestHelpers.GAS.installAll();
         
         try {
-            const mockApp = globalThis.SpreadsheetApp as TestHelpers.GAS.MockSpreadsheetApp;
-            const mockLogger = globalThis.Logger as TestHelpers.GAS.MockLogger;
+            const mockApp = (globalThis as any).SpreadsheetApp as TestHelpers.GAS.MockSpreadsheetApp;
+            const mockLogger = globalThis.Logger as unknown as TestHelpers.GAS.MockLogger;
             
             // Setup: Create job configuration spreadsheet
             const jobData = [

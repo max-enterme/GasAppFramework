@@ -22,10 +22,10 @@ namespace Spec_GasDI_GAS {
             container.registerValue('LockService', globalThis.LockService);
             
             // Test: Resolve GAS services from container
-            const spreadsheetApp = container.resolve('SpreadsheetApp');
-            const session = container.resolve('Session');
-            const logger = container.resolve('Logger');
-            const lockService = container.resolve('LockService');
+            const spreadsheetApp = container.resolve('SpreadsheetApp') as typeof SpreadsheetApp as typeof SpreadsheetApp;
+            const session = container.resolve('Session') as typeof Session as typeof Session;
+            const logger = container.resolve('Logger') as typeof Logger as typeof Logger;
+            const lockService = container.resolve('LockService') as typeof LockService;
             
             TAssert.isTrue(!!spreadsheetApp, 'SpreadsheetApp should be resolved');
             TAssert.isTrue(!!session, 'Session should be resolved');
@@ -56,8 +56,8 @@ namespace Spec_GasDI_GAS {
             
             // Register factory that depends on GAS services
             container.registerFactory('UserRepository', () => {
-                const app = container.resolve('SpreadsheetApp');
-                const session = container.resolve('Session');
+                const app = container.resolve('SpreadsheetApp') as typeof SpreadsheetApp as typeof SpreadsheetApp;
+                const session = container.resolve('Session') as typeof Session as typeof Session;
                 
                 return {
                     spreadsheetApp: app,
@@ -71,13 +71,13 @@ namespace Spec_GasDI_GAS {
             }, 'singleton');
             
             // Test: Resolve factory-created service
-            const userRepo = container.resolve('UserRepository');
+            const userRepo = container.resolve('UserRepository') as any;
             TAssert.isTrue(!!userRepo, 'UserRepository should be created');
             TAssert.equals(userRepo.currentUser, 'test@example.com', 'Should have current user email');
             TAssert.equals(userRepo.timezone, 'America/New_York', 'Should have timezone');
             
             // Test: Singleton behavior
-            const userRepo2 = container.resolve('UserRepository');
+            const userRepo2 = container.resolve('UserRepository') as any;
             TAssert.isTrue(userRepo === userRepo2, 'Singleton should return same instance');
 
         } finally {
@@ -105,14 +105,14 @@ namespace Spec_GasDI_GAS {
             const requestScope2 = rootContainer.createScope('request-2');
             
             // Test: Each scope gets its own execution context
-            const ctx1 = requestScope1.resolve('ExecutionContext');
-            const ctx2 = requestScope2.resolve('ExecutionContext');
+            const ctx1 = requestScope1.resolve('ExecutionContext') as any;
+            const ctx2 = requestScope2.resolve('ExecutionContext') as any;
             
             TAssert.isTrue(ctx1 !== ctx2, 'Different scopes should have different contexts');
             TAssert.isTrue(ctx1.executionId !== ctx2.executionId, 'Execution IDs should be different');
             
             // Test: Within same scope, same instance is returned
-            const ctx1Again = requestScope1.resolve('ExecutionContext');
+            const ctx1Again = requestScope1.resolve('ExecutionContext') as any;
             TAssert.isTrue(ctx1 === ctx1Again, 'Same scope should return same instance');
             
             // Test: Both contexts can access shared Logger
@@ -130,12 +130,12 @@ namespace Spec_GasDI_GAS {
         
         try {
             const container = new GasDI.Container();
-            const mockLogger = globalThis.Logger as TestHelpers.GAS.MockLogger;
+            const mockLogger = globalThis.Logger as unknown as TestHelpers.GAS.MockLogger;
             
             // Register EventSystem dependencies
             container.registerValue('Logger', mockLogger);
             container.registerFactory('TriggerLogger', () => {
-                const logger = container.resolve('Logger');
+                const logger = container.resolve('Logger') as typeof Logger;
                 return {
                     logTriggerStart: (triggerId: string) => {
                         logger.log(`Trigger ${triggerId} started`);
@@ -149,7 +149,7 @@ namespace Spec_GasDI_GAS {
             // Create trigger handler that uses DI
             const triggerHandler = {
                 handleDailyReport: function() {
-                    const triggerLogger = container.resolve('TriggerLogger');
+                    const triggerLogger = container.resolve('TriggerLogger') as any;
                     triggerLogger.logTriggerStart('daily-report');
                     
                     // Simulate report generation
@@ -180,7 +180,7 @@ namespace Spec_GasDI_GAS {
         
         try {
             const container = new GasDI.Container();
-            const mockApp = globalThis.SpreadsheetApp as TestHelpers.GAS.MockSpreadsheetApp;
+            const mockApp = globalThis.SpreadsheetApp as unknown as TestHelpers.GAS.MockSpreadsheetApp;
             
             // Setup test spreadsheet
             mockApp.setupSpreadsheet('user-data', {
@@ -196,14 +196,14 @@ namespace Spec_GasDI_GAS {
             container.registerValue('UserSheetId', 'user-data');
             
             container.registerFactory('UserRepository', () => {
-                const app = container.resolve('SpreadsheetApp');
-                const sheetId = container.resolve('UserSheetId');
+                const app = container.resolve('SpreadsheetApp') as typeof SpreadsheetApp;
+                const sheetId = container.resolve('UserSheetId') as any;
                 
                 return {
                     findUser: function(userId: string) {
-                        const sheet = app.openById(sheetId).getSheetByName('Users');
+                        const sheet = app.openById(sheetId).getSheetByName('Users') as any;
                         const data = sheet!.getData();
-                        const userRow = data.find(row => row[0] === userId);
+                        const userRow = data.find((row: any) => row[0] === userId);
                         
                         if (!userRow) return null;
                         return {
@@ -214,10 +214,10 @@ namespace Spec_GasDI_GAS {
                     },
                     
                     getAllUsers: function() {
-                        const sheet = app.openById(sheetId).getSheetByName('Users');
+                        const sheet = app.openById(sheetId).getSheetByName('Users') as any;
                         const data = sheet!.getData();
                         
-                        return data.slice(1).map(row => ({
+                        return data.slice(1).map((row: any) => ({
                             id: row[0],
                             name: row[1],
                             email: row[2]
@@ -227,7 +227,7 @@ namespace Spec_GasDI_GAS {
             }, 'singleton');
             
             // Test: Use repository through DI
-            const userRepo = container.resolve('UserRepository');
+            const userRepo = container.resolve('UserRepository') as any;
             
             const alice = userRepo.findUser('u1');
             TAssert.isTrue(!!alice, 'Should find user Alice');
@@ -264,7 +264,7 @@ namespace Spec_GasDI_GAS {
             }, 'singleton');
             
             // Test: Service works when GAS services are available
-            const service1 = container.resolve('ProblematicService');
+            const service1 = container.resolve('ProblematicService') as any;
             TAssert.isTrue(service1.isReady, 'Service should work with GAS services available');
             
             // Test: Service fails when GAS services are unavailable
@@ -336,7 +336,7 @@ namespace Spec_GasDI_GAS {
         
         try {
             const container = new GasDI.Container();
-            const mockUtilities = globalThis.Utilities as TestHelpers.GAS.MockUtilities;
+            const mockUtilities = globalThis.Utilities as unknown as TestHelpers.GAS.MockUtilities;
             
             // Register multiple services to test resolution performance
             for (let i = 0; i < 20; i++) {
@@ -352,7 +352,7 @@ namespace Spec_GasDI_GAS {
             const services = [];
             
             for (let i = 0; i < 20; i++) {
-                services.push(container.resolve(`Service${i}`));
+                services.push(container.resolve(`Service${i}`) as any);
             }
             
             const endTime = Date.now();
@@ -362,7 +362,7 @@ namespace Spec_GasDI_GAS {
             TAssert.isTrue(resolutionTime < 1000, 'Resolution should be fast (< 1 second)');
             
             // Test: Each service is unique (transient lifetime)
-            const service0Again = container.resolve('Service0');
+            const service0Again = container.resolve('Service0') as any;
             TAssert.isTrue(services[0] !== service0Again, 'Transient services should be unique instances');
 
         } finally {
@@ -376,8 +376,8 @@ namespace Spec_GasDI_GAS {
         
         try {
             const container = new GasDI.Container();
-            const mockApp = globalThis.SpreadsheetApp as TestHelpers.GAS.MockSpreadsheetApp;
-            const mockLogger = globalThis.Logger as TestHelpers.GAS.MockLogger;
+            const mockApp = globalThis.SpreadsheetApp as unknown as TestHelpers.GAS.MockSpreadsheetApp;
+            const mockLogger = globalThis.Logger as unknown as TestHelpers.GAS.MockLogger;
             
             // Setup: Application data
             mockApp.setupSpreadsheet('app-config', {
@@ -397,16 +397,16 @@ namespace Spec_GasDI_GAS {
             
             // Register application services
             container.registerFactory('ConfigService', () => {
-                const app = container.resolve('SpreadsheetApp');
-                const sheetId = container.resolve('ConfigSheetId');
+                const app = container.resolve('SpreadsheetApp') as typeof SpreadsheetApp;
+                const sheetId = container.resolve('ConfigSheetId') as string;
                 
                 return {
                     getConfig: function() {
-                        const sheet = app.openById(sheetId).getSheetByName('Settings');
+                        const sheet = app.openById(sheetId).getSheetByName('Settings') as any;
                         const data = sheet!.getData();
                         const config: { [key: string]: string } = {};
                         
-                        data.slice(1).forEach(row => {
+                        data.slice(1).forEach((row: any) => {
                             config[row[0]] = row[1];
                         });
                         
@@ -416,9 +416,9 @@ namespace Spec_GasDI_GAS {
             }, 'singleton');
             
             container.registerFactory('ApplicationService', () => {
-                const configService = container.resolve('ConfigService');
-                const logger = container.resolve('Logger');
-                const session = container.resolve('Session');
+                const configService = container.resolve('ConfigService') as any;
+                const logger = container.resolve('Logger') as typeof Logger;
+                const session = container.resolve('Session') as typeof Session;
                 
                 return {
                     initialize: function() {
@@ -439,7 +439,7 @@ namespace Spec_GasDI_GAS {
             
             // Test: Initialize application through DI
             const appScope = container.createScope('app-execution');
-            const appService = appScope.resolve('ApplicationService');
+            const appService = appScope.resolve('ApplicationService') as any;
             
             const appInfo = appService.initialize();
             

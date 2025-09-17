@@ -12,7 +12,7 @@ namespace Spec_GAS_Advanced {
         TestHelpers.GAS.installAll();
         
         try {
-            const mockScriptApp = globalThis.ScriptApp as TestHelpers.GAS.MockScriptApp;
+            const mockScriptApp = globalThis.ScriptApp as unknown as TestHelpers.GAS.MockScriptApp;
             
             // Test: Create time-based trigger
             const trigger = mockScriptApp
@@ -117,7 +117,7 @@ namespace Spec_GAS_Advanced {
         TestHelpers.GAS.installAll();
         
         try {
-            const mockSession = globalThis.Session as TestHelpers.GAS.MockSession;
+            const mockSession = globalThis.Session as unknown as TestHelpers.GAS.MockSession;
             
             // Test: Script timezone
             TAssert.equals(mockSession.getScriptTimeZone(), 'America/New_York', 'Should have default timezone');
@@ -133,7 +133,7 @@ namespace Spec_GAS_Advanced {
             TAssert.equals(mockSession.getActiveUser().getEmail(), 'admin@company.com', 'Should update user email');
             
             // Test: Timezone-aware operations
-            const mockUtilities = globalThis.Utilities as TestHelpers.GAS.MockUtilities;
+            const mockUtilities = globalThis.Utilities as unknown as TestHelpers.GAS.MockUtilities;
             const testDate = new Date('2024-01-15T10:30:00Z');
             
             const formattedDate = mockUtilities.formatDate(testDate, mockSession.getScriptTimeZone(), 'yyyy-MM-dd HH:mm');
@@ -195,7 +195,7 @@ namespace Spec_GAS_Advanced {
         TestHelpers.GAS.installAll();
         
         try {
-            const mockUtilities = globalThis.Utilities as TestHelpers.GAS.MockUtilities;
+            const mockUtilities = globalThis.Utilities as unknown as TestHelpers.GAS.MockUtilities;
             const mockLogger = globalThis.Logger as unknown as TestHelpers.GAS.MockLogger;
             
             // Test: Simulate execution time monitoring
@@ -271,9 +271,9 @@ namespace Spec_GAS_Advanced {
         TestHelpers.GAS.installAll();
         
         try {
-            const mockScriptApp = globalThis.ScriptApp as TestHelpers.GAS.MockScriptApp;
+            const mockScriptApp = globalThis.ScriptApp as unknown as TestHelpers.GAS.MockScriptApp;
             const mockLogger = globalThis.Logger as unknown as TestHelpers.GAS.MockLogger;
-            const mockApp = globalThis.SpreadsheetApp as TestHelpers.GAS.MockSpreadsheetApp;
+            const mockApp = globalThis.SpreadsheetApp as unknown as TestHelpers.GAS.MockSpreadsheetApp;
             
             // Setup: Workflow data spreadsheet
             mockApp.setupSpreadsheet('workflow-data', {
@@ -351,9 +351,9 @@ namespace Spec_GAS_Advanced {
         TestHelpers.GAS.installAll();
         
         try {
-            const mockScriptApp = globalThis.ScriptApp as TestHelpers.GAS.MockScriptApp;
+            const mockScriptApp = globalThis.ScriptApp as unknown as TestHelpers.GAS.MockScriptApp;
             const mockLogger = globalThis.Logger as unknown as TestHelpers.GAS.MockLogger;
-            const mockSession = globalThis.Session as TestHelpers.GAS.MockSession;
+            const mockSession = globalThis.Session as unknown as TestHelpers.GAS.MockSession;
             
             // Setup: Application state tracking
             const appState = {
