@@ -6,13 +6,13 @@
 /// <reference types="google-apps-script" />
 
 // Core GAS Services
-declare var Logger: GoogleAppsScript.Base.Logger;
-declare var SpreadsheetApp: GoogleAppsScript.Spreadsheet.SpreadsheetApp;
-declare var ScriptApp: GoogleAppsScript.Script.ScriptApp;
-declare var Session: GoogleAppsScript.Base.Session;
-declare var Utilities: GoogleAppsScript.Utilities.Utilities;
-declare var PropertiesService: GoogleAppsScript.Properties.PropertiesService;
-declare var LockService: GoogleAppsScript.Lock.LockService;
+declare const Logger: GoogleAppsScript.Base.Logger;
+declare const SpreadsheetApp: GoogleAppsScript.Spreadsheet.SpreadsheetApp;
+declare const ScriptApp: GoogleAppsScript.Script.ScriptApp;
+declare const Session: GoogleAppsScript.Base.Session;
+declare const Utilities: GoogleAppsScript.Utilities.Utilities;
+declare const PropertiesService: GoogleAppsScript.Properties.PropertiesService;
+declare const LockService: GoogleAppsScript.Lock.LockService;
 
 // Additional globals that might be needed in test environments
-declare var console: Console;
+declare const console: Console;
