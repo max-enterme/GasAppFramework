@@ -1,11 +1,3 @@
-/// <reference path="../Core.Types.d.ts" />
-/// <reference path="../interfaces/IRequestMapper.ts" />
-/// <reference path="../interfaces/IResponseMapper.ts" />
-/// <reference path="../interfaces/IApiLogic.ts" />
-/// <reference path="../interfaces/IRequestValidator.ts" />
-/// <reference path="../interfaces/IAuthService.ts" />
-/// <reference path="../interfaces/IMiddlewareManager.ts" />
-
 namespace Framework {
     /**
      * Abstract base controller for API endpoints
