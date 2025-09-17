@@ -142,7 +142,7 @@ namespace Spec_EventSystem_GAS {
         TestHelpers.GAS.installAll();
         
         try {
-            const mockLogger = globalThis.Logger as unknown as TestHelpers.GAS.MockLogger;
+            const mockLogger = (globalThis.Logger as unknown) as TestHelpers.GAS.MockLogger;
             const gasLogger = new EventSystem.Adapters.GAS.GasLogger();
             
             // Test info logging
@@ -167,7 +167,7 @@ namespace Spec_EventSystem_GAS {
         TestHelpers.GAS.installAll();
         
         try {
-            const mockLogger = globalThis.Logger as unknown as TestHelpers.GAS.MockLogger;
+            const mockLogger = (globalThis.Logger as unknown) as TestHelpers.GAS.MockLogger;
             const runLogger = new EventSystem.Adapters.GAS.LogOnlyRunLogger();
             
             const eventData = {
@@ -247,7 +247,7 @@ namespace Spec_EventSystem_GAS {
         TestHelpers.GAS.installAll();
         
         try {
-            const mockLogger = globalThis.Logger as unknown as TestHelpers.GAS.MockLogger;
+            const mockLogger = (globalThis.Logger as unknown) as TestHelpers.GAS.MockLogger;
             const gasLogger = new EventSystem.Adapters.GAS.GasLogger();
             
             // Test error logging with GAS error objects
@@ -273,7 +273,7 @@ namespace Spec_EventSystem_GAS {
         
         try {
             const mockApp = (globalThis as any).SpreadsheetApp as TestHelpers.GAS.MockSpreadsheetApp;
-            const mockLogger = globalThis.Logger as unknown as TestHelpers.GAS.MockLogger;
+            const mockLogger = (globalThis.Logger as unknown) as TestHelpers.GAS.MockLogger;
             
             // Setup: Create job configuration spreadsheet
             const jobData = [

@@ -130,7 +130,7 @@ namespace Spec_GasDI_GAS {
         
         try {
             const container = new GasDI.Container();
-            const mockLogger = globalThis.Logger as unknown as TestHelpers.GAS.MockLogger;
+            const mockLogger = (globalThis.Logger as unknown) as TestHelpers.GAS.MockLogger;
             
             // Register EventSystem dependencies
             container.registerValue('Logger', mockLogger);
@@ -377,7 +377,7 @@ namespace Spec_GasDI_GAS {
         try {
             const container = new GasDI.Container();
             const mockApp = globalThis.SpreadsheetApp as unknown as TestHelpers.GAS.MockSpreadsheetApp;
-            const mockLogger = globalThis.Logger as unknown as TestHelpers.GAS.MockLogger;
+            const mockLogger = (globalThis.Logger as unknown) as TestHelpers.GAS.MockLogger;
             
             // Setup: Application data
             mockApp.setupSpreadsheet('app-config', {
