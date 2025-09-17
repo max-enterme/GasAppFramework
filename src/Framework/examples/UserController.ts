@@ -1,6 +1,3 @@
-/// <reference path="../Core.Types.d.ts" />
-/// <reference path="../controllers/BaseApiController.ts" />
-
 namespace Framework.Examples {
     /**
      * Example request/response types for a User API
@@ -92,7 +89,7 @@ namespace Framework.Examples {
      * Example GAS entry point functions
      * These demonstrate how to use the controller in Google Apps Script
      */
-    
+
     /**
      * Handle GET requests in GAS
      */
