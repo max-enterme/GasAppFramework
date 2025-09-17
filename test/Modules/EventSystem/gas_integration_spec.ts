@@ -41,7 +41,7 @@ namespace Spec_EventSystem_GAS {
             delete (globalThis as any).testGlobalHandler;
             TestHelpers.GAS.resetAll();
         }
-    });
+    }, 'EventSystem');
 
     T.it('GAS SpreadsheetJobStore loads jobs from spreadsheet correctly', () => {
         // Test Case: SpreadsheetJobStore should read job configurations from GAS Spreadsheet
@@ -83,7 +83,7 @@ namespace Spec_EventSystem_GAS {
         } finally {
             TestHelpers.GAS.resetAll();
         }
-    });
+    }, 'EventSystem');
 
     T.it('GAS SpreadsheetJobStore handles empty and malformed spreadsheets', () => {
         // Test Case: SpreadsheetJobStore should handle edge cases gracefully
@@ -96,7 +96,7 @@ namespace Spec_EventSystem_GAS {
             // Edge Case 1: Empty spreadsheet (only headers)
             mockApp.setupSpreadsheet(testSheetId, { 
                 'EmptyJobs': [['id', 'handler', 'cron', 'multi', 'enabled']]
-            });
+            }, 'EventSystem');
             
             const emptyStore = new EventSystem.Adapters.GAS.SpreadsheetJobStore(testSheetId, 'EmptyJobs');
             const emptyJobs = emptyStore.load();
@@ -114,7 +114,7 @@ namespace Spec_EventSystem_GAS {
         } finally {
             TestHelpers.GAS.resetAll();
         }
-    });
+    }, 'EventSystem');
 
     T.it('GAS SystemClock returns current time correctly', () => {
         // Test Case: SystemClock should return current system time in GAS environment
@@ -135,7 +135,7 @@ namespace Spec_EventSystem_GAS {
         } finally {
             TestHelpers.GAS.resetAll();
         }
-    });
+    }, 'EventSystem');
 
     T.it('GAS Logger integrates with Logger service', () => {
         // Test Case: GasLogger should use GAS Logger service for output
@@ -160,7 +160,7 @@ namespace Spec_EventSystem_GAS {
         } finally {
             TestHelpers.GAS.resetAll();
         }
-    });
+    }, 'EventSystem');
 
     T.it('GAS RunLogger logs event data as JSON', () => {
         // Test Case: LogOnlyRunLogger should serialize event data to Logger
@@ -190,7 +190,7 @@ namespace Spec_EventSystem_GAS {
         } finally {
             TestHelpers.GAS.resetAll();
         }
-    });
+    }, 'EventSystem');
 
     T.it('EventSystem Trigger integrates with GAS timezone handling', () => {
         // Test Case: EventSystem should work correctly with GAS Session timezone
@@ -216,7 +216,7 @@ namespace Spec_EventSystem_GAS {
         } finally {
             TestHelpers.GAS.resetAll();
         }
-    });
+    }, 'EventSystem');
 
     T.it('EventSystem handles GAS execution limits and timing', () => {
         // Test Case: EventSystem should work within GAS execution constraints
@@ -240,7 +240,7 @@ namespace Spec_EventSystem_GAS {
         } finally {
             TestHelpers.GAS.resetAll();
         }
-    });
+    }, 'EventSystem');
 
     T.it('EventSystem error handling in GAS environment', () => {
         // Test Case: EventSystem should handle GAS-specific errors gracefully
@@ -265,7 +265,7 @@ namespace Spec_EventSystem_GAS {
         } finally {
             TestHelpers.GAS.resetAll();
         }
-    });
+    }, 'EventSystem');
 
     T.it('Complete EventSystem workflow in GAS environment', () => {
         // Test Case: Full integration test of EventSystem with GAS services
@@ -324,7 +324,7 @@ namespace Spec_EventSystem_GAS {
                 clock: mockClock,
                 scheduler: scheduler,
                 runlog: runLogger
-            });
+            }, 'EventSystem');
             
             // Test: Run trigger (should execute hourly job)
             trigger.tick(); // Use tick() instead of run()
@@ -337,5 +337,5 @@ namespace Spec_EventSystem_GAS {
             delete (globalThis as any).testHandler;
             TestHelpers.GAS.resetAll();
         }
-    });
+    }, 'EventSystem');
 }

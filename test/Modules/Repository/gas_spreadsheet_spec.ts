@@ -85,7 +85,7 @@ namespace Spec_Repository_GAS {
         } finally {
             TestHelpers.GAS.resetAll();
         }
-    });
+    }, 'Repository');
 
     T.it('GAS SpreadsheetStore handles empty and malformed sheets', () => {
         // Test Case: SpreadsheetStore should handle edge cases in sheet data
@@ -98,7 +98,7 @@ namespace Spec_Repository_GAS {
             const emptySheetId = 'empty-sheet';
             mockApp.setupSpreadsheet(emptySheetId, { 
                 'Empty': [['id', 'name', 'value', 'active']]
-            });
+            }, 'Repository');
             
             const emptyStore = new Repository.Adapters.GAS.SpreadsheetStore(
                 emptySheetId, 'Empty', schema
@@ -120,7 +120,7 @@ namespace Spec_Repository_GAS {
         } finally {
             TestHelpers.GAS.resetAll();
         }
-    });
+    }, 'Repository');
 
     T.it('GAS SpreadsheetStore handles custom header rows', () => {
         // Test Case: SpreadsheetStore should work with custom header row positions
@@ -155,7 +155,7 @@ namespace Spec_Repository_GAS {
         } finally {
             TestHelpers.GAS.resetAll();
         }
-    });
+    }, 'Repository');
 
     T.it('GAS SpreadsheetStore handles soft delete functionality', () => {
         // Test Case: SpreadsheetStore should support soft delete operations
@@ -196,7 +196,7 @@ namespace Spec_Repository_GAS {
         } finally {
             TestHelpers.GAS.resetAll();
         }
-    });
+    }, 'Repository');
 
     T.it('GAS SpreadsheetStore saves new entities correctly', () => {
         // Test Case: SpreadsheetStore should add new rows to spreadsheet
@@ -209,7 +209,7 @@ namespace Spec_Repository_GAS {
             // Setup: Empty sheet with headers
             mockApp.setupSpreadsheet(sheetId, { 
                 'SaveTest': [['id', 'name', 'value', 'active']]
-            });
+            }, 'Repository');
             
             const store = new Repository.Adapters.GAS.SpreadsheetStore(
                 sheetId, 'SaveTest', schema
@@ -235,7 +235,7 @@ namespace Spec_Repository_GAS {
         } finally {
             TestHelpers.GAS.resetAll();
         }
-    });
+    }, 'Repository');
 
     T.it('GAS SpreadsheetStore updates existing entities correctly', () => {
         // Test Case: SpreadsheetStore should update existing rows in spreadsheet
@@ -283,7 +283,7 @@ namespace Spec_Repository_GAS {
         } finally {
             TestHelpers.GAS.resetAll();
         }
-    });
+    }, 'Repository');
 
     T.it('GAS SpreadsheetStore handles data type conversions', () => {
         // Test Case: SpreadsheetStore should handle GAS data type conversions properly
@@ -329,7 +329,7 @@ namespace Spec_Repository_GAS {
         } finally {
             TestHelpers.GAS.resetAll();
         }
-    });
+    }, 'Repository');
 
     T.it('GAS SpreadsheetStore handles range operations correctly', () => {
         // Test Case: SpreadsheetStore should work with different range configurations
@@ -372,7 +372,7 @@ namespace Spec_Repository_GAS {
         } finally {
             TestHelpers.GAS.resetAll();
         }
-    });
+    }, 'Repository');
 
     T.it('GAS SpreadsheetStore error handling for spreadsheet issues', () => {
         // Test Case: SpreadsheetStore should handle GAS-specific errors gracefully
@@ -407,7 +407,7 @@ namespace Spec_Repository_GAS {
         } finally {
             TestHelpers.GAS.resetAll();
         }
-    });
+    }, 'Repository');
 
     T.it('Complete Repository workflow with GAS Spreadsheet integration', () => {
         // Test Case: Full integration test of Repository with GAS SpreadsheetStore
@@ -420,7 +420,7 @@ namespace Spec_Repository_GAS {
             // Setup: Empty sheet for full workflow test
             mockApp.setupSpreadsheet(sheetId, { 
                 'Workflow': [['id', 'name', 'value', 'active']]
-            });
+            }, 'Repository');
             
             // Create complete repository with GAS store
             const store = new Repository.Adapters.GAS.SpreadsheetStore(
@@ -434,7 +434,7 @@ namespace Spec_Repository_GAS {
                 store,
                 keyCodec,
                 logger: mockLogger
-            });
+            }, 'Repository');
             
             // Test: Load (should be empty)
             repository.load();
@@ -457,7 +457,7 @@ namespace Spec_Repository_GAS {
             // Test: Update entity
             const updateResult = repository.upsert({ 
                 id: 'w1', name: 'Updated Workflow One', value: 150, active: false 
-            });
+            }, 'Repository');
             
             TAssert.equals(updateResult.added.length, 0, 'Should add 0 entities');
             TAssert.equals(updateResult.updated.length, 1, 'Should update 1 entity');
@@ -478,5 +478,5 @@ namespace Spec_Repository_GAS {
         } finally {
             TestHelpers.GAS.resetAll();
         }
-    });
+    }, 'Repository');
 }

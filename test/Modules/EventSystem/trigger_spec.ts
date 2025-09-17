@@ -44,7 +44,7 @@ namespace Spec_Trigger {
             lock: new FakeLockFactory(),
             clock: new FakeClock(now),
             scheduler: new FakeSchduler(),
-        });
+        }, 'EventSystem');
         es.tick();
         TAssert.isTrue(inv.calls.length === 1, "should run last only");
     }, 'EventSystem');
