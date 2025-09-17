@@ -21,7 +21,7 @@ namespace EventSystem.Workflow {
         return 'Etc/GMT'
     }
 
-    export function create(deps: WorkflowDeps) {
+    export function create(deps: WorkflowDeps): WorkflowEngine {
         const logger = deps.logger ?? { info: (_: string) => { }, error: (_: string) => { } }
         const runlog = deps.runlog ?? { log: (_: any) => { } }
         const softLimit = Math.max(0, deps.softTimeLimitMs ?? 60000)

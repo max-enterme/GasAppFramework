@@ -15,7 +15,7 @@ namespace Repository.Engine {
         store: Repository.Ports.Store<TEntity>
         keyCodec: Repository.Ports.KeyCodec<TEntity, Key>
         logger?: Shared.Types.Logger
-    }) {
+    }): Repository<TEntity, Key> {
         const logger = deps.logger ?? { info: (_: string) => { }, error: (_: string) => { } }
         let rows: TEntity[] = []
         let idx: Idx = new Map()

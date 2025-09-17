@@ -23,7 +23,7 @@ namespace EventSystem.Trigger {
         return "Etc/GMT";
     }
 
-    export function create(deps: TriggerDeps) {
+    export function create(deps: TriggerDeps): TriggerEngine {
         const logger = deps.logger ?? { info: (_: string) => { }, error: (_: string) => { } };
         const runlog = deps.runlog ?? { log: (_: any) => { } };
         const lookBackMs = Math.max(0, (deps.lookBackHours ?? 24) * 3600 * 1000);

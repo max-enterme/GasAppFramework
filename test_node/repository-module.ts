@@ -4,7 +4,7 @@
  */
 
 /// <reference path="../src/Shared/CommonTypes.d.ts" />
-/// <reference path="../src/Modules/Repository/RepositoryPorts.d.ts" />
+/// <reference path="../src/Modules/Repository/Core.Types.d.ts" />
 
 // Load namespace files by requiring them with TypeScript
 import '../src/Modules/Repository/Adapters.Memory'

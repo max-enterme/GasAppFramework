@@ -58,4 +58,14 @@ declare namespace EventSystem {
         }
         interface Enqueuer { enqueueResume(instanceId: string, delayMs?: number): void; }
     }
+
+    interface TriggerEngine {
+        tick(): void;
+        runNow(jobId: string, times?: number): void;
+    }
+
+    interface WorkflowEngine {
+        start(workflowId: string, payloadJson?: string | null, tz?: string | null): string;
+        resume(instanceId: string): void;
+    }
 }

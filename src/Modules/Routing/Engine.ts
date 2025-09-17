@@ -37,15 +37,6 @@ namespace Routing {
         return { ok: true, params }
     }
 
-    export type Router<Ctx = any, Res = any> = {
-        use(mw: Ports.Middleware<Ctx, Res>): Router<Ctx, Res>
-        register(path: string, handler: Ports.Handler<Ctx, Res>): Router<Ctx, Res>
-        registerAll(map: { [path: string]: Ports.Handler<Ctx, Res> }): Router<Ctx, Res>
-        mount(prefix: string, sub: Router<Ctx, Res>): Router<Ctx, Res>
-        resolve(path: string): { handler: Ports.Handler<Ctx, Res>, params: any } | null
-        dispatch(path: string, ctx: Ctx): Res
-    }
-
     export function create<Ctx = any, Res = any>(logger?: Ports.Logger): Router<Ctx, Res> {
         function specificity(segments: any[]): number {
             let score = 0

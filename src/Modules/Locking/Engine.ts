@@ -47,7 +47,7 @@ namespace Locking.Engine {
         return `${resourceId}-${nowMs}-${Math.floor(r * 1e9)}`
     }
 
-    export function create(deps: Deps) {
+    export function create(deps: Deps): LockEngine {
         const ns = (deps.namespace ?? 'lock:')
 
         function acquire(resourceId: string, mode: Locking.Mode, ttlMs = DEFAULT_TTL, owner: string | null = null): Locking.AcquireResult {
@@ -69,11 +69,11 @@ namespace Locking.Engine {
                 st.entries.push({ token, owner, mode, expireMs: now + Math.max(1, ttlMs) })
                 deps.store.set(key, serialize(st))
                 const expireIso = new Date(now + Math.max(1, ttlMs)).toISOString()
-                
+
                 if (deps.logger) {
                     deps.logger.info(`Lock acquired for resource ${resourceId} (${mode}) by ${owner || 'anonymous'}`)
                 }
-                
+
                 return { ok: true, token, expireIso, mode, owner }
             } catch (error) {
                 if (deps.logger) {
