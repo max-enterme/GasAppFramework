@@ -20,9 +20,21 @@ GasAppFramework/
 │       ├── Errors.ts           # Base error classes
 │       └── Time.ts             # Time utilities
 └── test/                  # GAS-compatible test framework
-    ├── _framework/        # Custom test runner and helpers for GAS
-    │   └── TestHelpers.ts      # Test doubles and utilities
-    └── Modules/           # Module-specific tests
+    ├── @entrypoint.ts         # Main test runner (call test_RunAll() in GAS)
+    ├── _framework/            # Custom test runner and helpers for GAS
+    │   ├── Assert.ts              # Assertion utilities
+    │   ├── GasReporter.ts         # Test result reporting  
+    │   ├── Runner.ts              # Test execution engine
+    │   ├── Test.ts                # Test definition utilities
+    │   └── TestHelpers.ts         # Test doubles, GAS mocks, and utilities
+    └── Modules/               # Module-specific GAS integration tests
+        ├── EventSystem/           # GAS triggers, cron jobs, ScriptApp tests
+        ├── GAS/                   # Advanced GAS runtime feature tests
+        ├── GasDI/                 # Dependency injection in GAS environment
+        ├── Locking/               # LockService and PropertiesService tests
+        ├── Repository/            # SpreadsheetApp integration tests
+        ├── Routing/               # URL routing tests
+        └── StringHelper/          # String utility tests
 ```
 
 ## 🚀 Quick Start
@@ -69,6 +81,17 @@ npm run test:node -- --coverage
 
 ### GAS Tests
 
+The framework includes comprehensive integration tests for GAS-specific functionality:
+
+**Test Coverage:**
+- **EventSystem**: GAS triggers, cron jobs, ScriptApp integration, timezone handling
+- **Repository**: SpreadsheetApp integration, data persistence, range operations
+- **Locking**: LockService integration, PropertiesService distributed locking
+- **GasDI**: Dependency injection with GAS services, container scoping
+- **Advanced GAS**: Trigger management, script properties, execution limits
+
+**Running Tests:**
+
 1. Deploy the test framework to your GAS project:
    ```bash
    clasp push
@@ -80,7 +103,15 @@ npm run test:node -- --coverage
    test_RunAll()
    ```
 
-3. View results in the GAS logger or execution transcript.
+3. View results in the GAS logger or execution transcript:
+   ```
+   [TEST] total=45 ok=43 ng=2
+   ✅ GAS GlobalInvoker calls global functions correctly (12ms)
+   ✅ GAS SpreadsheetJobStore loads jobs from spreadsheet correctly (8ms)
+   ❌ GAS error handling test (15ms) :: Expected behavior not met
+   ```
+
+**For detailed testing instructions and patterns, see [GAS_TESTING_GUIDE.md](./GAS_TESTING_GUIDE.md)**
 
 ## 📦 Module Downloads & Deployment
 

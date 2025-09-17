@@ -4,7 +4,7 @@ namespace Spec_Routing {
         r.register('/hello', (_ctx: any) => 'world')
         const out = r.dispatch('/hello', {} as any)
         TAssert.equals(out, 'world', 'should return handler result')
-    })
+    }, 'Routing')
 
     T.it('param and wildcard matching with middleware', () => {
         const r = Routing.create()
@@ -21,13 +21,13 @@ namespace Spec_Routing {
         TAssert.equals(a, 'user#42', 'param id captured')
         TAssert.equals(b, 'file:a/b/c.txt', 'wildcard captured')
         TAssert.equals(seq.join(','), 'mw1,mw2,mw1,mw2', 'mw executed per dispatch in order')
-    })
+    }, 'Routing')
 
     T.it('resolve returns null when not found; dispatch throws', () => {
         const r = Routing.create()
         TAssert.isTrue(r.resolve('/x') === null, 'resolve null for missing')
         TAssert.throws(() => r.dispatch('/x', {} as any), 'dispatch should throw on 404')
-    })
+    }, 'Routing')
 
     T.it('mount nests routers', () => {
         const api = Routing.create()
@@ -36,5 +36,5 @@ namespace Spec_Routing {
         root.mount('/api', api)
         const out = root.dispatch('/api/v1/ping', {} as any)
         TAssert.equals(out, 'pong', 'mounted router works')
-    })
+    }, 'Routing')
 }

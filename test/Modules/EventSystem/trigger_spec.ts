@@ -47,5 +47,5 @@ namespace Spec_Trigger {
         });
         es.tick();
         TAssert.isTrue(inv.calls.length === 1, "should run last only");
-    });
+    }, 'EventSystem');
 }

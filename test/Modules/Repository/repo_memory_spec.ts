@@ -61,7 +61,7 @@ namespace Spec_Repo {
         // Test: Batch find with some non-existent keys
         const fAll = repo.findAll([{ id: 'u1', org: 'o1' }, { id: 'uX', org: 'o1' }])
         TAssert.equals(fAll.length, 1, 'findAll returns only existing')
-    })
+    }, 'Repository')
 
     T.it('delete removes rows by key', () => {
         // Test Case: Record deletion functionality
@@ -82,7 +82,7 @@ namespace Spec_Repo {
         // Verify: Record is actually removed
         const f1 = repo.find({ id: 'u1', org: 'o1' })
         TAssert.isTrue(f1 === null, 'deleted record is gone')
-    })
+    }, 'Repository')
 
     T.it('invalid key throws RepositoryError', () => {
         // Test Case: Error handling for invalid/missing key values
@@ -92,7 +92,7 @@ namespace Spec_Repo {
         
         // Edge Case: Empty string in required key field should throw
         TAssert.throws(() => repo.upsert({ id: '', org: 'o1', name: 'x', age: null }), 'missing key should throw')
-    })
+    }, 'Repository')
 
     T.it('schema hooks onBeforeSave/afterLoad are applied', () => {
         // Test Case: Schema transformation hooks work correctly
@@ -104,7 +104,7 @@ namespace Spec_Repo {
         repo.upsert({ id: 'u3', org: 'o1', name: ' Carol  ', age: 33 })
         const e = repo.find({ id: 'u3', org: 'o1' })!
         TAssert.equals(e.name, 'Carol', 'name trimmed by onBeforeSave')
-    })
+    }, 'Repository')
 
     T.it('edge case: null and undefined handling', () => {
         // Test Case: Edge cases with null/undefined values
@@ -121,7 +121,7 @@ namespace Spec_Repo {
         repo.upsert({ id: 'u5', org: 'o1', name: 'Eve' } as any)
         const e2 = repo.find({ id: 'u5', org: 'o1' })!
         TAssert.isTrue(e2.age === null, 'missing age becomes null')
-    })
+    }, 'Repository')
 
     T.it('edge case: find non-existent record returns null', () => {
         // Test Case: Query for records that don't exist
@@ -136,5 +136,5 @@ namespace Spec_Repo {
         // Edge Case: Batch find with all non-existent keys returns empty array
         const noneFound = repo.findAll([{ id: 'x', org: 'y' }, { id: 'a', org: 'b' }])
         TAssert.equals(noneFound.length, 0, 'all non-existent returns empty array')
-    })
+    }, 'Repository')
 }
