@@ -69,6 +69,11 @@ namespace Locking.Engine {
                 st.entries.push({ token, owner, mode, expireMs: now + Math.max(1, ttlMs) })
                 deps.store.set(key, serialize(st))
                 const expireIso = new Date(now + Math.max(1, ttlMs)).toISOString()
+                
+                if (deps.logger) {
+                    deps.logger.info(`Lock acquired for resource ${resourceId} (${mode}) by ${owner || 'anonymous'}`)
+                }
+                
                 return { ok: true, token, expireIso, mode, owner }
             } catch (error) {
                 if (deps.logger) {
