@@ -30,7 +30,7 @@ namespace Spec_GAS_Advanced {
             TAssert.equals(triggers[0].getHandlerFunction(), 'dailyReport', 'Listed trigger should match created');
             
             // Test: Create hourly trigger
-            const _hourlyTrigger = mockScriptApp
+            const Spec_hourlyTrigger = mockScriptApp
                 .newTrigger('hourlyCheck')
                 .timeBased()
                 .everyHours(2)

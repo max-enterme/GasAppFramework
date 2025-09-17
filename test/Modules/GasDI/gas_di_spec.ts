@@ -336,7 +336,7 @@ namespace Spec_GasDI_GAS {
         
         try {
             const container = new GasDI.Container();
-            const mockUtilities = globalThis.Utilities as unknown as TestHelpers.GAS.MockUtilities;
+            const _mockUtilities = globalThis.Utilities as unknown as TestHelpers.GAS.MockUtilities;
             
             // Register multiple services to test resolution performance
             for (let i = 0; i < 20; i++) {

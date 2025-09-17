@@ -289,11 +289,11 @@ namespace Spec_EventSystem_GAS {
             // Test: Create complete EventSystem trigger setup
             const jobStore = new EventSystem.Adapters.GAS.SpreadsheetJobStore('jobs-sheet', 'Jobs');
             const scheduler = {
-                occurrences: (cronExpr: string, from: Date, to: Date, tz?: string | null) => {
+                occurrences: (cronExpr: string, from: Date, to: Date, _tz?: string | null) => {
                     // Simple mock implementation for testing
                     return EventSystem.Schedule.occurrences(from, to);
                 },
-                isDue: (cronExpr: string, at: Date, tz?: string | null) => {
+                isDue: (cronExpr: string, at: Date, _tz?: string | null) => {
                     return EventSystem.Schedule.isDue(cronExpr, at);
                 }
             };
@@ -306,7 +306,7 @@ namespace Spec_EventSystem_GAS {
                 set: (_jobId: string, _iso: string) => {}
             };
             const mockLock = {
-                tryWait: (ms: number) => true,
+                tryWait: (_ms: number) => true,
                 release: () => {}
             };
             const mockLockFactory = {

@@ -327,12 +327,12 @@ namespace Spec_Locking_GAS {
             lockEngine.release(resourceId, readLock2!.token);
             
             // Test: Write lock should now succeed
-            const writeLock2 = lockEngine.acquire(resourceId, 'w', 'writer1', 30000);
+            const writeLock2 = lockEngine.acquire(resourceId, 'w', 'writer1', 30);
             TAssert.isTrue(!!writeLock2, 'Write lock should succeed after read locks released');
             
             // Test: No other locks should be possible while write lock exists
-            const blockedRead = lockEngine.acquire(resourceId, 'r', 'reader3', 30000);
-            const blockedWrite = lockEngine.acquire(resourceId, 'w', 'writer2', 30000);
+            const blockedRead = lockEngine.acquire(resourceId, 'r', 'reader3', 30);
+            const blockedWrite = lockEngine.acquire(resourceId, 'w', 'writer2', 30);
             
             TAssert.isTrue(blockedRead === null, 'Read lock should be blocked by write lock');
             TAssert.isTrue(blockedWrite === null, 'Write lock should be blocked by existing write lock');
