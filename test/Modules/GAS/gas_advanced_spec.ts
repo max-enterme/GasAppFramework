@@ -48,7 +48,7 @@ namespace Spec_GAS_Advanced {
         } finally {
             TestHelpers.GAS.resetAll();
         }
-    });
+    }, 'GAS');
 
     T.it('GAS PropertiesService for application configuration', () => {
         // Test Case: PropertiesService should handle application configuration storage
@@ -89,7 +89,7 @@ namespace Spec_GAS_Advanced {
                 'cache.ttl': '3600',
                 'retry.attempts': '3',
                 'logging.level': 'INFO'
-            });
+            }, 'GAS');
             
             const allProps = scriptProps.getProperties();
             TAssert.equals(allProps['cache.ttl'], '3600', 'Batch properties should be set');
@@ -110,7 +110,7 @@ namespace Spec_GAS_Advanced {
             delete (globalThis as any).PropertiesService;
             TestHelpers.GAS.resetAll();
         }
-    });
+    }, 'GAS');
 
     T.it('GAS execution context and user information', () => {
         // Test Case: Session service should provide execution context information
@@ -145,7 +145,7 @@ namespace Spec_GAS_Advanced {
         } finally {
             TestHelpers.GAS.resetAll();
         }
-    });
+    }, 'GAS');
 
     T.it('GAS error handling and logging integration', () => {
         // Test Case: Error handling should integrate with GAS Logger service
@@ -188,7 +188,7 @@ namespace Spec_GAS_Advanced {
         } finally {
             TestHelpers.GAS.resetAll();
         }
-    });
+    }, 'GAS');
 
     T.it('GAS quota and execution limit handling', () => {
         // Test Case: Application should handle GAS quotas and execution limits
@@ -264,7 +264,7 @@ namespace Spec_GAS_Advanced {
         } finally {
             TestHelpers.GAS.resetAll();
         }
-    });
+    }, 'GAS');
 
     T.it('GAS trigger-based workflow execution', () => {
         // Test Case: Complete workflow triggered by GAS time-based triggers
@@ -283,7 +283,7 @@ namespace Spec_GAS_Advanced {
                     ['task2', 'Data Cleanup', 'pending', ''],
                     ['task3', 'Backup', 'pending', '']
                 ]
-            });
+            }, 'GAS');
             
             // Setup: Mock workflow execution functions
             const workflowState = { executedTasks: [] as string[] };
@@ -344,7 +344,7 @@ namespace Spec_GAS_Advanced {
             delete (globalThis as any).executeWorkflow;
             TestHelpers.GAS.resetAll();
         }
-    });
+    }, 'GAS');
 
     T.it('Complete GAS application lifecycle management', () => {
         // Test Case: Full application lifecycle with initialization, execution, and cleanup
@@ -426,7 +426,7 @@ namespace Spec_GAS_Advanced {
                     if (trigger.getHandlerFunction().startsWith('cleanup')) {
                         mockScriptApp.deleteTrigger(trigger);
                     }
-                });
+                }, 'GAS');
                 
                 // Update properties
                 props.setProperty('app.shutdown', new Date().toISOString());
@@ -495,5 +495,5 @@ namespace Spec_GAS_Advanced {
             delete (globalThis as any).PropertiesService;
             TestHelpers.GAS.resetAll();
         }
-    });
+    }, 'GAS');
 }
