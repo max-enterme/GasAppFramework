@@ -49,7 +49,6 @@ fabric.properties
 # project
 node_modules/**
 **/dist/**
-**/examples/**
 src/@const.ts
 
 # Clasp
