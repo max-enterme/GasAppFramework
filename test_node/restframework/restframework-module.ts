@@ -1,6 +1,6 @@
 /**
- * Framework module wrapper for Node.js testing
- * This module provides a testable implementation of the Framework namespace
+ * RestFramework module wrapper for Node.js testing
+ * This module provides a testable implementation of the RestFramework namespace
  */
 
 // Define shared types that would normally come from namespaces
@@ -30,9 +30,9 @@ export type ErrorCode =
     | 'BadRequest';
 
 /**
- * Basic logger implementation for API Framework
+ * Basic logger implementation for API RestFramework
  */
-export class FrameworkLogger implements Logger {
+export class RestFrameworkLogger implements Logger {
     constructor(private prefix: string = '[API]') {}
 
     info(msg: string): void {
@@ -44,8 +44,8 @@ export class FrameworkLogger implements Logger {
         console.error(`${this.prefix} ${new Date().toISOString()} ERROR: ${msg}${errorMsg}`);
     }
 
-    static create(prefix: string = '[API]'): FrameworkLogger {
-        return new FrameworkLogger(prefix);
+    static create(prefix: string = '[API]'): RestFrameworkLogger {
+        return new RestFrameworkLogger(prefix);
     }
 }
 
@@ -89,11 +89,11 @@ export class ApiResponseFormatter {
 }
 
 /**
- * Centralized error handling for API Framework
+ * Centralized error handling for API RestFramework
  */
 export class ErrorHandler {
     constructor(
-        private logger: Logger = new FrameworkLogger('[ErrorHandler]')
+        private logger: Logger = new RestFrameworkLogger('[ErrorHandler]')
     ) {}
 
     handle(error: unknown): ApiResponse<never> {

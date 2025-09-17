@@ -1,10 +1,10 @@
 /**
- * Framework Core Components Tests
+ * RestFramework Core Components Tests
  */
 
-import { FrameworkLogger, ApiResponseFormatter, ErrorHandler } from './framework-module';
+import { RestFrameworkLogger, ApiResponseFormatter, ErrorHandler } from './restframework-module';
 
-describe('Framework Core Components', () => {
+describe('RestFramework Core Components', () => {
     describe('Logger', () => {
         let consoleSpy: jest.SpyInstance;
 
@@ -17,7 +17,7 @@ describe('Framework Core Components', () => {
         });
 
         it('should create logger with default prefix', () => {
-            const logger = new FrameworkLogger();
+            const logger = new RestFrameworkLogger();
             logger.info('test message');
             
             expect(consoleSpy).toHaveBeenCalledWith(
@@ -26,7 +26,7 @@ describe('Framework Core Components', () => {
         });
 
         it('should create logger with custom prefix', () => {
-            const logger = FrameworkLogger.create('[TEST]');
+            const logger = RestFrameworkLogger.create('[TEST]');
             logger.info('test message');
             
             expect(consoleSpy).toHaveBeenCalledWith(

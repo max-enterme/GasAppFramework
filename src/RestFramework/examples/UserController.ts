@@ -1,4 +1,4 @@
-namespace Framework.Examples {
+namespace RestFramework.Examples {
     /**
      * Example request/response types for a User API
      */
@@ -19,7 +19,7 @@ namespace Framework.Examples {
      * Example request mapper implementation
      * Maps raw GAS request to typed UserRequest
      */
-    class UserRequestMapper implements Framework.Types.IRequestMapper<any, UserRequest> {
+    class UserRequestMapper implements RestFramework.Types.IRequestMapper<any, UserRequest> {
         map(input: any): UserRequest {
             return {
                 id: input.id || input.parameter?.id || '',
@@ -33,7 +33,7 @@ namespace Framework.Examples {
      * Example response mapper implementation
      * Maps business result to API response format
      */
-    class UserResponseMapper implements Framework.Types.IResponseMapper<UserResponse, any> {
+    class UserResponseMapper implements RestFramework.Types.IResponseMapper<UserResponse, any> {
         map(input: UserResponse): any {
             return {
                 user: {
@@ -50,7 +50,7 @@ namespace Framework.Examples {
      * Example business logic implementation
      * Simulates user operations
      */
-    class UserApiLogic implements Framework.Types.IApiLogic<UserRequest, UserResponse> {
+    class UserApiLogic implements RestFramework.Types.IApiLogic<UserRequest, UserResponse> {
         execute(request: UserRequest): UserResponse {
             // Simulate business logic
             if (!request.id) {
@@ -70,7 +70,7 @@ namespace Framework.Examples {
      * Example concrete API controller
      * Demonstrates minimal implementation of BaseApiController
      */
-    export class UserController extends Framework.BaseApiController<UserRequest, UserResponse> {
+    export class UserController extends RestFramework.BaseApiController<UserRequest, UserResponse> {
         protected readonly requestMapper = new UserRequestMapper();
         protected readonly responseMapper = new UserResponseMapper();
         protected readonly apiLogic = new UserApiLogic();
@@ -79,7 +79,7 @@ namespace Framework.Examples {
          * GAS entry point function example
          * This would be called from doGet/doPost in Apps Script
          */
-        static handleRequest(request: any): Framework.Types.ApiResponse<any> {
+        static handleRequest(request: any): RestFramework.Types.ApiResponse<any> {
             const controller = new UserController();
             return controller.handle(request);
         }

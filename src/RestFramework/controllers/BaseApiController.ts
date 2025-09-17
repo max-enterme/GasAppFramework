@@ -1,4 +1,4 @@
-namespace Framework {
+namespace RestFramework {
     /**
      * Abstract base controller for API endpoints
      * Provides standardized request/response handling with dependency injection support
@@ -6,23 +6,23 @@ namespace Framework {
     @GasDI.Decorators.Resolve()
     export abstract class BaseApiController<TRequest = any, TResponse = any> {
         // Required dependencies (must be provided)
-        protected abstract readonly requestMapper: Framework.Types.IRequestMapper<any, TRequest>;
-        protected abstract readonly responseMapper: Framework.Types.IResponseMapper<TResponse, any>;
-        protected abstract readonly apiLogic: Framework.Types.IApiLogic<TRequest, TResponse>;
+        protected abstract readonly requestMapper: RestFramework.Types.IRequestMapper<any, TRequest>;
+        protected abstract readonly responseMapper: RestFramework.Types.IResponseMapper<TResponse, any>;
+        protected abstract readonly apiLogic: RestFramework.Types.IApiLogic<TRequest, TResponse>;
 
         // Optional dependencies (can be null, injected via DI)
         @GasDI.Decorators.Inject('requestValidator', true)
-        protected readonly requestValidator?: Framework.Types.IRequestValidator<TRequest>;
+        protected readonly requestValidator?: RestFramework.Types.IRequestValidator<TRequest>;
 
         @GasDI.Decorators.Inject('authService', true)
-        protected readonly authService?: Framework.Types.IAuthService;
+        protected readonly authService?: RestFramework.Types.IAuthService;
 
         @GasDI.Decorators.Inject('middlewareManager', true)
-        protected readonly middlewareManager?: Framework.Types.IMiddlewareManager;
+        protected readonly middlewareManager?: RestFramework.Types.IMiddlewareManager;
 
         // Framework dependencies (with defaults)
         @GasDI.Decorators.Inject('logger', true)
-        private readonly logger: Shared.Types.Logger = Framework.Logger.create('[BaseApiController]');
+        private readonly logger: Shared.Types.Logger = RestFramework.Logger.create('[BaseApiController]');
 
         @GasDI.Decorators.Inject('errorHandler', true)
         private readonly errorHandler: ErrorHandler = ErrorHandler.create(this.logger);
@@ -31,7 +31,7 @@ namespace Framework {
          * Main entry point for handling requests
          * Follows the complete request/response pipeline
          */
-        public handle(rawRequest: any): Framework.Types.ApiResponse<any> {
+        public handle(rawRequest: any): RestFramework.Types.ApiResponse<any> {
             try {
                 this.logger.info(`Handling request: ${JSON.stringify(rawRequest)}`);
 
@@ -49,7 +49,7 @@ namespace Framework {
         /**
          * Core request processing pipeline
          */
-        private processRequest(rawRequest: any): Framework.Types.ApiResponse<any> {
+        private processRequest(rawRequest: any): RestFramework.Types.ApiResponse<any> {
             // 1. Map raw request to typed request
             const typedRequest = this.requestMapper.map(rawRequest);
 
@@ -57,7 +57,7 @@ namespace Framework {
             if (this.requestValidator) {
                 const validation = this.requestValidator.validate(typedRequest);
                 if (!validation.isValid) {
-                    return Framework.ApiResponseFormatter.error(
+                    return RestFramework.ApiResponseFormatter.error(
                         'ValidationError',
                         'Request validation failed',
                         { errors: validation.errors }
@@ -69,7 +69,7 @@ namespace Framework {
             if (this.authService) {
                 const auth = this.authService.authenticate(rawRequest.token);
                 if (!auth.isAuthenticated) {
-                    return Framework.ApiResponseFormatter.error(
+                    return RestFramework.ApiResponseFormatter.error(
                         'AuthenticationError',
                         'Authentication required'
                     );
@@ -91,7 +91,7 @@ namespace Framework {
             const mappedResponse = this.responseMapper.map(logicResult);
 
             // 7. Return formatted success response
-            return Framework.ApiResponseFormatter.success(mappedResponse);
+            return RestFramework.ApiResponseFormatter.success(mappedResponse);
         }
 
         /**

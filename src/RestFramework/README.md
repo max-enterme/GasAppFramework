@@ -1,10 +1,10 @@
-# API Framework for GAS App Framework
+# REST API Framework for GAS App Framework
 
 This framework provides a standardized foundation for building REST API-style applications in Google Apps Script (GAS) environments.
 
 ## Overview
 
-The Framework module follows the established GasAppFramework patterns and provides:
+The RestFramework module follows the established GasAppFramework patterns and provides:
 
 - **BaseApiController**: Abstract base class for API endpoints
 - **Standardized Response Format**: Consistent API responses across all endpoints
@@ -15,14 +15,14 @@ The Framework module follows the established GasAppFramework patterns and provid
 ## Architecture
 
 ```
-Framework/
+RestFramework/
 ├── controllers/           # Base controller classes
 │   └── BaseApiController.ts
 ├── formatters/           # Response formatting
 │   └── ApiResponseFormatter.ts
 ├── errors/              # Error handling
 │   └── ErrorHandler.ts
-├── logging/             # Framework logging
+├── logging/             # RestFramework logging
 │   └── Logger.ts
 ├── interfaces/          # Core interfaces
 │   ├── IRequestMapper.ts
@@ -57,7 +57,7 @@ interface MyResponse {
 
 ```typescript
 // Request Mapper
-class MyRequestMapper implements Framework.Types.IRequestMapper<any, MyRequest> {
+class MyRequestMapper implements RestFramework.Types.IRequestMapper<any, MyRequest> {
     map(input: any): MyRequest {
         return {
             id: input.parameter?.id || '',
@@ -67,7 +67,7 @@ class MyRequestMapper implements Framework.Types.IRequestMapper<any, MyRequest> 
 }
 
 // Response Mapper
-class MyResponseMapper implements Framework.Types.IResponseMapper<MyResponse, any> {
+class MyResponseMapper implements RestFramework.Types.IResponseMapper<MyResponse, any> {
     map(input: MyResponse): any {
         return {
             item: {
@@ -80,7 +80,7 @@ class MyResponseMapper implements Framework.Types.IResponseMapper<MyResponse, an
 }
 
 // Business Logic
-class MyApiLogic implements Framework.Types.IApiLogic<MyRequest, MyResponse> {
+class MyApiLogic implements RestFramework.Types.IApiLogic<MyRequest, MyResponse> {
     execute(request: MyRequest): MyResponse {
         // Your business logic here
         return {
@@ -96,7 +96,7 @@ class MyApiLogic implements Framework.Types.IApiLogic<MyRequest, MyResponse> {
 
 ```typescript
 @GasDI.Decorators.Resolve()
-class MyController extends Framework.BaseApiController<MyRequest, MyResponse> {
+class MyController extends RestFramework.BaseApiController<MyRequest, MyResponse> {
     protected readonly requestMapper = new MyRequestMapper();
     protected readonly responseMapper = new MyResponseMapper();
     protected readonly apiLogic = new MyApiLogic();
@@ -152,7 +152,7 @@ GasDI.Root.registerValue('authService', {
 
 ```typescript
 // Register custom logger
-GasDI.Root.registerValue('logger', Framework.Logger.create('[MyAPI]'));
+GasDI.Root.registerValue('logger', RestFramework.Logger.create('[MyAPI]'));
 ```
 
 ## Response Format
@@ -202,7 +202,7 @@ All API responses follow this standardized format:
 Framework components can be tested using the Node.js test module wrappers:
 
 ```typescript
-import { FrameworkLogger, ApiResponseFormatter, ErrorHandler } from './framework-module';
+import { RestFrameworkLogger, ApiResponseFormatter, ErrorHandler } from './restframework-module';
 
 describe('My Controller Tests', () => {
     it('should handle requests correctly', () => {
@@ -213,4 +213,4 @@ describe('My Controller Tests', () => {
 
 ## Examples
 
-See `src/Framework/examples/UserController.ts` for a complete working example showing all framework features in action.
+See `src/RestFramework/examples/UserController.ts` for a complete working example showing all framework features in action.

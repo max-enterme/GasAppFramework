@@ -1,10 +1,10 @@
-# GAS App Framework用 API Framework
+# GAS App Framework用 REST API Framework
 
 このフレームワークは、Google Apps Script (GAS) 環境でREST API スタイルのアプリケーションを構築するための標準化された基盤を提供します。
 
 ## 概要
 
-Framework モジュールは、確立された GasAppFramework のパターンに従い、以下を提供します：
+RestFramework モジュールは、確立された GasAppFramework のパターンに従い、以下を提供します：
 
 - **BaseApiController**: API エンドポイント用抽象ベースクラス
 - **標準化されたレスポンス形式**: 全エンドポイントで一貫したAPIレスポンス
@@ -15,7 +15,7 @@ Framework モジュールは、確立された GasAppFramework のパターン�
 ## アーキテクチャ
 
 ```
-Framework/
+RestFramework/
 ├── controllers/           # ベースコントローラークラス
 │   └── BaseApiController.ts
 ├── formatters/           # レスポンス形式化
@@ -57,7 +57,7 @@ interface MyResponse {
 
 ```typescript
 // リクエストマッパー
-class MyRequestMapper implements Framework.Types.IRequestMapper<any, MyRequest> {
+class MyRequestMapper implements RestFramework.Types.IRequestMapper<any, MyRequest> {
     map(input: any): MyRequest {
         return {
             id: input.parameter?.id || '',
@@ -67,7 +67,7 @@ class MyRequestMapper implements Framework.Types.IRequestMapper<any, MyRequest> 
 }
 
 // レスポンスマッパー
-class MyResponseMapper implements Framework.Types.IResponseMapper<MyResponse, any> {
+class MyResponseMapper implements RestFramework.Types.IResponseMapper<MyResponse, any> {
     map(input: MyResponse): any {
         return {
             item: {
@@ -80,7 +80,7 @@ class MyResponseMapper implements Framework.Types.IResponseMapper<MyResponse, an
 }
 
 // ビジネスロジック
-class MyApiLogic implements Framework.Types.IApiLogic<MyRequest, MyResponse> {
+class MyApiLogic implements RestFramework.Types.IApiLogic<MyRequest, MyResponse> {
     execute(request: MyRequest): MyResponse {
         // ここにビジネスロジックを記述
         return {
@@ -96,7 +96,7 @@ class MyApiLogic implements Framework.Types.IApiLogic<MyRequest, MyResponse> {
 
 ```typescript
 @GasDI.Decorators.Resolve()
-class MyController extends Framework.BaseApiController<MyRequest, MyResponse> {
+class MyController extends RestFramework.BaseApiController<MyRequest, MyResponse> {
     protected readonly requestMapper = new MyRequestMapper();
     protected readonly responseMapper = new MyResponseMapper();
     protected readonly apiLogic = new MyApiLogic();
@@ -152,7 +152,7 @@ GasDI.Root.registerValue('authService', {
 
 ```typescript
 // カスタムロガーを登録
-GasDI.Root.registerValue('logger', Framework.Logger.create('[MyAPI]'));
+GasDI.Root.registerValue('logger', RestFramework.Logger.create('[MyAPI]'));
 ```
 
 ## レスポンス形式
@@ -202,7 +202,7 @@ GasDI.Root.registerValue('logger', Framework.Logger.create('[MyAPI]'));
 フレームワークコンポーネントは Node.js テストモジュールラッパーを使用してテストできます：
 
 ```typescript
-import { FrameworkLogger, ApiResponseFormatter, ErrorHandler } from './framework-module';
+import { RestFrameworkLogger, ApiResponseFormatter, ErrorHandler } from './restframework-module';
 
 describe('My Controller Tests', () => {
     it('should handle requests correctly', () => {
@@ -213,7 +213,7 @@ describe('My Controller Tests', () => {
 
 ## サンプル
 
-フレームワークのすべての機能を示す完全な動作例については、`src/Framework/examples/UserController.ts` を参照してください。
+フレームワークのすべての機能を示す完全な動作例については、`src/RestFramework/examples/UserController.ts` を参照してください。
 
 ## 使用例：ユーザー管理API
 
@@ -235,7 +235,7 @@ interface UserResponse {
 }
 
 // 実装
-class UserRequestMapper implements Framework.Types.IRequestMapper<any, UserRequest> {
+class UserRequestMapper implements RestFramework.Types.IRequestMapper<any, UserRequest> {
     map(input: any): UserRequest {
         return {
             id: input.id || input.parameter?.id || '',
@@ -245,7 +245,7 @@ class UserRequestMapper implements Framework.Types.IRequestMapper<any, UserReque
     }
 }
 
-class UserResponseMapper implements Framework.Types.IResponseMapper<UserResponse, any> {
+class UserResponseMapper implements RestFramework.Types.IResponseMapper<UserResponse, any> {
     map(input: UserResponse): any {
         return {
             user: {
@@ -258,7 +258,7 @@ class UserResponseMapper implements Framework.Types.IResponseMapper<UserResponse
     }
 }
 
-class UserApiLogic implements Framework.Types.IApiLogic<UserRequest, UserResponse> {
+class UserApiLogic implements RestFramework.Types.IApiLogic<UserRequest, UserResponse> {
     execute(request: UserRequest): UserResponse {
         if (!request.id) {
             throw new Error('ユーザーIDが無効です');
@@ -275,7 +275,7 @@ class UserApiLogic implements Framework.Types.IApiLogic<UserRequest, UserRespons
 
 // コントローラー
 @GasDI.Decorators.Resolve()
-class UserController extends Framework.BaseApiController<UserRequest, UserResponse> {
+class UserController extends RestFramework.BaseApiController<UserRequest, UserResponse> {
     protected readonly requestMapper = new UserRequestMapper();
     protected readonly responseMapper = new UserResponseMapper();
     protected readonly apiLogic = new UserApiLogic();

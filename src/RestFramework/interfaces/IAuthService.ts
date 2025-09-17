@@ -1,7 +1,7 @@
 /**
- * Authentication service interface for API Framework (optional)
+ * Authentication service interface for API RestFramework (optional)
  */
-declare namespace Framework {
+declare namespace RestFramework {
     namespace Interfaces {
         /** Handles authentication and authorization */
         interface IAuthService {

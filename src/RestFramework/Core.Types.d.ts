@@ -1,7 +1,7 @@
 /**
- * Core type definitions for API Framework
+ * Core type definitions for API RestFramework
  */
-declare namespace Framework {
+declare namespace RestFramework {
     namespace Types {
         /** Standard API response structure */
         interface ApiResponse<T = any> {

@@ -1,4 +1,4 @@
-namespace Framework {
+namespace RestFramework {
     /**
      * Standard API response formatter
      * Provides consistent response structure across all API endpoints
@@ -7,7 +7,7 @@ namespace Framework {
         /**
          * Creates a successful response
          */
-        static success<T>(data: T): Framework.Types.ApiResponse<T> {
+        static success<T>(data: T): RestFramework.Types.ApiResponse<T> {
             return {
                 success: true,
                 data,
@@ -19,10 +19,10 @@ namespace Framework {
          * Creates an error response
          */
         static error(
-            code: Framework.Types.ErrorCode,
+            code: RestFramework.Types.ErrorCode,
             message: string,
             details?: any
-        ): Framework.Types.ApiResponse<never> {
+        ): RestFramework.Types.ApiResponse<never> {
             return {
                 success: false,
                 error: {
@@ -39,8 +39,8 @@ namespace Framework {
          */
         static from<T>(
             dataOrError: T | Error,
-            errorCode: Framework.Types.ErrorCode = 'InternalError'
-        ): Framework.Types.ApiResponse<T> {
+            errorCode: RestFramework.Types.ErrorCode = 'InternalError'
+        ): RestFramework.Types.ApiResponse<T> {
             if (dataOrError instanceof Error) {
                 return this.error(errorCode, dataOrError.message, dataOrError);
             }

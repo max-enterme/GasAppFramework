@@ -1,7 +1,7 @@
 /**
- * Request mapper interface for API Framework
+ * Request mapper interface for API RestFramework
  */
-declare namespace Framework {
+declare namespace RestFramework {
     namespace Interfaces {
         /** Maps raw input to structured request objects */
         interface IRequestMapper<TInput = any, TOutput = any> {

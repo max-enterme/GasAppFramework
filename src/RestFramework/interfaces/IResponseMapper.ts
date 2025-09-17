@@ -1,7 +1,7 @@
 /**
- * Response mapper interface for API Framework
+ * Response mapper interface for API RestFramework
  */
-declare namespace Framework {
+declare namespace RestFramework {
     namespace Interfaces {
         /** Maps business logic output to API response format */
         interface IResponseMapper<TInput = any, TOutput = any> {

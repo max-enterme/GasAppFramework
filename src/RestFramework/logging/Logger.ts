@@ -1,6 +1,6 @@
-namespace Framework {
+namespace RestFramework {
     /**
-     * Basic logger implementation for API Framework
+     * Basic logger implementation for API RestFramework
      * Adapts to existing shared Logger interface
      */
     export class Logger implements Shared.Types.Logger {

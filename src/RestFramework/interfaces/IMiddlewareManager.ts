@@ -1,7 +1,7 @@
 /**
- * Middleware manager interface for API Framework (optional)
+ * Middleware manager interface for API RestFramework (optional)
  */
-declare namespace Framework {
+declare namespace RestFramework {
     namespace Interfaces {
         /** Manages middleware execution pipeline */
         interface IMiddlewareManager<TContext = any> {

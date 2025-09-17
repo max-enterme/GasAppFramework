@@ -1,7 +1,7 @@
 /**
- * Business logic interface for API Framework
+ * Business logic interface for API RestFramework
  */
-declare namespace Framework {
+declare namespace RestFramework {
     namespace Interfaces {
         /** Encapsulates business logic execution */
         interface IApiLogic<TRequest = any, TResponse = any> {

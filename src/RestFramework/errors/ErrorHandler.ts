@@ -1,16 +1,16 @@
-namespace Framework {
+namespace RestFramework {
     /**
-     * Centralized error handling for API Framework
+     * Centralized error handling for API RestFramework
      */
     export class ErrorHandler {
         constructor(
-            private logger: Shared.Types.Logger = new Framework.Logger('[ErrorHandler]')
+            private logger: Shared.Types.Logger = new RestFramework.Logger('[ErrorHandler]')
         ) {}
 
         /**
          * Handles errors and converts them to API responses
          */
-        handle(error: unknown): Framework.Types.ApiResponse<never> {
+        handle(error: unknown): RestFramework.Types.ApiResponse<never> {
             this.logger.error('Handling error', error);
 
             // Handle known error types
@@ -19,7 +19,7 @@ namespace Framework {
             }
 
             // Handle unknown errors
-            return Framework.ApiResponseFormatter.error(
+            return RestFramework.ApiResponseFormatter.error(
                 'InternalError',
                 'An unexpected error occurred',
                 error
@@ -29,16 +29,16 @@ namespace Framework {
         /**
          * Handles known Error instances
          */
-        private handleKnownError(error: Error): Framework.Types.ApiResponse<never> {
+        private handleKnownError(error: Error): RestFramework.Types.ApiResponse<never> {
             // Map common error patterns to error codes
             const errorCode = this.mapErrorToCode(error);
-            return Framework.ApiResponseFormatter.error(errorCode, error.message, error);
+            return RestFramework.ApiResponseFormatter.error(errorCode, error.message, error);
         }
 
         /**
          * Maps error types/messages to framework error codes
          */
-        private mapErrorToCode(error: Error): Framework.Types.ErrorCode {
+        private mapErrorToCode(error: Error): RestFramework.Types.ErrorCode {
             const message = error.message.toLowerCase();
             
             if (message.includes('validation') || message.includes('invalid')) {

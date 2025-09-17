@@ -1,7 +1,7 @@
 /**
- * Request validator interface for API Framework (optional)
+ * Request validator interface for API RestFramework (optional)
  */
-declare namespace Framework {
+declare namespace RestFramework {
     namespace Interfaces {
         /** Validates incoming requests */
         interface IRequestValidator<T = any> {
