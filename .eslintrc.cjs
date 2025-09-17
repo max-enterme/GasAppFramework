@@ -36,7 +36,7 @@ module.exports = {
         // Check for unused variables (allow specific names and those starting with "_")
         "@typescript-eslint/no-unused-vars": ["warn", {
             "argsIgnorePattern": "^_",
-            "varsIgnorePattern": "^(Shared|GasDI|Repository|Routing|EventSystem|StringHelper|Spec_.*|TestHelpers|_)$"
+            "varsIgnorePattern": "^(Shared|GasDI|Repository|Routing|EventSystem|StringHelper|Framework|Spec_.*|TestHelpers|_)$"
         }]
     }
 };
