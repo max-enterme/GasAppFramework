@@ -19,7 +19,7 @@ namespace RestFramework.Examples {
      * Example request mapper implementation
      * Maps raw GAS request to typed UserRequest
      */
-    class UserRequestMapper implements RestFramework.Types.IRequestMapper<any, UserRequest> {
+    class UserRequestMapper implements RestFramework.Types.RequestMapper<any, UserRequest> {
         map(input: any): UserRequest {
             return {
                 id: input.id || input.parameter?.id || '',
@@ -33,7 +33,7 @@ namespace RestFramework.Examples {
      * Example response mapper implementation
      * Maps business result to API response format
      */
-    class UserResponseMapper implements RestFramework.Types.IResponseMapper<UserResponse, any> {
+    class UserResponseMapper implements RestFramework.Types.ResponseMapper<UserResponse, any> {
         map(input: UserResponse): any {
             return {
                 user: {
@@ -50,7 +50,7 @@ namespace RestFramework.Examples {
      * Example business logic implementation
      * Simulates user operations
      */
-    class UserApiLogic implements RestFramework.Types.IApiLogic<UserRequest, UserResponse> {
+    class UserApiLogic implements RestFramework.Types.ApiLogic<UserRequest, UserResponse> {
         execute(request: UserRequest): UserResponse {
             // Simulate business logic
             if (!request.id) {

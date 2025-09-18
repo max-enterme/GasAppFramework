@@ -25,12 +25,12 @@ RestFramework/
 ├── logging/             # フレームワークログ
 │   └── Logger.ts
 ├── interfaces/          # コアインターフェース
-│   ├── IRequestMapper.ts
-│   ├── IResponseMapper.ts
-│   ├── IApiLogic.ts
-│   ├── IRequestValidator.ts    # オプション
-│   ├── IAuthService.ts         # オプション
-│   └── IMiddlewareManager.ts   # オプション
+│   ├── RequestMapper.ts
+│   ├── ResponseMapper.ts
+│   ├── ApiLogic.ts
+│   ├── RequestValidator.ts    # オプション
+│   ├── AuthService.ts         # オプション
+│   └── MiddlewareManager.ts   # オプション
 ├── examples/            # サンプル実装
 │   └── UserController.ts
 └── Core.Types.d.ts     # 型定義
@@ -57,7 +57,7 @@ interface MyResponse {
 
 ```typescript
 // リクエストマッパー
-class MyRequestMapper implements RestFramework.Types.IRequestMapper<any, MyRequest> {
+class MyRequestMapper implements RestFramework.Types.RequestMapper<any, MyRequest> {
     map(input: any): MyRequest {
         return {
             id: input.parameter?.id || '',
@@ -67,7 +67,7 @@ class MyRequestMapper implements RestFramework.Types.IRequestMapper<any, MyReque
 }
 
 // レスポンスマッパー
-class MyResponseMapper implements RestFramework.Types.IResponseMapper<MyResponse, any> {
+class MyResponseMapper implements RestFramework.Types.ResponseMapper<MyResponse, any> {
     map(input: MyResponse): any {
         return {
             item: {
@@ -80,7 +80,7 @@ class MyResponseMapper implements RestFramework.Types.IResponseMapper<MyResponse
 }
 
 // ビジネスロジック
-class MyApiLogic implements RestFramework.Types.IApiLogic<MyRequest, MyResponse> {
+class MyApiLogic implements RestFramework.Types.ApiLogic<MyRequest, MyResponse> {
     execute(request: MyRequest): MyResponse {
         // ここにビジネスロジックを記述
         return {
@@ -191,7 +191,7 @@ GasDI.Root.registerValue('logger', RestFramework.Logger.create('[MyAPI]'));
 
 ## ベストプラクティス
 
-1. **コントローラーを薄く保つ**: ビジネスロジックは `IApiLogic` 実装に配置
+1. **コントローラーを薄く保つ**: ビジネスロジックは `ApiLogic` 実装に配置
 2. **型安全性を使用**: すべてのリクエスト/レスポンス型にインターフェースを定義
 3. **エラーを適切に処理**: フレームワークにエラー形式化を任せる
 4. **DI を活用**: 横断的関心事にはオプションサービスを使用
@@ -235,7 +235,7 @@ interface UserResponse {
 }
 
 // 実装
-class UserRequestMapper implements RestFramework.Types.IRequestMapper<any, UserRequest> {
+class UserRequestMapper implements RestFramework.Types.RequestMapper<any, UserRequest> {
     map(input: any): UserRequest {
         return {
             id: input.id || input.parameter?.id || '',
@@ -245,7 +245,7 @@ class UserRequestMapper implements RestFramework.Types.IRequestMapper<any, UserR
     }
 }
 
-class UserResponseMapper implements RestFramework.Types.IResponseMapper<UserResponse, any> {
+class UserResponseMapper implements RestFramework.Types.ResponseMapper<UserResponse, any> {
     map(input: UserResponse): any {
         return {
             user: {
@@ -258,7 +258,7 @@ class UserResponseMapper implements RestFramework.Types.IResponseMapper<UserResp
     }
 }
 
-class UserApiLogic implements RestFramework.Types.IApiLogic<UserRequest, UserResponse> {
+class UserApiLogic implements RestFramework.Types.ApiLogic<UserRequest, UserResponse> {
     execute(request: UserRequest): UserResponse {
         if (!request.id) {
             throw new Error('ユーザーIDが無効です');

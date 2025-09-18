@@ -4,7 +4,7 @@
 declare namespace RestFramework {
     namespace Interfaces {
         /** Manages middleware execution pipeline */
-        interface IMiddlewareManager<TContext = any> {
+        interface MiddlewareManager<TContext = any> {
             execute(context: TContext, next: () => any): any;
         }
     }
