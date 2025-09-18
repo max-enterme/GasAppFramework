@@ -106,6 +106,74 @@ namespace YTamaLeagueManagement.Repositories {
         }
     }
 
+    export interface GameSession {
+        sessionId: string
+        gameType: string
+        startTime: Date
+        endTime?: Date
+        playerCount: number
+        isActive: boolean
+    }
+
+    export const GameSessionRepositorySchema: Repository.Ports.Schema<GameSession, 'sessionId'> = {
+        parameters: ['sessionId', 'gameType', 'startTime', 'endTime', 'playerCount', 'isActive'],
+        keyParameters: ['sessionId'],
+        instantiate(): GameSession {
+            return {
+                sessionId: '',
+                gameType: '',
+                startTime: new Date(),
+                endTime: undefined,
+                playerCount: 0,
+                isActive: true
+            }
+        },
+        fromPartial(p: Partial<GameSession>): GameSession {
+            return {
+                sessionId: p.sessionId || '',
+                gameType: p.gameType || '',
+                startTime: p.startTime || new Date(),
+                endTime: p.endTime,
+                playerCount: p.playerCount || 0,
+                isActive: p.isActive ?? true
+            }
+        }
+    }
+
+    export interface LeagueTeam {
+        teamId: string
+        teamName: string
+        leagueId: string
+        ownerId: string
+        points: number
+        isActive: boolean
+    }
+
+    export const LeagueTeamRepositorySchema: Repository.Ports.Schema<LeagueTeam, 'teamId'> = {
+        parameters: ['teamId', 'teamName', 'leagueId', 'ownerId', 'points', 'isActive'],
+        keyParameters: ['teamId'],
+        instantiate(): LeagueTeam {
+            return {
+                teamId: '',
+                teamName: '',
+                leagueId: '',
+                ownerId: '',
+                points: 0,
+                isActive: true
+            }
+        },
+        fromPartial(p: Partial<LeagueTeam>): LeagueTeam {
+            return {
+                teamId: p.teamId || '',
+                teamName: p.teamName || '',
+                leagueId: p.leagueId || '',
+                ownerId: p.ownerId || '',
+                points: p.points || 0,
+                isActive: p.isActive ?? true
+            }
+        }
+    }
+
     /**
      * Repository for managing exclusive members with channelId as key
      */
@@ -126,6 +194,100 @@ namespace YTamaLeagueManagement.Repositories {
          */
         getActiveMembers(): ExclusiveMember[] {
             return this.entities.filter(member => member.isActive)
+        }
+    }
+
+    /**
+     * Repository for managing game sessions with sessionId as key
+     */
+    export class GameSessionRepository extends SpreadsheetRepository<GameSession, 'sessionId'> {
+        constructor(sheetId: string, sheetName: string = 'GameSessions', logger?: Shared.Types.Logger) {
+            super(sheetId, sheetName, GameSessionRepositorySchema, logger)
+        }
+
+        /**
+         * Find session by session ID
+         */
+        findBySessionId(sessionId: string): GameSession | null {
+            return this.find({ sessionId })
+        }
+
+        /**
+         * Get all active game sessions
+         */
+        getActiveSessions(): GameSession[] {
+            return this.entities.filter(session => session.isActive)
+        }
+
+        /**
+         * Get sessions by game type
+         */
+        getSessionsByGameType(gameType: string): GameSession[] {
+            return this.entities.filter(session => session.gameType === gameType)
+        }
+
+        /**
+         * End a game session
+         */
+        endSession(sessionId: string): boolean {
+            const session = this.findBySessionId(sessionId)
+            if (session) {
+                const updated = { ...session, isActive: false, endTime: new Date() }
+                this.upsert(updated)
+                return true
+            }
+            return false
+        }
+    }
+
+    /**
+     * Repository for managing league teams with teamId as key
+     */
+    export class LeagueTeamRepository extends SpreadsheetRepository<LeagueTeam, 'teamId'> {
+        constructor(sheetId: string, sheetName: string = 'LeagueTeams', logger?: Shared.Types.Logger) {
+            super(sheetId, sheetName, LeagueTeamRepositorySchema, logger)
+        }
+
+        /**
+         * Find team by team ID
+         */
+        findByTeamId(teamId: string): LeagueTeam | null {
+            return this.find({ teamId })
+        }
+
+        /**
+         * Get teams by league ID
+         */
+        getTeamsByLeague(leagueId: string): LeagueTeam[] {
+            return this.entities.filter(team => team.leagueId === leagueId && team.isActive)
+        }
+
+        /**
+         * Get teams by owner ID
+         */
+        getTeamsByOwner(ownerId: string): LeagueTeam[] {
+            return this.entities.filter(team => team.ownerId === ownerId && team.isActive)
+        }
+
+        /**
+         * Update team points
+         */
+        updateTeamPoints(teamId: string, points: number): boolean {
+            const team = this.findByTeamId(teamId)
+            if (team) {
+                const updated = { ...team, points }
+                this.upsert(updated)
+                return true
+            }
+            return false
+        }
+
+        /**
+         * Get league leaderboard (sorted by points)
+         */
+        getLeaderboard(leagueId: string): LeagueTeam[] {
+            return this.getTeamsByLeague(leagueId)
+                .sort((a, b) => b.points - a.points)
         }
     }
 }
