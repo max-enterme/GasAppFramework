@@ -20,7 +20,7 @@ namespace Repository.SchemaFactory {
      */
     export function createFromPartial<TEntity extends object>(sample: TEntity): (partial: Partial<TEntity>) => TEntity {
         return (partial: Partial<TEntity>): TEntity => {
-            const out: any = { ...sample };
+            const out: Partial<TEntity> & TEntity = { ...sample };
             for (const k of Object.keys(partial)) {
                 out[k] = partial[k as keyof TEntity];
             }
