@@ -4,7 +4,7 @@
 declare namespace RestFramework {
     namespace Interfaces {
         /** Validates incoming requests */
-        interface IRequestValidator<T = any> {
+        interface RequestValidator<T = any> {
             validate(request: T): { isValid: boolean; errors?: string[] };
         }
     }

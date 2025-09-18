@@ -4,7 +4,7 @@
 declare namespace RestFramework {
     namespace Interfaces {
         /** Maps raw input to structured request objects */
-        interface IRequestMapper<TInput = any, TOutput = any> {
+        interface RequestMapper<TInput = any, TOutput = any> {
             map(input: TInput): TOutput;
         }
     }

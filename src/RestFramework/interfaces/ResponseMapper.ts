@@ -4,7 +4,7 @@
 declare namespace RestFramework {
     namespace Interfaces {
         /** Maps business logic output to API response format */
-        interface IResponseMapper<TInput = any, TOutput = any> {
+        interface ResponseMapper<TInput = any, TOutput = any> {
             map(input: TInput): TOutput;
         }
     }

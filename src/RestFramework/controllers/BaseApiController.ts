@@ -6,19 +6,19 @@ namespace RestFramework {
     @GasDI.Decorators.Resolve()
     export abstract class BaseApiController<TRequest = any, TResponse = any> {
         // Required dependencies (must be provided)
-        protected abstract readonly requestMapper: RestFramework.Types.IRequestMapper<any, TRequest>;
-        protected abstract readonly responseMapper: RestFramework.Types.IResponseMapper<TResponse, any>;
-        protected abstract readonly apiLogic: RestFramework.Types.IApiLogic<TRequest, TResponse>;
+        protected abstract readonly requestMapper: RestFramework.Types.RequestMapper<any, TRequest>;
+        protected abstract readonly responseMapper: RestFramework.Types.ResponseMapper<TResponse, any>;
+        protected abstract readonly apiLogic: RestFramework.Types.ApiLogic<TRequest, TResponse>;
 
         // Optional dependencies (can be null, injected via DI)
         @GasDI.Decorators.Inject('requestValidator', true)
-        protected readonly requestValidator?: RestFramework.Types.IRequestValidator<TRequest>;
+        protected readonly requestValidator?: RestFramework.Types.RequestValidator<TRequest>;
 
         @GasDI.Decorators.Inject('authService', true)
-        protected readonly authService?: RestFramework.Types.IAuthService;
+        protected readonly authService?: RestFramework.Types.AuthService;
 
         @GasDI.Decorators.Inject('middlewareManager', true)
-        protected readonly middlewareManager?: RestFramework.Types.IMiddlewareManager;
+        protected readonly middlewareManager?: RestFramework.Types.MiddlewareManager;
 
         // Framework dependencies (with defaults)
         @GasDI.Decorators.Inject('logger', true)

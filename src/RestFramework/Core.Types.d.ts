@@ -35,33 +35,33 @@ declare namespace RestFramework {
             | 'BadRequest';
 
         /** Request mapper interface */
-        interface IRequestMapper<TInput = any, TOutput = any> {
+        interface RequestMapper<TInput = any, TOutput = any> {
             map(input: TInput): TOutput;
         }
 
         /** Response mapper interface */
-        interface IResponseMapper<TInput = any, TOutput = any> {
+        interface ResponseMapper<TInput = any, TOutput = any> {
             map(input: TInput): TOutput;
         }
 
         /** Business logic interface */
-        interface IApiLogic<TRequest = any, TResponse = any> {
+        interface ApiLogic<TRequest = any, TResponse = any> {
             execute(request: TRequest): TResponse | Promise<TResponse>;
         }
 
         /** Request validator interface (optional) */
-        interface IRequestValidator<T = any> {
+        interface RequestValidator<T = any> {
             validate(request: T): { isValid: boolean; errors?: string[] };
         }
 
         /** Authentication service interface (optional) */
-        interface IAuthService {
+        interface AuthService {
             authenticate(token?: string): { isAuthenticated: boolean; user?: any };
             authorize(user: any, resource: string, action: string): boolean;
         }
 
         /** Middleware manager interface (optional) */
-        interface IMiddlewareManager<TContext = any> {
+        interface MiddlewareManager<TContext = any> {
             execute(context: TContext, next: () => any): any;
         }
     }

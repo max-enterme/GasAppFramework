@@ -4,7 +4,7 @@
 declare namespace RestFramework {
     namespace Interfaces {
         /** Encapsulates business logic execution */
-        interface IApiLogic<TRequest = any, TResponse = any> {
+        interface ApiLogic<TRequest = any, TResponse = any> {
             execute(request: TRequest): TResponse | Promise<TResponse>;
         }
     }

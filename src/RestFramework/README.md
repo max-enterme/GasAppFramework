@@ -25,12 +25,12 @@ RestFramework/
 ├── logging/             # RestFramework logging
 │   └── Logger.ts
 ├── interfaces/          # Core interfaces
-│   ├── IRequestMapper.ts
-│   ├── IResponseMapper.ts
-│   ├── IApiLogic.ts
-│   ├── IRequestValidator.ts    # Optional
-│   ├── IAuthService.ts         # Optional
-│   └── IMiddlewareManager.ts   # Optional
+│   ├── RequestMapper.ts
+│   ├── ResponseMapper.ts
+│   ├── ApiLogic.ts
+│   ├── RequestValidator.ts    # Optional
+│   ├── AuthService.ts         # Optional
+│   └── MiddlewareManager.ts   # Optional
 ├── examples/            # Sample implementations
 │   └── UserController.ts
 └── Core.Types.d.ts     # Type definitions
@@ -57,7 +57,7 @@ interface MyResponse {
 
 ```typescript
 // Request Mapper
-class MyRequestMapper implements RestFramework.Types.IRequestMapper<any, MyRequest> {
+class MyRequestMapper implements RestFramework.Types.RequestMapper<any, MyRequest> {
     map(input: any): MyRequest {
         return {
             id: input.parameter?.id || '',
@@ -67,7 +67,7 @@ class MyRequestMapper implements RestFramework.Types.IRequestMapper<any, MyReque
 }
 
 // Response Mapper
-class MyResponseMapper implements RestFramework.Types.IResponseMapper<MyResponse, any> {
+class MyResponseMapper implements RestFramework.Types.ResponseMapper<MyResponse, any> {
     map(input: MyResponse): any {
         return {
             item: {
@@ -80,7 +80,7 @@ class MyResponseMapper implements RestFramework.Types.IResponseMapper<MyResponse
 }
 
 // Business Logic
-class MyApiLogic implements RestFramework.Types.IApiLogic<MyRequest, MyResponse> {
+class MyApiLogic implements RestFramework.Types.ApiLogic<MyRequest, MyResponse> {
     execute(request: MyRequest): MyResponse {
         // Your business logic here
         return {
@@ -191,7 +191,7 @@ All API responses follow this standardized format:
 
 ## Best Practices
 
-1. **Keep Controllers Thin**: Business logic goes in `IApiLogic` implementations
+1. **Keep Controllers Thin**: Business logic goes in `ApiLogic` implementations
 2. **Use Type Safety**: Define interfaces for all request/response types
 3. **Handle Errors Gracefully**: Let the framework handle error formatting
 4. **Leverage DI**: Use optional services for cross-cutting concerns
