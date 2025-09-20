@@ -34,18 +34,18 @@ namespace Spec_Trigger {
         }
     }
 
-    T.it("multi=false runs only last due occurrence", () => {
-        const now = new Date("2025-09-12T00:05:00Z");
+    T.it('multi=false runs only last due occurrence', () => {
+        const now = new Date('2025-09-12T00:05:00Z');
         const inv = new FakeInvoker();
         const es = EventSystem.Trigger.create({
-            jobStore: new FakeJobStore([{ id: "j1", handler: "handle_j1", paramsJson: null, cron: "*/1 * * * *", multi: false, enabled: true, tz: "Asia/Tokyo" }]),
+            jobStore: new FakeJobStore([{ id: 'j1', handler: 'handle_j1', paramsJson: null, cron: '*/1 * * * *', multi: false, enabled: true, tz: 'Asia/Tokyo' }]),
             checkpoint: new FakeCP(),
             invoker: inv,
             lock: new FakeLockFactory(),
             clock: new FakeClock(now),
-            scheduler: new FakeSchduler(),
+            scheduler: new FakeSchduler()
         });
         es.tick();
-        TAssert.isTrue(inv.calls.length === 1, "should run last only");
+        TAssert.isTrue(inv.calls.length === 1, 'should run last only');
     }, 'EventSystem');
 }

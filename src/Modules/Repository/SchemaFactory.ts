@@ -43,7 +43,7 @@ namespace Repository.SchemaFactory {
             parameters: getParametersFromEntity(sample),
             keyParameters,
             fromPartial: createFromPartial(sample),
-            instantiate: entityFactory,
+            instantiate: entityFactory
         };
     }
 }

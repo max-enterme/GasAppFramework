@@ -7,9 +7,9 @@
 /// <reference path="../src/Modules/Repository/Core.Types.d.ts" />
 
 // Load namespace files by requiring them with TypeScript
-import '../src/Modules/Repository/Adapters.Memory'
-import '../src/Modules/Repository/Codec.Simple'
-import '../src/Modules/Repository/Engine'
+import '../src/Modules/Repository/Adapters.Memory';
+import '../src/Modules/Repository/Codec.Simple';
+import '../src/Modules/Repository/Engine';
 
 // Re-export for testing
 declare global {
@@ -20,69 +20,69 @@ declare global {
 
 // Create concrete implementations for testing
 export class MemoryStore<TEntity extends object> {
-    private arr: TEntity[] = []
+    private arr: TEntity[] = [];
     
     load(): { rows: TEntity[] } { 
-        return { rows: this.arr.slice() } 
+        return { rows: this.arr.slice() }; 
     }
     
     saveAdded(rows: TEntity[]): void { 
-        this.arr.push(...rows) 
+        this.arr.push(...rows); 
     }
     
     saveUpdated(rows: { index: number; row: TEntity }[]): void {
         for (const r of rows) {
-            this.arr[r.index] = r.row
+            this.arr[r.index] = r.row;
         }
     }
     
     deleteByIndexes(indexes: number[]): void {
-        const mark = new Array(this.arr.length).fill(true)
-        for (const i of indexes) mark[i] = false
-        const next: TEntity[] = []
+        const mark = new Array(this.arr.length).fill(true);
+        for (const i of indexes) mark[i] = false;
+        const next: TEntity[] = [];
         for (let i = 0; i < this.arr.length; i++) {
-            if (mark[i]) next.push(this.arr[i])
+            if (mark[i]) next.push(this.arr[i]);
         }
-        this.arr = next
+        this.arr = next;
     }
 }
 
 export function createSimpleCodec<TEntity extends object, Key extends keyof TEntity>(delim = '|') {
-    const esc = (s: string) => s.replace(/\\/g, '\\\\').replace(new RegExp(`[${delim}]`, 'g'), m => '\\' + m)
+    const esc = (s: string) => s.replace(/\\/g, '\\\\').replace(new RegExp(`[${delim}]`, 'g'), m => '\\' + m);
     
     return {
         stringify(key: Pick<TEntity, Key>): string {
-            const parts: string[] = []
-            const ks = Object.keys(key)
+            const parts: string[] = [];
+            const ks = Object.keys(key);
             for (const k of ks) {
-                const v = (key as any)[k]
-                parts.push(esc(v == null ? '' : String(v)))
+                const v = (key as any)[k];
+                parts.push(esc(v == null ? '' : String(v)));
             }
-            return parts.join(delim)
+            return parts.join(delim);
         },
         
         parse(s: string): Pick<TEntity, Key> {
-            const parts: string[] = []
-            let cur = ''
+            const parts: string[] = [];
+            let cur = '';
             for (let i = 0; i < s.length; i++) {
-                const c = s[i]
+                const c = s[i];
                 if (c === '\\' && i + 1 < s.length) { 
-                    cur += s[i + 1]; i++ 
+                    cur += s[i + 1]; i++; 
                 } else if (c === delim) { 
-                    parts.push(cur); cur = '' 
+                    parts.push(cur); cur = ''; 
                 } else {
-                    cur += c
+                    cur += c;
                 }
             }
-            parts.push(cur)
+            parts.push(cur);
             
             // This is a simplified parse - in real usage, you'd need proper key mapping
-            const result: any = {}
-            if (parts.length > 0) result.id = parts[0] || ''
-            if (parts.length > 1) result.org = parts[1] || ''
-            return result as Pick<TEntity, Key>
+            const result: any = {};
+            if (parts.length > 0) result.id = parts[0] || '';
+            if (parts.length > 1) result.org = parts[1] || '';
+            return result as Pick<TEntity, Key>;
         }
-    }
+    };
 }
 
 export interface RepositoryInstance<TEntity extends object, Key extends keyof TEntity> {
@@ -107,88 +107,88 @@ export function createRepository<TEntity extends object, Key extends keyof TEnti
     keyCodec: ReturnType<typeof createSimpleCodec<TEntity, Key>>
     logger?: { info: (msg: string) => void; error: (msg: string) => void }
 }): RepositoryInstance<TEntity, Key> {
-    const logger = deps.logger ?? { info: (_: string) => { }, error: (_: string) => { } }
-    let rows: TEntity[] = []
-    let idx = new Map<string, number>()
+    const logger = deps.logger ?? { info: (_: string) => { }, error: (_: string) => { } };
+    let rows: TEntity[] = [];
+    let idx = new Map<string, number>();
 
     const keyOf = (e: TEntity): Pick<TEntity, Key> => {
-        const k: any = {}
+        const k: any = {};
         for (const p of deps.schema.keyParameters) {
-            k[p as string] = (e as any)[p as string]
+            k[p as string] = (e as any)[p as string];
         }
-        return k
-    }
+        return k;
+    };
 
     const keyToString = (key: Pick<TEntity, Key>): string => {
-        return deps.keyCodec.stringify(key)
-    }
+        return deps.keyCodec.stringify(key);
+    };
 
     const buildIndex = () => {
-        idx = new Map()
+        idx = new Map();
         for (let i = 0; i < rows.length; i++) {
-            idx.set(keyToString(keyOf(rows[i])), i)
+            idx.set(keyToString(keyOf(rows[i])), i);
         }
-    }
+    };
 
     const coerceToSchema = (p: Partial<TEntity>): TEntity => {
-        return deps.schema.fromPartial(p)
-    }
+        return deps.schema.fromPartial(p);
+    };
 
     return {
         load(): void {
-            const read = deps.store.load()
+            const read = deps.store.load();
             rows = read.rows.map(r => {
-                const rec = deps.schema.onAfterLoad ? deps.schema.onAfterLoad(r) : (r as any as TEntity)
-                return coerceToSchema(rec)
-            })
-            buildIndex()
-            logger.info(`[Repository] loaded ${rows.length} rows`)
+                const rec = deps.schema.onAfterLoad ? deps.schema.onAfterLoad(r) : (r as any as TEntity);
+                return coerceToSchema(rec);
+            });
+            buildIndex();
+            logger.info(`[Repository] loaded ${rows.length} rows`);
         },
 
         upsert(entity: TEntity): void {
-            const processed = deps.schema.onBeforeSave ? deps.schema.onBeforeSave(entity) : entity
-            const key = keyOf(processed)
-            const keyStr = keyToString(key)
-            const existingIndex = idx.get(keyStr)
+            const processed = deps.schema.onBeforeSave ? deps.schema.onBeforeSave(entity) : entity;
+            const key = keyOf(processed);
+            const keyStr = keyToString(key);
+            const existingIndex = idx.get(keyStr);
 
             if (existingIndex !== undefined) {
                 // Update existing
-                rows[existingIndex] = processed
-                logger.info(`[Repository] updated entity with key: ${keyStr}`)
+                rows[existingIndex] = processed;
+                logger.info(`[Repository] updated entity with key: ${keyStr}`);
             } else {
                 // Add new
-                const newIndex = rows.length
-                rows.push(processed)
-                idx.set(keyStr, newIndex)
-                logger.info(`[Repository] added entity with key: ${keyStr}`)
+                const newIndex = rows.length;
+                rows.push(processed);
+                idx.set(keyStr, newIndex);
+                logger.info(`[Repository] added entity with key: ${keyStr}`);
             }
         },
 
         find(key: Pick<TEntity, Key>): TEntity | undefined {
-            const keyStr = keyToString(key)
-            const index = idx.get(keyStr)
-            return index !== undefined ? rows[index] : undefined
+            const keyStr = keyToString(key);
+            const index = idx.get(keyStr);
+            return index !== undefined ? rows[index] : undefined;
         },
 
         findAll(): TEntity[] {
-            return rows.slice()
+            return rows.slice();
         },
 
         delete(key: Pick<TEntity, Key>): boolean {
-            const keyStr = keyToString(key)
-            const index = idx.get(keyStr)
+            const keyStr = keyToString(key);
+            const index = idx.get(keyStr);
             if (index !== undefined) {
-                rows.splice(index, 1)
-                buildIndex() // Rebuild index after deletion
-                logger.info(`[Repository] deleted entity with key: ${keyStr}`)
-                return true
+                rows.splice(index, 1);
+                buildIndex(); // Rebuild index after deletion
+                logger.info(`[Repository] deleted entity with key: ${keyStr}`);
+                return true;
             }
-            return false
+            return false;
         },
 
         save(): void {
             // In memory store, save is a no-op as changes are immediate
-            logger.info(`[Repository] save completed`)
+            logger.info(`[Repository] save completed`);
         }
-    }
+    };
 }

@@ -2,23 +2,23 @@ namespace Locking.Adapters.GAS {
     export class PropertiesStore implements Locking.Ports.Store {
         constructor(private prefix: string = 'lock:') {}
         get(key: string): string | null {
-            const p = PropertiesService.getScriptProperties()
-            return p.getProperty(this.prefix + key) ?? null
+            const p = PropertiesService.getScriptProperties();
+            return p.getProperty(this.prefix + key) ?? null;
         }
         set(key: string, value: string): void {
-            PropertiesService.getScriptProperties().setProperty(this.prefix + key, value)
+            PropertiesService.getScriptProperties().setProperty(this.prefix + key, value);
         }
         del(key: string): void {
-            PropertiesService.getScriptProperties().deleteProperty(this.prefix + key)
+            PropertiesService.getScriptProperties().deleteProperty(this.prefix + key);
         }
     }
 
     export class SystemClock implements Shared.Types.Clock {
-        now(): Date { return new Date() }
+        now(): Date { return new Date(); }
     }
 
     export class GasLogger implements Shared.Types.Logger {
-        info(msg: string): void { Logger.log(msg) }
-        error(msg: string): void { Logger.log(msg) }
+        info(msg: string): void { Logger.log(msg); }
+        error(msg: string): void { Logger.log(msg); }
     }
 }

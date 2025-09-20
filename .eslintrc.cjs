@@ -27,7 +27,7 @@ module.exports = {
         "no-empty-function": "off",
         "@typescript-eslint/no-empty-function": "off",
 
-        // Allow any type
+        // Allow any type (needed for GAS compatibility)
         "@typescript-eslint/no-explicit-any": "off",
 
         // GAS compatibility: triple slash references needed for type declarations
@@ -37,6 +37,13 @@ module.exports = {
         "@typescript-eslint/no-unused-vars": ["warn", {
             "argsIgnorePattern": "^_",
             "varsIgnorePattern": "^(Shared|GasDI|Repository|Routing|EventSystem|StringHelper|RestFramework|Spec_.*|TestHelpers|_)$"
-        }]
+        }],
+
+        // Code formatting and consistency rules
+        "semi": ["error", "always"],
+        "quotes": ["error", "single", { "avoidEscape": true, "allowTemplateLiterals": true }],
+        "comma-dangle": ["error", "never"],
+        "prefer-const": "error",
+        "no-var": "error"
     }
 };
