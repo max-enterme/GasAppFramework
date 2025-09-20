@@ -119,7 +119,10 @@ namespace Spec_Locking {
 
             // Test: Acquire write lock
             const writeLock = lockEngine.acquire(resourceId, 'w', 30000, 'user1');
-            TAssert.isTrue(writeLock.ok, 'Should acquire write lock');
+
+            if (!writeLock.ok)
+                TAssert.fail('Should acquire write lock');
+
             TAssert.equals(writeLock.mode, 'w', 'Lock mode should be write');
             TAssert.equals(writeLock.owner, 'user1', 'Lock owner should be user1');
 
@@ -214,7 +217,9 @@ namespace Spec_Locking {
             // Test: After expiration, lock should be available
             mockClock.advance(3000); // Advance 3 more seconds (total 6 seconds, past 5 second TTL)
             const expiredLock = lockEngine.acquire(resourceId, 'w', 5000, 'user2');
-            TAssert.isTrue(expiredLock.ok, 'Lock should be available after expiration');
+
+            if (!expiredLock.ok)
+                TAssert.fail('Lock should be available after expiration');
             TAssert.equals(expiredLock.owner, 'user2', 'New lock should have correct owner');
 
         } finally {
@@ -307,7 +312,8 @@ namespace Spec_Locking {
 
             // Test: First engine acquires lock
             const lock1 = lockEngine1.acquire(resourceId, 'w', 30000, 'script1');
-            TAssert.isTrue(lock1.ok, 'First script should acquire lock');
+            if (!lock1.ok)
+                TAssert.fail('First script should acquire lock');
 
             // Test: Second engine cannot acquire conflicting lock
             const lock2 = lockEngine2.acquire(resourceId, 'w', 30000, 'script2');
@@ -319,7 +325,8 @@ namespace Spec_Locking {
 
             // Test: Second engine can now acquire lock
             const lock3 = lockEngine2.acquire(resourceId, 'w', 30000, 'script2');
-            TAssert.isTrue(lock3.ok, 'Second script should acquire lock after release');
+            if (!lock3.ok)
+                TAssert.fail('Second script should acquire lock after release');
             TAssert.equals(lock3.owner, 'script2', 'Lock should have correct owner');
 
         } finally {
@@ -354,8 +361,11 @@ namespace Spec_Locking {
             const readLock1 = lockEngine.acquire(resourceId, 'r', 30000, 'reader1');
             const readLock2 = lockEngine.acquire(resourceId, 'r', 30000, 'reader2');
 
-            TAssert.isTrue(readLock1.ok, 'First read lock should be acquired');
-            TAssert.isTrue(readLock2.ok, 'Second read lock should be compatible');
+            if (!readLock1.ok)
+                TAssert.fail('First read lock should be acquired');
+
+            if (!readLock2.ok)
+                TAssert.fail('Second read lock should be compatible');
 
             // Test: Write lock should be blocked while read locks exist
             const writeLock1 = lockEngine.acquire(resourceId, 'w', 30000, 'writer1');
@@ -414,7 +424,8 @@ namespace Spec_Locking {
 
             // Test: First execution acquires distributed lock
             const jobLock = distributedLocking.acquire(jobResourceId, 'w', jobTtl, 'script-instance-1');
-            TAssert.isTrue(jobLock.ok, 'Job should acquire distributed lock on first execution');
+            if (!jobLock.ok)
+                TAssert.fail('Job should acquire distributed lock on first execution');
 
             // Test: Concurrent execution is blocked
             const blockedExecution = distributedLocking.acquire(jobResourceId, 'w', jobTtl, 'script-instance-2');
