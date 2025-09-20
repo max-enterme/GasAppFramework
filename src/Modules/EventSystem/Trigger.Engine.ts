@@ -14,13 +14,13 @@ namespace EventSystem.Trigger {
     };
 
     function ensureTzString(tz?: string | null): string {
-        if (typeof tz === "string" && tz.trim()) return tz;
+        if (typeof tz === 'string' && tz.trim()) return tz;
         try {
-            if (typeof Session !== "undefined" && Session.getScriptTimeZone) {
+            if (typeof Session !== 'undefined' && Session.getScriptTimeZone) {
                 return Session.getScriptTimeZone();
             }
         } catch { }
-        return "Etc/GMT";
+        return 'Etc/GMT';
     }
 
     export function create(deps: TriggerDeps): TriggerEngine {
@@ -31,7 +31,7 @@ namespace EventSystem.Trigger {
 
         function tick(): void {
             const lk = deps.lock.acquire();
-            if (!lk || !lk.tryWait(50)) { logger.info("[Trigger] skip: lock busy"); return; }
+            if (!lk || !lk.tryWait(50)) { logger.info('[Trigger] skip: lock busy'); return; }
             const t0 = deps.clock.now().getTime();
             try {
                 const now = deps.clock.now();
@@ -43,7 +43,7 @@ namespace EventSystem.Trigger {
                     const from = cpIso ? new Date(cpIso) : new Date(now.getTime() - lookBackMs);
                     const occ = deps.scheduler.occurrences(job.cron, from, now, tzStr);
                     if (occ.length === 0) {
-                        runlog.log({ jobId: job.id, runId: "-", scheduledIso: from.toISOString(), status: 'SKIP', message: 'no due' });
+                        runlog.log({ jobId: job.id, runId: '-', scheduledIso: from.toISOString(), status: 'SKIP', message: 'no due' });
                         continue;
                     }
 
@@ -59,7 +59,7 @@ namespace EventSystem.Trigger {
                             logger.error(`[Trigger] job ${job.id} error: ` + String(e && e.message || e));
                         }
                         if (softLimit > 0 && (deps.clock.now().getTime() - t0) >= softLimit) {
-                            logger.info("[Trigger] soft time limit reached");
+                            logger.info('[Trigger] soft time limit reached');
                             break;
                         }
                     }

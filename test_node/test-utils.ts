@@ -11,14 +11,14 @@ export function setupGASMocks() {
     (globalThis as any).Utilities = {
         formatDate: jest.fn((_date: Date, _zone: string, _format: string) => {
             // Simple mock implementation - return ISO date format
-            return _date.toISOString().split('T')[0]
+            return _date.toISOString().split('T')[0];
         })
     }
 
     // Mock Session service
     ;(globalThis as any).Session = {
         getScriptTimeZone: jest.fn(() => 'America/New_York')
-    }
+    };
 }
 
 /**
@@ -30,7 +30,7 @@ export function createMockLogger() {
         error: jest.fn(),
         warn: jest.fn(),
         debug: jest.fn()
-    }
+    };
 }
 
 /**
@@ -43,7 +43,7 @@ export function createTestUser(overrides: Partial<{ id: string; name: string; em
         email: 'test@example.com',
         org: 'test-org',
         ...overrides
-    }
+    };
 }
 
 /**
@@ -55,5 +55,5 @@ export function createTestUsers(count: number = 3) {
         name: `Test User ${i + 1}`,
         email: `user${i + 1}@example.com`,
         org: `org-${i + 1}`
-    }))
+    }));
 }
