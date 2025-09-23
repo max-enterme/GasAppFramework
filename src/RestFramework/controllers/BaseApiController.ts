@@ -5,27 +5,17 @@ namespace RestFramework {
      */
     @GasDI.Decorators.Resolve()
     export abstract class BaseApiController<TRequest = any, TResponse = any> {
-        // Required dependencies (must be provided)
-        protected abstract readonly requestMapper: RestFramework.Types.RequestMapper<any, TRequest>;
-        protected abstract readonly responseMapper: RestFramework.Types.ResponseMapper<TResponse, any>;
-        protected abstract readonly apiLogic: RestFramework.Types.ApiLogic<TRequest, TResponse>;
-
-        // Optional dependencies (can be null, injected via DI)
-        @GasDI.Decorators.Inject('requestValidator', true)
-        protected readonly requestValidator?: RestFramework.Types.RequestValidator<TRequest>;
-
-        @GasDI.Decorators.Inject('authService', true)
-        protected readonly authService?: RestFramework.Types.AuthService;
-
-        @GasDI.Decorators.Inject('middlewareManager', true)
-        protected readonly middlewareManager?: RestFramework.Types.MiddlewareManager;
-
-        // Framework dependencies (with defaults)
-        @GasDI.Decorators.Inject('logger', true)
-        private readonly logger: Shared.Types.Logger = RestFramework.Logger.create('[BaseApiController]');
-
-        @GasDI.Decorators.Inject('errorHandler', true)
-        private readonly errorHandler: ErrorHandler = ErrorHandler.create(this.logger);
+        public constructor(
+            protected readonly _requestMapper: RestFramework.Types.RequestMapper<any, TRequest>,
+            protected readonly _responseMapper: RestFramework.Types.ResponseMapper<TResponse, any>,
+            protected readonly _apiLogic: RestFramework.Types.ApiLogic<TRequest, TResponse>,
+            protected readonly _requestValidator?: RestFramework.Types.RequestValidator<TRequest>,
+            protected readonly _authService?: RestFramework.Types.AuthService,
+            protected readonly _middlewareManager?: RestFramework.Types.MiddlewareManager,
+            protected readonly _logger: Shared.Types.Logger = RestFramework.Logger.create('[BaseApiController]'),
+            protected readonly _errorHandler: ErrorHandler = ErrorHandler.create(this._logger)
+        ) {
+        }
 
         /**
          * Main entry point for handling requests
@@ -33,16 +23,16 @@ namespace RestFramework {
          */
         public handle(rawRequest: any): RestFramework.Types.ApiResponse<any> {
             try {
-                this.logger.info(`Handling request: ${JSON.stringify(rawRequest)}`);
+                this._logger.info(`Handling request: ${JSON.stringify(rawRequest)}`);
 
                 // Execute middleware if available
-                if (this.middlewareManager) {
-                    return this.middlewareManager.execute(rawRequest, () => this.processRequest(rawRequest));
+                if (this._middlewareManager) {
+                    return this._middlewareManager.execute(rawRequest, () => this.processRequest(rawRequest));
                 }
 
                 return this.processRequest(rawRequest);
             } catch (error) {
-                return this.errorHandler.handle(error);
+                return this._errorHandler.handle(error);
             }
         }
 
@@ -51,11 +41,11 @@ namespace RestFramework {
          */
         private processRequest(rawRequest: any): RestFramework.Types.ApiResponse<any> {
             // 1. Map raw request to typed request
-            const typedRequest = this.requestMapper.map(rawRequest);
+            const typedRequest = this._requestMapper.map(rawRequest);
 
             // 2. Validate request if validator is available
-            if (this.requestValidator) {
-                const validation = this.requestValidator.validate(typedRequest);
+            if (this._requestValidator) {
+                const validation = this._requestValidator.validate(typedRequest);
                 if (!validation.isValid) {
                     return RestFramework.ApiResponseFormatter.error(
                         'ValidationError',
@@ -66,8 +56,8 @@ namespace RestFramework {
             }
 
             // 3. Authenticate if auth service is available
-            if (this.authService) {
-                const auth = this.authService.authenticate(rawRequest.token);
+            if (this._authService) {
+                const auth = this._authService.authenticate(rawRequest.token);
                 if (!auth.isAuthenticated) {
                     return RestFramework.ApiResponseFormatter.error(
                         'AuthenticationError',
@@ -80,7 +70,7 @@ namespace RestFramework {
             }
 
             // 4. Execute business logic
-            const logicResult = this.apiLogic.execute(typedRequest);
+            const logicResult = this._apiLogic.execute(typedRequest);
 
             // 5. Handle async logic
             if (logicResult instanceof Promise) {
@@ -88,7 +78,7 @@ namespace RestFramework {
             }
 
             // 6. Map response
-            const mappedResponse = this.responseMapper.map(logicResult);
+            const mappedResponse = this._responseMapper.map(logicResult);
 
             // 7. Return formatted success response
             return RestFramework.ApiResponseFormatter.success(mappedResponse);

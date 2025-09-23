@@ -71,9 +71,13 @@ namespace RestFramework.Examples {
      * Demonstrates minimal implementation of BaseApiController
      */
     export class UserController extends RestFramework.BaseApiController<UserRequest, UserResponse> {
-        protected readonly requestMapper = new UserRequestMapper();
-        protected readonly responseMapper = new UserResponseMapper();
-        protected readonly apiLogic = new UserApiLogic();
+        private constructor() {
+            super(
+                new UserRequestMapper(),
+                new UserResponseMapper(),
+                new UserApiLogic()
+            );
+        }
 
         /**
          * GAS entry point function example
