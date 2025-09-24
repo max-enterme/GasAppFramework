@@ -12,9 +12,11 @@ namespace RestFramework {
             protected readonly _requestValidator?: RestFramework.Types.RequestValidator<TRequest>,
             protected readonly _authService?: RestFramework.Types.AuthService,
             protected readonly _middlewareManager?: RestFramework.Types.MiddlewareManager,
-            protected readonly _logger: Shared.Types.Logger = RestFramework.Logger.create('[BaseApiController]'),
-            protected readonly _errorHandler: ErrorHandler = ErrorHandler.create(this._logger)
+            protected readonly _logger?: Shared.Types.Logger,
+            protected readonly _errorHandler?: ErrorHandler
         ) {
+            this._logger = _logger || RestFramework.Logger.create('[BaseApiController]');
+            this._errorHandler = _errorHandler || ErrorHandler.create(this._logger);
         }
 
         /**
