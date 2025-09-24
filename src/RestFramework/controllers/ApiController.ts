@@ -3,8 +3,7 @@ namespace RestFramework {
      * Abstract base controller for API endpoints
      * Provides standardized request/response handling with dependency injection support
      */
-    @GasDI.Decorators.Resolve()
-    export abstract class BaseApiController<TRequest = any, TResponse = any> {
+    export class ApiController<TRequest = any, TResponse = any> {
         public constructor(
             protected readonly _requestMapper: RestFramework.Types.RequestMapper<any, TRequest>,
             protected readonly _responseMapper: RestFramework.Types.ResponseMapper<TResponse, any>,

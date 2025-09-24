@@ -70,7 +70,7 @@ namespace RestFramework.Examples {
      * Example concrete API controller
      * Demonstrates minimal implementation of BaseApiController
      */
-    export class UserController extends RestFramework.BaseApiController<UserRequest, UserResponse> {
+    export class UserController extends RestFramework.ApiController<UserRequest, UserResponse> {
         private constructor() {
             super(
                 new UserRequestMapper(),
