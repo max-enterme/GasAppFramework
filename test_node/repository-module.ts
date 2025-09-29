@@ -193,22 +193,4 @@ export function createRepository<TEntity extends object, Key extends keyof TEnti
     };
 }
 
-// Create a proxy to expose Repository namespace functionality for tests
-export const RepositoryProxy = {
-    Engine: {
-        create: <TEntity extends object, Key extends keyof TEntity>(deps: {
-            schema: Repository.Ports.Schema<TEntity, Key>
-            store: Repository.Ports.Store<TEntity>
-            keyCodec: Repository.Ports.KeyCodec<TEntity, Key>
-            logger?: Shared.Types.Logger
-        }) => Repository.Engine.create(deps)
-    },
-    Adapters: {
-        Memory: {
-            Store: Repository.Adapters.Memory.Store
-        }
-    },
-    Codec: {
-        simple: Repository.Codec.simple
-    }
-};
+// End of repository module
