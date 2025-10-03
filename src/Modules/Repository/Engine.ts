@@ -138,7 +138,10 @@ namespace Repository.Engine {
             findAll,
             upsert,
             delete: deleteMany,
-            get entities() { return rows; }
+            get entities() {
+                ensureLoaded();
+                return rows;
+            }
         };
 
         return result;
