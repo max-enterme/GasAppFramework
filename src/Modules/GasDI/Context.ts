@@ -1,6 +1,6 @@
 namespace GasDI {
     export class Context {
-        private static _current: Container = Root;
+        private static _current: Container = GasDI.Container.Root;
 
         static run<T>(container: Container, fn: () => T): T {
             const prev = Context._current;

@@ -14,6 +14,8 @@ namespace GasDI {
      * Dependency injection container with support for multiple lifetimes
      */
     export class Container {
+        public static readonly Root = new Container();
+
         static readonly DEFAULT_SCOPE = 'default';
 
         private regs = new Map<string, Reg<any>>();
