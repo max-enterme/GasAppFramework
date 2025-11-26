@@ -20,7 +20,10 @@ namespace EventSystem.Schedule {
 
     /**
      * Simple check if a time is at a minute boundary (seconds === 0).
-     * This is a placeholder; actual cron evaluation should use Ports.Scheduler.
+     * 
+     * NOTE: This is a basic placeholder that does NOT evaluate actual cron expressions.
+     * For proper cron evaluation, use `Ports.Scheduler.isDue()` instead.
+     * This function is preserved for backward compatibility only.
      */
     export function isDue(cronExpr: string, at: Date): boolean {
         void cronExpr; // unused in this simple implementation
@@ -178,6 +181,10 @@ namespace EventSystem.Schedule {
          * @param jobId - The job ID to run
          * @param times - Number of times to run (default: 1)
          * @throws Error if job not found
+         * 
+         * Note: When times > 1, each invocation gets a scheduledAt timestamp
+         * offset by 1 second to ensure unique run identifiers. This follows
+         * the same pattern as TriggerEngine.runNow().
          */
         function runNow(jobId: string, times = 1): void {
             const jobs = deps.jobStore.load();

@@ -1,9 +1,18 @@
 /**
  * Schedule Engine Tests
  * Comprehensive Node.js tests for the EventSystem.Schedule module
+ * 
+ * NOTE: This test file contains a local implementation of the Schedule Engine
+ * that mirrors the actual implementation in Schedule.Engine.ts. This approach
+ * is used because the actual implementation uses TypeScript namespaces which
+ * don't work well with Jest's module system. The test validates the expected
+ * behavior patterns that the actual implementation should follow.
  */
 
 import { setupGASMocks, createMockLogger } from './test-utils';
+
+// Expected timezone from test-utils.ts mock
+const MOCK_TIMEZONE = 'America/New_York';
 
 // Set up GAS environment mocks before tests
 beforeAll(() => {
@@ -319,7 +328,7 @@ describe('Schedule Engine Tests', () => {
                 jobId: 'job1',
                 scheduledAt: scheduledTime.toISOString(),
                 paramsJson: null,
-                tz: 'America/New_York' // From mocked Session.getScriptTimeZone
+                tz: MOCK_TIMEZONE
             });
         });
 
@@ -493,7 +502,11 @@ describe('Schedule Engine Tests', () => {
 
         test('should respect soft time limit', () => {
             const deps = createMockDeps();
-            deps.softTimeLimitMs = 100;
+            // Set a soft time limit of 100ms for this test
+            const SOFT_LIMIT_MS = 100;
+            // Simulate elapsed time of 200ms (exceeds the 100ms limit)
+            const ELAPSED_TIME_MS = 200;
+            deps.softTimeLimitMs = SOFT_LIMIT_MS;
 
             const jobs = [
                 createTestJob({ id: 'job1' }),
@@ -505,9 +518,9 @@ describe('Schedule Engine Tests', () => {
             let callCount = 0;
             deps.clock.now.mockImplementation(() => {
                 callCount++;
-                // After first job processing, simulate time passing beyond soft limit
+                // After processing first job (3 clock calls), simulate time exceeding soft limit
                 if (callCount > 3) {
-                    return new Date(Date.now() + 200);
+                    return new Date(Date.now() + ELAPSED_TIME_MS);
                 }
                 return new Date();
             });
@@ -537,7 +550,7 @@ describe('Schedule Engine Tests', () => {
                 jobId: 'job1',
                 scheduledAt: now.toISOString(),
                 paramsJson: null,
-                tz: 'America/New_York'
+                tz: MOCK_TIMEZONE
             });
         });
 
