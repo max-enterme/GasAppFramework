@@ -68,4 +68,9 @@ declare namespace EventSystem {
         start(workflowId: string, payloadJson?: string | null, tz?: string | null): string;
         resume(instanceId: string): void;
     }
+
+    interface ScheduleEngine {
+        run(): void;
+        runNow(jobId: string, times?: number): void;
+    }
 }

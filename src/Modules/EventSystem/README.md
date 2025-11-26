@@ -15,51 +15,57 @@ A comprehensive event system for Google Apps Script applications, providing cron
 ### Schedule Engine
 ```typescript
 // Create cron job scheduler
-const scheduler = Schedule.Engine.create({
+const scheduler = EventSystem.Schedule.create({
     jobStore: new EventSystem.Adapters.GAS.SpreadsheetJobStore(sheetId, 'jobs'),
-    checkpointStore: new EventSystem.Adapters.GAS.PropertiesCheckpointStore(),
-    lockFactory: new Locking.Adapters.GAS.LockServiceFactory(),
+    checkpoint: new EventSystem.Adapters.GAS.ScriptPropertiesCheckpoint(),
+    lock: new EventSystem.Adapters.GAS.ScriptLockFactory(),
     invoker: new EventSystem.Adapters.GAS.GlobalInvoker(),
-    scheduler: new EventSystem.Adapters.GAS.CronScheduler(),
-    clock: { now: () => new Date() },
-    logger: console
+    scheduler: myCronScheduler, // implements EventSystem.Ports.Scheduler
+    clock: new EventSystem.Adapters.GAS.SystemClock(),
+    logger: new EventSystem.Adapters.GAS.GasLogger()
 })
 
 // Run scheduled jobs
 scheduler.run()
+
+// Run a specific job immediately
+scheduler.runNow('job-id')
 ```
 
 ### Trigger Engine  
 ```typescript
 // Handle GAS triggers
-const triggerEngine = Trigger.Engine.create({
+const triggerEngine = EventSystem.Trigger.create({
     jobStore: new EventSystem.Adapters.GAS.SpreadsheetJobStore(sheetId, 'triggers'),
+    checkpoint: new EventSystem.Adapters.GAS.ScriptPropertiesCheckpoint(),
+    lock: new EventSystem.Adapters.GAS.ScriptLockFactory(),
     invoker: new EventSystem.Adapters.GAS.GlobalInvoker(),
-    clock: { now: () => new Date() },
-    logger: console
+    scheduler: myCronScheduler, // implements EventSystem.Ports.Scheduler
+    clock: new EventSystem.Adapters.GAS.SystemClock(),
+    logger: new EventSystem.Adapters.GAS.GasLogger()
 })
 
-// Process trigger event
-triggerEngine.onTrigger(e)
+// Process trigger event (called from GAS time-driven trigger)
+triggerEngine.tick()
 ```
 
 ### Workflow Engine
 ```typescript
 // Create workflow engine
-const workflowEngine = Workflow.Engine.create({
-    definitionStore: new EventSystem.Adapters.GAS.SpreadsheetDefinitionStore(sheetId, 'workflows', 'steps'),
-    instanceStore: new EventSystem.Adapters.GAS.SpreadsheetInstanceStore(sheetId, 'instances'),
+const workflowEngine = EventSystem.Workflow.create({
+    defs: new EventSystem.Adapters.GAS.SpreadsheetDefinitionStore(sheetId, 'workflows', 'steps'),
+    inst: new EventSystem.Adapters.GAS.ScriptPropertiesInstanceStore(),
     invoker: new EventSystem.Adapters.GAS.GlobalInvoker(),
-    enqueuer: new EventSystem.Adapters.GAS.ScriptTriggerEnqueuer(),
-    clock: { now: () => new Date() },
-    logger: console
+    enq: new EventSystem.Adapters.GAS.OneTimeTriggerEnqueuer(),
+    clock: new EventSystem.Adapters.GAS.SystemClock(),
+    logger: new EventSystem.Adapters.GAS.GasLogger()
 })
 
 // Start workflow
-workflowEngine.start('workflow-id', { data: 'payload' })
+const instanceId = workflowEngine.start('workflow-id', '{"data":"payload"}')
 
 // Resume workflow  
-workflowEngine.resume('instance-id')
+workflowEngine.resume(instanceId)
 ```
 
 ## Usage Examples
@@ -109,35 +115,66 @@ function sendGuidance(ctx: any) {
 // Mock dependencies for isolated testing
 const mockJobStore = {
     load: jest.fn().mockReturnValue([
-        { id: 'test-job', handler: 'testHandler', cron: '0 * * * *', enabled: true }
+        { id: 'test-job', handler: 'testHandler', cron: '0 * * * *', enabled: true, multi: false }
     ])
 }
+const mockCheckpoint = {
+    get: jest.fn().mockReturnValue(null),
+    set: jest.fn()
+}
+const mockLock = {
+    acquire: jest.fn().mockReturnValue({
+        tryWait: jest.fn().mockReturnValue(true),
+        release: jest.fn()
+    })
+}
+const mockScheduler = {
+    occurrences: jest.fn().mockReturnValue([new Date()]),
+    isDue: jest.fn().mockReturnValue(true)
+}
+const mockInvoker = {
+    invoke: jest.fn()
+}
+const mockClock = {
+    now: jest.fn().mockReturnValue(new Date())
+}
 
-const engine = Schedule.Engine.create({
+const engine = EventSystem.Schedule.create({
     jobStore: mockJobStore,
-    // ... other mocked dependencies
+    checkpoint: mockCheckpoint,
+    lock: mockLock,
+    invoker: mockInvoker,
+    scheduler: mockScheduler,
+    clock: mockClock
 })
+
+engine.run()
+expect(mockInvoker.invoke).toHaveBeenCalled()
 ```
 
 ### Integration Tests (GAS)
 ```typescript
 // Test with real GAS services
 function test_ScheduleEngine() {
-    const engine = Schedule.Engine.create({
+    const engine = EventSystem.Schedule.create({
         jobStore: new EventSystem.Adapters.GAS.SpreadsheetJobStore(TEST_SHEET_ID, 'jobs'),
-        // ... real GAS adapters
+        checkpoint: new EventSystem.Adapters.GAS.ScriptPropertiesCheckpoint(),
+        lock: new EventSystem.Adapters.GAS.ScriptLockFactory(),
+        invoker: new EventSystem.Adapters.GAS.GlobalInvoker(),
+        scheduler: myCronScheduler,
+        clock: new EventSystem.Adapters.GAS.SystemClock()
     })
     
     engine.run()
-    // Verify job execution
+    // Verify job execution in logs
 }
 ```
 
 ### Test Data Setup
 Create test spreadsheets with sample data:
-- Jobs sheet: id, handler, cron, enabled, tz
+- Jobs sheet: id, handler, cron, enabled, tz, paramsJson, multi
 - Workflows sheet: id, name, enabled, defaultTz  
-- Steps sheet: workflowId, index, handler, paramsJson
+- Steps sheet: workflowId, index, handler, paramsJson, timeoutMs
 - Instances sheet: instanceId, workflowId, cursor, done
 
 ## Configuration

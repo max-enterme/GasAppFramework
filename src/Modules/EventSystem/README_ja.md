@@ -15,51 +15,57 @@ Google Apps Script アプリケーション向けの包括的なイベントシ�
 ### Schedule Engine
 ```typescript
 // Cronジョブスケジューラーの作成
-const scheduler = Schedule.Engine.create({
+const scheduler = EventSystem.Schedule.create({
     jobStore: new EventSystem.Adapters.GAS.SpreadsheetJobStore(sheetId, 'jobs'),
-    checkpointStore: new EventSystem.Adapters.GAS.PropertiesCheckpointStore(),
-    lockFactory: new Locking.Adapters.GAS.LockServiceFactory(),
+    checkpoint: new EventSystem.Adapters.GAS.ScriptPropertiesCheckpoint(),
+    lock: new EventSystem.Adapters.GAS.ScriptLockFactory(),
     invoker: new EventSystem.Adapters.GAS.GlobalInvoker(),
-    scheduler: new EventSystem.Adapters.GAS.CronScheduler(),
-    clock: { now: () => new Date() },
-    logger: console
+    scheduler: myCronScheduler, // EventSystem.Ports.Schedulerを実装
+    clock: new EventSystem.Adapters.GAS.SystemClock(),
+    logger: new EventSystem.Adapters.GAS.GasLogger()
 })
 
 // スケジュールされたジョブの実行
 scheduler.run()
+
+// 特定のジョブを即座に実行
+scheduler.runNow('job-id')
 ```
 
 ### Trigger Engine  
 ```typescript
 // GASトリガーの処理
-const triggerEngine = Trigger.Engine.create({
+const triggerEngine = EventSystem.Trigger.create({
     jobStore: new EventSystem.Adapters.GAS.SpreadsheetJobStore(sheetId, 'triggers'),
+    checkpoint: new EventSystem.Adapters.GAS.ScriptPropertiesCheckpoint(),
+    lock: new EventSystem.Adapters.GAS.ScriptLockFactory(),
     invoker: new EventSystem.Adapters.GAS.GlobalInvoker(),
-    clock: { now: () => new Date() },
-    logger: console
+    scheduler: myCronScheduler, // EventSystem.Ports.Schedulerを実装
+    clock: new EventSystem.Adapters.GAS.SystemClock(),
+    logger: new EventSystem.Adapters.GAS.GasLogger()
 })
 
-// トリガーイベントの処理
-triggerEngine.onTrigger(e)
+// トリガーイベントの処理（GAS時間駆動トリガーから呼び出し）
+triggerEngine.tick()
 ```
 
 ### Workflow Engine
 ```typescript
 // ワークフローエンジンの作成
-const workflowEngine = Workflow.Engine.create({
-    definitionStore: new EventSystem.Adapters.GAS.SpreadsheetDefinitionStore(sheetId, 'workflows', 'steps'),
-    instanceStore: new EventSystem.Adapters.GAS.SpreadsheetInstanceStore(sheetId, 'instances'),
+const workflowEngine = EventSystem.Workflow.create({
+    defs: new EventSystem.Adapters.GAS.SpreadsheetDefinitionStore(sheetId, 'workflows', 'steps'),
+    inst: new EventSystem.Adapters.GAS.ScriptPropertiesInstanceStore(),
     invoker: new EventSystem.Adapters.GAS.GlobalInvoker(),
-    enqueuer: new EventSystem.Adapters.GAS.ScriptTriggerEnqueuer(),
-    clock: { now: () => new Date() },
-    logger: console
+    enq: new EventSystem.Adapters.GAS.OneTimeTriggerEnqueuer(),
+    clock: new EventSystem.Adapters.GAS.SystemClock(),
+    logger: new EventSystem.Adapters.GAS.GasLogger()
 })
 
 // ワークフローの開始
-workflowEngine.start('workflow-id', { data: 'payload' })
+const instanceId = workflowEngine.start('workflow-id', '{"data":"payload"}')
 
 // ワークフローの再開
-workflowEngine.resume('instance-id')
+workflowEngine.resume(instanceId)
 ```
 
 ## 使用例
@@ -109,35 +115,66 @@ function sendGuidance(ctx: any) {
 // 分離テストのための依存関係モック
 const mockJobStore = {
     load: jest.fn().mockReturnValue([
-        { id: 'test-job', handler: 'testHandler', cron: '0 * * * *', enabled: true }
+        { id: 'test-job', handler: 'testHandler', cron: '0 * * * *', enabled: true, multi: false }
     ])
 }
+const mockCheckpoint = {
+    get: jest.fn().mockReturnValue(null),
+    set: jest.fn()
+}
+const mockLock = {
+    acquire: jest.fn().mockReturnValue({
+        tryWait: jest.fn().mockReturnValue(true),
+        release: jest.fn()
+    })
+}
+const mockScheduler = {
+    occurrences: jest.fn().mockReturnValue([new Date()]),
+    isDue: jest.fn().mockReturnValue(true)
+}
+const mockInvoker = {
+    invoke: jest.fn()
+}
+const mockClock = {
+    now: jest.fn().mockReturnValue(new Date())
+}
 
-const engine = Schedule.Engine.create({
+const engine = EventSystem.Schedule.create({
     jobStore: mockJobStore,
-    // ... その他のモック依存関係
+    checkpoint: mockCheckpoint,
+    lock: mockLock,
+    invoker: mockInvoker,
+    scheduler: mockScheduler,
+    clock: mockClock
 })
+
+engine.run()
+expect(mockInvoker.invoke).toHaveBeenCalled()
 ```
 
 ### 統合テスト (GAS)
 ```typescript
 // 実際のGASサービスでのテスト
 function test_ScheduleEngine() {
-    const engine = Schedule.Engine.create({
+    const engine = EventSystem.Schedule.create({
         jobStore: new EventSystem.Adapters.GAS.SpreadsheetJobStore(TEST_SHEET_ID, 'jobs'),
-        // ... 実際のGASアダプター
+        checkpoint: new EventSystem.Adapters.GAS.ScriptPropertiesCheckpoint(),
+        lock: new EventSystem.Adapters.GAS.ScriptLockFactory(),
+        invoker: new EventSystem.Adapters.GAS.GlobalInvoker(),
+        scheduler: myCronScheduler,
+        clock: new EventSystem.Adapters.GAS.SystemClock()
     })
     
     engine.run()
-    // ジョブ実行の検証
+    // ログでジョブ実行を検証
 }
 ```
 
 ### テストデータ設定
 サンプルデータを含むテスト用スプレッドシートを作成:
-- Jobsシート: id, handler, cron, enabled, tz
+- Jobsシート: id, handler, cron, enabled, tz, paramsJson, multi
 - Workflowsシート: id, name, enabled, defaultTz  
-- Stepsシート: workflowId, index, handler, paramsJson
+- Stepsシート: workflowId, index, handler, paramsJson, timeoutMs
 - Instancesシート: instanceId, workflowId, cursor, done
 
 ## 設定
