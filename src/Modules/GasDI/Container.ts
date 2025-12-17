@@ -85,5 +85,24 @@ namespace GasDI {
             }
             return reg.make();
         }
+
+        /**
+         * Disposes the scoped container and cleans up scoped instances
+         * Should be called after GasDI.Context.run to prevent resource leaks
+         * Only cleans up resources for scoped containers (those with a scope name)
+         * 
+         * Note: Scoped containers typically don't have their own registrations,
+         * they inherit from parent. This method focuses on cleaning up instances.
+         */
+        dispose(): void {
+            if (this._scopeName) {
+                // Clear scoped instances for this scope from parent container
+                if (this.parent) {
+                    this.parent.scopedByName.delete(this._scopeName);
+                }
+                // Clear local scoped instances
+                this.scopedByName.clear();
+            }
+        }
     }
 }
