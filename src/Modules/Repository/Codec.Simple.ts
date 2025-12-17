@@ -20,8 +20,9 @@ namespace Repository.Codec {
         /**
          * Escape special characters (backslash and delimiter)
          */
+        const delimRegex = new RegExp(`[${delim}]`, 'g');
         const escape = (s: string): string => 
-            s.replace(/\\/g, '\\\\').replace(new RegExp(`[${delim}]`, 'g'), match => '\\' + match);
+            s.replace(/\\/g, '\\\\').replace(delimRegex, match => '\\' + match);
         
         return {
             /**

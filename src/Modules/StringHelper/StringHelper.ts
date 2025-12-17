@@ -11,9 +11,9 @@ namespace StringHelper {
      */
     export function formatString(formatText: string, ...args: Array<string | number>): string {
         // Performance optimization: use single replace with callback instead of multiple RegExp instances
-        return String(formatText).replace(/\{(\d+)\}/g, (_match, index) => {
+        return String(formatText).replace(/\{(\d+)\}/g, (match, index) => {
             const i = parseInt(index, 10);
-            return i < args.length ? String(args[i]) : _match;
+            return i < args.length ? String(args[i]) : match;
         });
     }
 

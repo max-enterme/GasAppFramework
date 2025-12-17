@@ -25,7 +25,7 @@ namespace Repository.SchemaFactory {
             // Merge partial properties into result
             for (const key of Object.keys(partial) as (keyof TEntity)[]) {
                 if (partial[key] !== undefined) {
-                    (result as any)[key] = partial[key];
+                    result[key] = partial[key]!;
                 }
             }
             
