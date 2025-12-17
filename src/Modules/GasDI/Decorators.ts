@@ -28,7 +28,7 @@ namespace GasDI.Decorators {
                     const defs = injectedParams[propertyKey ? String(propertyKey) : ''] || [];
                     for (const d of defs) {
                         if (args[d.index] === undefined) {
-                            args[d.index] = GasDI.Root.resolve(d.token, { optional: d.optional });
+                            args[d.index] = GasDI.Context.current.resolve(d.token, { optional: d.optional });
                         }
                     }
                     return original.apply(this, args);
@@ -43,14 +43,14 @@ namespace GasDI.Decorators {
                         const ctorDefs = injectedParams['__ctor__'] || [];
                         for (const d of ctorDefs) {
                             if (args[d.index] === undefined) {
-                                args[d.index] = GasDI.Root.resolve(d.token, { optional: d.optional });
+                                args[d.index] = GasDI.Context.current.resolve(d.token, { optional: d.optional });
                             }
                         }
                         super(...args);
                         // properties
                         const injects = (orig as any)._inject || [];
                         for (const it of injects) {
-                            (this as any)[it.propertyKey] = GasDI.Root.resolve(it.token, { optional: it.optional });
+                            (this as any)[it.propertyKey] = GasDI.Context.current.resolve(it.token, { optional: it.optional });
                         }
                         // methods with param injection
                         const keys = Object.keys(injectedParams).filter(k => k !== '__ctor__');
@@ -62,7 +62,7 @@ namespace GasDI.Decorators {
                                 const arr = margs.slice();
                                 for (const d of defs) {
                                     if (arr[d.index] === undefined) {
-                                        arr[d.index] = GasDI.Root.resolve(d.token, { optional: d.optional });
+                                        arr[d.index] = GasDI.Context.current.resolve(d.token, { optional: d.optional });
                                     }
                                 }
                                 return originalMethod.apply(this, arr);
