@@ -17,22 +17,27 @@ The RestFramework module follows the established GasAppFramework patterns and pr
 ```
 RestFramework/
 ├── controllers/           # Base controller classes
-│   └── BaseApiController.ts
+│   └── ApiController.ts
 ├── formatters/           # Response formatting
 │   └── ApiResponseFormatter.ts
 ├── errors/              # Error handling
 │   └── ErrorHandler.ts
 ├── logging/             # RestFramework logging
 │   └── Logger.ts
-├── interfaces/          # Core interfaces
+├── interfaces/          # Core mandatory interfaces
 │   ├── RequestMapper.ts
 │   ├── ResponseMapper.ts
-│   ├── ApiLogic.ts
-│   ├── RequestValidator.ts    # Optional
-│   ├── AuthService.ts         # Optional
-│   └── MiddlewareManager.ts   # Optional
+│   └── ApiLogic.ts
+├── optional-utilities/  # Optional enhancement components
+│   ├── RequestValidator.ts    # Input validation
+│   ├── AuthService.ts         # Authentication/authorization
+│   ├── MiddlewareManager.ts   # Request pipeline
+│   ├── README.md             # Detailed documentation
+│   └── README_ja.md
 ├── examples/            # Sample implementations
-│   └── UserController.ts
+│   ├── UserController.ts
+│   ├── README.md             # Usage scenarios
+│   └── README_ja.md
 └── Core.Types.d.ts     # Type definitions
 ```
 
@@ -191,11 +196,13 @@ All API responses follow this standardized format:
 
 ## Best Practices
 
-1. **Keep Controllers Thin**: Business logic goes in `ApiLogic` implementations
+1. **Keep Controllers Thin**: Business logic goes in `ApiLogic` implementations. See [Controller Design Guide](../../CONTROLLER_DESIGN.md) for detailed patterns.
 2. **Use Type Safety**: Define interfaces for all request/response types
-3. **Handle Errors Gracefully**: Let the framework handle error formatting
-4. **Leverage DI**: Use optional services for cross-cutting concerns
-5. **Test Thoroughly**: Use the provided test module wrappers
+3. **Handle Errors Gracefully**: Let the framework handle error formatting. ErrorHandler provides comprehensive logging and monitoring.
+4. **Leverage DI**: Use optional services for cross-cutting concerns. See [Dependency Injection Guide](../../DEPENDENCY_INJECTION.md) for patterns.
+5. **Separate Validation**: Use `RequestValidator` or middleware for input validation, not controller logic
+6. **Use Middleware**: Cross-cutting concerns (logging, auth, rate limiting) belong in middleware. See [Optional Utilities](optional-utilities/README.md).
+7. **Test Thoroughly**: Use the provided test module wrappers
 
 ## Testing
 
@@ -211,6 +218,15 @@ describe('My Controller Tests', () => {
 });
 ```
 
-## Examples
+## Documentation
 
-See `src/RestFramework/examples/UserController.ts` for a complete working example showing all framework features in action.
+### Comprehensive Guides
+
+- **[Controller Design Guide](../../CONTROLLER_DESIGN.md)**: Best practices for thin controllers and separation of concerns
+- **[Dependency Injection Guide](../../DEPENDENCY_INJECTION.md)**: Understanding mandatory vs optional components and DI patterns
+- **[Optional Utilities](optional-utilities/README.md)**: Documentation for RequestValidator, AuthService, and MiddlewareManager
+- **[Examples Directory](examples/README.md)**: Usage scenarios and step-by-step implementation guides
+
+### Examples
+
+See `examples/UserController.ts` for a complete working example showing all framework features in action. The [examples README](examples/README.md) provides detailed usage scenarios and adaptation guides.
