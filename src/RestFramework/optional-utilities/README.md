@@ -129,11 +129,21 @@ const loggingMiddleware = (context: any, next: () => any) => {
 // Example middleware: Rate limiting
 const rateLimitMiddleware = (context: any, next: () => any) => {
     const clientId = context.headers?.['x-client-id'];
-    if (this.isRateLimited(clientId)) {
+    // Check rate limit (implementation depends on your strategy)
+    // For example, using Properties Service or an external service
+    const requestCount = getRequestCount(clientId); // Your implementation
+    if (requestCount > 100) { // Example threshold
         throw new Error('Rate limit exceeded');
     }
     return next();
 };
+
+// Helper function (example)
+function getRequestCount(clientId: string): number {
+    // Implement your rate limiting logic here
+    // e.g., using PropertiesService, external service, or in-memory counter
+    return 0; // Placeholder
+}
 
 // Setup
 const middlewareManager = new SimpleMiddlewareManager();

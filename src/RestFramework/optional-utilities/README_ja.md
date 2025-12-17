@@ -129,11 +129,21 @@ const loggingMiddleware = (context: any, next: () => any) => {
 // ミドルウェア例: レート制限
 const rateLimitMiddleware = (context: any, next: () => any) => {
     const clientId = context.headers?.['x-client-id'];
-    if (this.isRateLimited(clientId)) {
+    // レート制限をチェック（実装は戦略に依存）
+    // 例: Properties Serviceや外部サービスを使用
+    const requestCount = getRequestCount(clientId); // 実装
+    if (requestCount > 100) { // 例の閾値
         throw new Error('レート制限を超えました');
     }
     return next();
 };
+
+// ヘルパー関数（例）
+function getRequestCount(clientId: string): number {
+    // ここにレート制限ロジックを実装
+    // 例: PropertiesService、外部サービス、またはメモリ内カウンタを使用
+    return 0; // プレースホルダー
+}
 
 // セットアップ
 const middlewareManager = new SimpleMiddlewareManager();
