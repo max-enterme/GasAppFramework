@@ -17,22 +17,27 @@ RestFramework モジュールは、確立された GasAppFramework のパター�
 ```
 RestFramework/
 ├── controllers/           # ベースコントローラークラス
-│   └── BaseApiController.ts
+│   └── ApiController.ts
 ├── formatters/           # レスポンス形式化
 │   └── ApiResponseFormatter.ts
 ├── errors/              # エラーハンドリング
 │   └── ErrorHandler.ts
 ├── logging/             # フレームワークログ
 │   └── Logger.ts
-├── interfaces/          # コアインターフェース
+├── interfaces/          # コア必須インターフェース
 │   ├── RequestMapper.ts
 │   ├── ResponseMapper.ts
-│   ├── ApiLogic.ts
-│   ├── RequestValidator.ts    # オプション
-│   ├── AuthService.ts         # オプション
-│   └── MiddlewareManager.ts   # オプション
+│   └── ApiLogic.ts
+├── optional-utilities/  # オプション拡張コンポーネント
+│   ├── RequestValidator.ts    # 入力検証
+│   ├── AuthService.ts         # 認証/認可
+│   ├── MiddlewareManager.ts   # リクエストパイプライン
+│   ├── README.md             # 詳細ドキュメント
+│   └── README_ja.md
 ├── examples/            # サンプル実装
-│   └── UserController.ts
+│   ├── UserController.ts
+│   ├── README.md             # 使用シナリオ
+│   └── README_ja.md
 └── Core.Types.d.ts     # 型定義
 ```
 
@@ -191,11 +196,13 @@ GasDI.Root.registerValue('logger', RestFramework.Logger.create('[MyAPI]'));
 
 ## ベストプラクティス
 
-1. **コントローラーを薄く保つ**: ビジネスロジックは `ApiLogic` 実装に配置
+1. **コントローラーを薄く保つ**: ビジネスロジックは `ApiLogic` 実装に配置。詳細なパターンは[コントローラー設計ガイド](../../CONTROLLER_DESIGN_ja.md)を参照。
 2. **型安全性を使用**: すべてのリクエスト/レスポンス型にインターフェースを定義
-3. **エラーを適切に処理**: フレームワークにエラー形式化を任せる
-4. **DI を活用**: 横断的関心事にはオプションサービスを使用
-5. **十分にテスト**: 提供されたテストモジュールラッパーを使用
+3. **エラーを適切に処理**: フレームワークにエラー形式化を任せる。ErrorHandlerは包括的なログとモニタリングを提供。
+4. **DI を活用**: 横断的関心事にはオプションサービスを使用。パターンは[依存性注入ガイド](../../DEPENDENCY_INJECTION_ja.md)を参照。
+5. **検証を分離**: 入力検証にはコントローラーロジックではなく `RequestValidator` またはミドルウェアを使用
+6. **ミドルウェアを使用**: 横断的関心事（ログ、認証、レート制限）はミドルウェアに属する。[オプショナルユーティリティ](optional-utilities/README_ja.md)を参照。
+7. **十分にテスト**: 提供されたテストモジュールラッパーを使用
 
 ## テスト
 
@@ -211,9 +218,18 @@ describe('My Controller Tests', () => {
 });
 ```
 
+## ドキュメント
+
+### 包括的ガイド
+
+- **[コントローラー設計ガイド](../../CONTROLLER_DESIGN_ja.md)**: 薄いコントローラーと関心の分離のベストプラクティス
+- **[依存性注入ガイド](../../DEPENDENCY_INJECTION_ja.md)**: 必須コンポーネントとオプションコンポーネント、DIパターンの理解
+- **[オプショナルユーティリティ](optional-utilities/README_ja.md)**: RequestValidator、AuthService、MiddlewareManagerのドキュメント
+- **[使用例ディレクトリ](examples/README_ja.md)**: 使用シナリオとステップバイステップの実装ガイド
+
 ## サンプル
 
-フレームワークのすべての機能を示す完全な動作例については、`src/RestFramework/examples/UserController.ts` を参照してください。
+フレームワークのすべての機能を示す完全な動作例については、`examples/UserController.ts` を参照してください。[使用例README](examples/README_ja.md)には詳細な使用シナリオと適応ガイドが含まれています。
 
 ## 使用例：ユーザー管理API
 

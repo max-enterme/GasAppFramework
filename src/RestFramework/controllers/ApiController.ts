@@ -23,6 +23,8 @@ namespace RestFramework {
          * Follows the complete request/response pipeline
          */
         public handle(rawRequest: any): RestFramework.Types.ApiResponse<any> {
+            const timestamp = new Date().toISOString();
+            
             try {
                 this._logger.info(`Handling request: ${JSON.stringify(rawRequest)}`);
 
@@ -33,7 +35,11 @@ namespace RestFramework {
 
                 return this.processRequest(rawRequest);
             } catch (error) {
-                return this._errorHandler.handle(error);
+                // Pass request context to error handler for better logging
+                return this._errorHandler.handle(error, { 
+                    request: rawRequest, 
+                    timestamp: timestamp 
+                });
             }
         }
 
