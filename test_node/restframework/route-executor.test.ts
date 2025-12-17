@@ -103,8 +103,8 @@ describe('RouteExecutor', () => {
 
         it('should log execution start stage', () => {
             const stage = 'Api.execute';
-            const action = 'start';
-            const prefix = action === 'start' ? 'Start' : 'Finished';
+            // Helper function mimics logExecutionStage behavior
+            const prefix = 'Start';
             
             logger.info(`${prefix} ${stage}`);
             
@@ -115,8 +115,8 @@ describe('RouteExecutor', () => {
 
         it('should log execution end stage', () => {
             const stage = 'Api.execute';
-            const action = 'end';
-            const prefix = action === 'end' ? 'Finished' : 'Start';
+            // Helper function mimics logExecutionStage behavior
+            const prefix = 'Finished';
             
             logger.info(`${prefix} ${stage}`);
             

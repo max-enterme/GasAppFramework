@@ -25,12 +25,12 @@ namespace RestFramework {
     /**
      * Validates a DI token before resolution
      * @param token The token to validate
-     * @param tokenName Descriptive name for error messages
+     * @param componentName Descriptive name of the component being resolved
      * @throws Error if token is invalid
      */
-    function validateToken(token: string, tokenName: string): void {
+    function validateToken(token: string, componentName: string): void {
         if (!token || typeof token !== 'string' || token.trim().length === 0) {
-            throw new Error(`Invalid DI token for ${tokenName}: token must be a non-empty string`);
+            throw new Error(`Invalid DI token for ${componentName}: token must be a non-empty string`);
         }
     }
 
@@ -38,7 +38,7 @@ namespace RestFramework {
      * Safely resolves a dependency from the container with validation and error handling
      * @param container The DI container
      * @param token The DI token to resolve
-     * @param tokenName Descriptive name for logging
+     * @param componentName Descriptive name of the component being resolved
      * @param logger The logger instance
      * @returns The resolved dependency
      * @throws Error if resolution fails
@@ -46,16 +46,16 @@ namespace RestFramework {
     function safeResolve<T>(
         container: GasDI.Container,
         token: string,
-        tokenName: string,
+        componentName: string,
         logger: Shared.Types.Logger
     ): T {
         try {
-            validateToken(token, tokenName);
-            logger.info(`Resolving ${tokenName} with token: ${token}`);
+            validateToken(token, componentName);
+            logger.info(`Resolving ${componentName} with token: ${token}`);
             return container.resolve<T>(token);
         } catch (error) {
-            logger.error(`Failed to resolve ${tokenName} with token: ${token}`, error);
-            throw new Error(`Dependency resolution failed for ${tokenName}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+            logger.error(`Failed to resolve ${componentName} with token: ${token}`, error);
+            throw new Error(`Dependency resolution failed for ${componentName}: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
     }
 
