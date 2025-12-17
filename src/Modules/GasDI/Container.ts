@@ -90,6 +90,9 @@ namespace GasDI {
          * Disposes the scoped container and cleans up scoped instances
          * Should be called after GasDI.Context.run to prevent resource leaks
          * Only cleans up resources for scoped containers (those with a scope name)
+         * 
+         * Note: Scoped containers typically don't have their own registrations,
+         * they inherit from parent. This method focuses on cleaning up instances.
          */
         dispose(): void {
             if (this._scopeName) {
@@ -99,8 +102,6 @@ namespace GasDI {
                 }
                 // Clear local scoped instances
                 this.scopedByName.clear();
-                // Clear registrations for this scoped container
-                this.regs.clear();
             }
         }
     }
