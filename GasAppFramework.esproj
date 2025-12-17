@@ -1,6 +1,5 @@
 <Project Sdk="Microsoft.VisualStudio.JavaScript.Sdk/1.0.2752196">
   <ItemGroup>
-    <Folder Include="test\Modules\EventSystem\" />
     <Folder Include="test_node\" />
   </ItemGroup>
 </Project>

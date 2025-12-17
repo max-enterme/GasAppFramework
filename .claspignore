@@ -16,7 +16,8 @@ tsconfig.json
 package*.json
 
 # IDE and system files
-.vs/
+.vs
+.vs/**
 .vscode/
 .git/
 *.log
