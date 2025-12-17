@@ -96,7 +96,7 @@ export class ErrorHandler {
         private logger: Logger = new RestFrameworkLogger('[ErrorHandler]')
     ) {}
 
-    handle(error: unknown, context?: { request?: any; timestamp?: string }): ApiResponse<never> {
+    handle(error: unknown, _context?: { request?: any; timestamp?: string }): ApiResponse<never> {
         this.logger.error('Handling error', error);
 
         if (error instanceof Error) {

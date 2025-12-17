@@ -2,7 +2,7 @@
  * RouteExecutor Tests
  */
 
-import { RestFrameworkLogger, ErrorHandler, ApiResponseFormatter } from './restframework-module';
+import { RestFrameworkLogger, ErrorHandler } from './restframework-module';
 
 // Mock GasDI Container
 class MockContainer {
