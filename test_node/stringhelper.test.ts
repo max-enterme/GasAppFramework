@@ -47,6 +47,30 @@ describe('StringHelper Tests', () => {
             const result = formatString('No placeholders here', 'unused');
             expect(result).toBe('No placeholders here');
         });
+
+        test('should handle large number of placeholders efficiently', () => {
+            const template = Array.from({ length: 20 }, (_, i) => `{${i}}`).join(' ');
+            const args = Array.from({ length: 20 }, (_, i) => `arg${i}`);
+            
+            const start = Date.now();
+            const result = formatString(template, ...args);
+            const elapsed = Date.now() - start;
+            
+            // Should complete quickly (less than 100ms)
+            expect(elapsed).toBeLessThan(100);
+            expect(result).toBe(args.join(' '));
+        });
+
+        test('should handle complex mixed content', () => {
+            const result = formatString(
+                'User {0} ({1}) logged in at {2} from IP {3}',
+                'john.doe',
+                123,
+                '2024-03-15',
+                '192.168.1.1'
+            );
+            expect(result).toBe('User john.doe (123) logged in at 2024-03-15 from IP 192.168.1.1');
+        });
     });
 
     describe('formatDate', () => {

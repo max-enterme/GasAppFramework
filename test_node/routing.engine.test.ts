@@ -348,5 +348,47 @@ describe('Routing Engine Tests', () => {
             expect(router.dispatch('/admin/settings/security', { params: {} })).toBe('admin-settings/security');
             expect(router.dispatch('/api/v2/users', { params: {} })).toBe('api-v2-users');
         });
+
+        test('should handle empty path segments correctly', () => {
+            const router = createRouter();
+            
+            router.register('/api/test', () => 'result');
+
+            // Path with trailing slash should still work
+            expect(router.dispatch('/api/test/', { params: {} })).toBe('result');
+        });
+
+        test('should handle special characters in parameters', () => {
+            const router = createRouter();
+            
+            router.register('/search/:query', (ctx) => ({ query: ctx.params.query }));
+
+            const result = router.dispatch('/search/hello%2Bworld', { params: {} });
+            expect(result.query).toBe('hello+world');
+        });
+
+        test('should maintain route specificity order', () => {
+            const router = createRouter();
+            const calls: string[] = [];
+            
+            // Register in random order
+            router.register('/a/:b/c', () => { calls.push('param-static'); return 'param-static'; });
+            router.register('/a/b/c', () => { calls.push('all-static'); return 'all-static'; });
+            router.register('/*', () => { calls.push('wildcard'); return 'wildcard'; });
+            
+            // Most specific should win
+            expect(router.dispatch('/a/b/c', { params: {} })).toBe('all-static');
+            expect(router.dispatch('/a/x/c', { params: {} })).toBe('param-static');
+            expect(router.dispatch('/x/y/z', { params: {} })).toBe('wildcard');
+        });
+
+        test('should handle routes with only wildcards', () => {
+            const router = createRouter();
+            
+            router.register('/*', (ctx) => ({ path: ctx.params['*'] }));
+
+            const result = router.dispatch('/any/deep/path/here', { params: {} });
+            expect(result.path).toBe('any/deep/path/here');
+        });
     });
 });

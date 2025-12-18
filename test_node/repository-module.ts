@@ -134,6 +134,15 @@ export function createRepository<TEntity extends object, Key extends keyof TEnti
         return deps.schema.fromPartial(p);
     };
 
+    const validateKey = (key: Pick<TEntity, Key>): void => {
+        for (const param of deps.schema.keyParameters) {
+            const value = (key as any)[param as string];
+            if (value == null || value === '') {
+                throw new Error(`key part "${String(param)}" is missing`);
+            }
+        }
+    };
+
     return {
         load(): void {
             const read = deps.store.load();
@@ -148,6 +157,7 @@ export function createRepository<TEntity extends object, Key extends keyof TEnti
         upsert(entity: TEntity): void {
             const processed = deps.schema.onBeforeSave ? deps.schema.onBeforeSave(entity) : entity;
             const key = keyOf(processed);
+            validateKey(key);
             const keyStr = keyToString(key);
             const existingIndex = idx.get(keyStr);
 

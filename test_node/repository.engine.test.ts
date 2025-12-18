@@ -344,5 +344,84 @@ describe('Repository Engine Tests', () => {
             expect(remaining.some(u => u.id === users[0].id)).toBe(false);
             expect(remaining.some(u => u.id === users[4].id)).toBe(false);
         });
+
+        test('should handle batch upsert operations', () => {
+            const users = createTestUsers(10);
+            
+            // Batch insert
+            users.forEach(user => repo.upsert(user));
+            expect(repo.findAll()).toHaveLength(10);
+
+            // Batch update (modify half of them)
+            const updates = users.slice(0, 5).map(u => ({ ...u, name: `Updated ${u.name}` }));
+            updates.forEach(user => repo.upsert(user));
+            expect(repo.findAll()).toHaveLength(10); // Still 10 users
+
+            // Verify updates applied
+            const updated = repo.findAll().filter(u => u.name.startsWith('Updated'));
+            expect(updated).toHaveLength(5);
+        });
+
+        test('should handle edge case: empty key values', () => {
+            const invalidUser: User = {
+                id: '', // Empty key
+                org: 'acme',
+                name: 'Invalid User',
+                email: 'invalid@test.com'
+            };
+
+            expect(() => {
+                repo.upsert(invalidUser);
+            }).toThrow('key part "id" is missing');
+        });
+
+        test('should handle edge case: null key values', () => {
+            const invalidUser: any = {
+                id: null, // Null key
+                org: 'acme',
+                name: 'Invalid User'
+            };
+
+            expect(() => {
+                repo.upsert(invalidUser);
+            }).toThrow('key part "id" is missing');
+        });
+
+        test('should handle large dataset efficiently', () => {
+            const largeDataset = Array.from({ length: 100 }, (_, i) => ({
+                id: `user-${i}`,
+                org: `org-${i % 10}`,
+                name: `User ${i}`,
+                email: `user${i}@example.com`
+            }));
+
+            const start = Date.now();
+            largeDataset.forEach(user => repo.upsert(user));
+            const insertTime = Date.now() - start;
+
+            expect(repo.findAll()).toHaveLength(100);
+            expect(insertTime).toBeLessThan(1000); // Should complete within 1 second
+
+            // Test lookup performance
+            const lookupStart = Date.now();
+            for (let i = 0; i < 50; i++) {
+                repo.find({ id: `user-${i}`, org: `org-${i % 10}` });
+            }
+            const lookupTime = Date.now() - lookupStart;
+            expect(lookupTime).toBeLessThan(100); // Fast lookups
+        });
+
+        test('should handle concurrent-style operations correctly', () => {
+            const user1: User = { id: 'shared', org: 'acme', name: 'First Version', email: 'v1@test.com' };
+            const user2: User = { id: 'shared', org: 'acme', name: 'Second Version', email: 'v2@test.com' };
+
+            // Simulate concurrent upserts (last write wins)
+            repo.upsert(user1);
+            repo.upsert(user2);
+
+            const result = repo.find({ id: 'shared', org: 'acme' });
+            expect(result?.name).toBe('Second Version');
+            expect(repo.findAll()).toHaveLength(1); // Only one entity
+        });
     });
 });

@@ -24,66 +24,120 @@ namespace Routing {
 
     function matchSegments(segs: Segment[], parts: string[]): { ok: true; params: any } | { ok: false } {
         const params: any = {};
-        let i = 0;
-        for (; i < segs.length; i++) {
-            const s = segs[i];
-            const part = parts[i];
-            if (!part && s.kind !== 'wildcard') return { ok: false };
-            if (s.kind === 'static') { if (part !== s.value) return { ok: false }; }
-            else if (s.kind === 'param') { params[s.name] = decodeURIComponent(part); }
-            else if (s.kind === 'wildcard') { params['*'] = decodeURIComponent(parts.slice(i).join('/')); return { ok: true, params }; }
+        let segmentIndex = 0;
+        
+        for (; segmentIndex < segs.length; segmentIndex++) {
+            const segment = segs[segmentIndex];
+            const part = parts[segmentIndex];
+            
+            // Wildcard can match zero or more parts
+            if (segment.kind === 'wildcard') {
+                params['*'] = decodeURIComponent(parts.slice(segmentIndex).join('/'));
+                return { ok: true, params };
+            }
+            
+            // All other segments require a matching part
+            if (!part) return { ok: false };
+            
+            if (segment.kind === 'static') {
+                if (part !== segment.value) return { ok: false };
+            } else if (segment.kind === 'param') {
+                params[segment.name] = decodeURIComponent(part);
+            }
         }
-        if (i !== parts.length) return { ok: false };
+        
+        // All segments matched; ensure no extra parts remain
+        if (segmentIndex !== parts.length) return { ok: false };
+        
         return { ok: true, params };
     }
 
-    export function create<Ctx = any, Res = any>(logger?: Ports.Logger): Router<Ctx, Res> {
-        function specificity(segments: any[]): number {
-            let score = 0;
-            for (const s of segments) {
-                if (s.kind === 'static') score += 3;
-                else if (s.kind === 'param') score += 2;
-                else score += 1;
-            }
-            return score;
+    /**
+     * Calculate route specificity for prioritization
+     * Higher score = more specific route (should be matched first)
+     */
+    function calculateSpecificity(segments: Segment[]): number {
+        let score = 0;
+        for (const seg of segments) {
+            if (seg.kind === 'static') score += 3;
+            else if (seg.kind === 'param') score += 2;
+            else score += 1; // wildcard
         }
-        const mws: Ports.Middleware<Ctx, Res>[] = [];
+        return score;
+    }
+
+    /**
+     * Compose middleware chain with handler
+     */
+    function composeMiddleware<Ctx, Res>(
+        middlewares: Ports.Middleware<Ctx, Res>[],
+        handler: Ports.Handler<Ctx, Res>
+    ): Ports.Handler<Ctx, Res> {
+        return middlewares.reduceRight(
+            (next, mw) => (ctx: Ctx) => mw(next, ctx),
+            handler
+        );
+    }
+
+    export function create<Ctx = any, Res = any>(logger?: Ports.Logger): Router<Ctx, Res> {
+        const middlewares: Ports.Middleware<Ctx, Res>[] = [];
         const routes: Route<Ctx, Res>[] = [];
         const log = logger ?? { info: (_: string) => { }, error: (_: string) => { } };
 
         function use(mw: Ports.Middleware<Ctx, Res>): Router<Ctx, Res> {
-            mws.push(mw); return api;
+            middlewares.push(mw);
+            return api;
         }
+
         function register(path: string, handler: Ports.Handler<Ctx, Res>): Router<Ctx, Res> {
-            routes.push({ path, segments: parsePath(path), handler }); routes.sort((a, b) => specificity(b.segments) - specificity(a.segments)); return api;
+            const segments = parsePath(path);
+            routes.push({ path, segments, handler });
+            // Sort by specificity (most specific first)
+            routes.sort((a, b) => calculateSpecificity(b.segments) - calculateSpecificity(a.segments));
+            return api;
         }
+
         function registerAll(map: { [path: string]: Ports.Handler<Ctx, Res> }): Router<Ctx, Res> {
-            for (const k of Object.keys(map)) register(k, map[k]); return api;
+            for (const [path, handler] of Object.entries(map)) {
+                register(path, handler);
+            }
+            return api;
         }
+
         function mount(prefix: string, sub: Router<Ctx, Res>): Router<Ctx, Res> {
-            // resolve sub routes by wrapping dispatch
+            // Resolve sub routes by wrapping dispatch
             return register(prefix + '/*', (ctx: any) => (sub as any).dispatch('/' + ctx.params['*'], ctx));
         }
+
         function resolve(path: string): { handler: Ports.Handler<Ctx, Res>, params: any } | null {
             const parts = path.split('/').filter(x => x.length > 0);
-            for (const r of routes) {
-                const m = matchSegments(r.segments, parts);
-                if ((m as any).ok) {
-                    const params = (m as any).params || {};
-                    const baseHandler = r.handler;
-                    const composed = mws.reduceRight((next, mw) => (c: Ctx) => mw(next, c), baseHandler);
-                    const handler: Ports.Handler<Ctx, Res> = (c: any) => composed({ ...(c as any), params });
+            
+            for (const route of routes) {
+                const match = matchSegments(route.segments, parts);
+                
+                if (match.ok) {
+                    const params = match.params || {};
+                    const composedHandler = composeMiddleware(middlewares, route.handler);
+                    
+                    // Wrap handler to merge params into context
+                    const handler: Ports.Handler<Ctx, Res> = (ctx: any) => 
+                        composedHandler({ ...ctx, params: { ...ctx.params, ...params } });
+                    
                     return { handler, params };
                 }
             }
+            
             return null;
         }
+
         function dispatch(path: string, ctx: Ctx): Res {
-            const hit = resolve(path);
-            if (!hit) throw new Error(`Route not found: ${path}`);
+            const resolved = resolve(path);
+            if (!resolved) throw new Error(`Route not found: ${path}`);
+            
             log.info(`[Router] ${path}`);
-            return hit.handler(ctx);
+            return resolved.handler(ctx);
         }
+
         const api: Router<Ctx, Res> = { use, register, registerAll, mount, resolve, dispatch };
         return api;
     }

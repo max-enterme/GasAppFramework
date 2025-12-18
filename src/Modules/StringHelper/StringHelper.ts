@@ -10,12 +10,11 @@ namespace StringHelper {
      * @returns Formatted string
      */
     export function formatString(formatText: string, ...args: Array<string | number>): string {
-        let out = String(formatText);
-        for (const [i, arg] of args.entries()) {
-            const regExp = new RegExp('\\{' + i + '\\}', 'g');
-            out = out.replace(regExp, String(arg));
-        }
-        return out;
+        // Performance optimization: use single replace with callback instead of multiple RegExp instances
+        return String(formatText).replace(/\{(\d+)\}/g, (match, index) => {
+            const i = parseInt(index, 10);
+            return i < args.length ? String(args[i]) : match;
+        });
     }
 
     export function formatDate(date: Date, format: string, tz?: string | null): string {
@@ -61,19 +60,27 @@ namespace StringHelper {
         // Supports: a.b, a[0], func(x, 'y'), and wildcard-free simple expressions chained by dots
         const tokens = splitTopLevel(expr, '.');
         let current = root;
-        for (const t of tokens) {
-            if (t.endsWith(')')) {
-                const fnName = t.slice(0, t.indexOf('('));
-                const argStr = t.slice(t.indexOf('(') + 1, -1);
+        
+        for (const token of tokens) {
+            if (current == null) break;
+            
+            if (token.endsWith(')')) {
+                // Function call: extract function name and arguments
+                const parenIndex = token.indexOf('(');
+                const fnName = token.slice(0, parenIndex);
+                const argStr = token.slice(parenIndex + 1, -1);
                 const fn = resolveSimple(current, fnName);
+                
                 if (typeof fn !== 'function') return null;
+                
                 const args = parseArgs(argStr, root, current);
                 current = fn.apply(current, args);
             } else {
-                current = resolveSimple(current, t);
+                // Simple property or array access
+                current = resolveSimple(current, token);
             }
-            if (current == null) break;
         }
+        
         return current;
     }
 
@@ -91,23 +98,48 @@ namespace StringHelper {
 
     function splitTopLevel(input: string, sep: string): string[] {
         const out: string[] = [];
-        let cur = '';
-        let depth = 0;
-        let inS = false;
-        let inD = false;
+        let currentToken = '';
+        let parenDepth = 0;
+        let inSingleQuote = false;
+        let inDoubleQuote = false;
+        
         for (let i = 0; i < input.length; i++) {
-            const c = input[i];
-            if (c === '\\') { cur += c; if (i + 1 < input.length) { cur += input[++i]; } continue; }
-            if (c === '\'' && !inD) { inS = !inS; cur += c; continue; }
-            if (c === '"' && !inS) { inD = !inD; cur += c; continue; }
-            if (!inS && !inD) {
-                if (c === '(') depth++;
-                else if (c === ')') depth--;
-                if (depth === 0 && c === sep) { out.push(cur); cur = ''; continue; }
+            const char = input[i];
+            
+            // Handle escape sequences
+            if (char === '\\' && i + 1 < input.length) {
+                currentToken += char + input[++i];
+                continue;
             }
-            cur += c;
+            
+            // Track quote state
+            if (char === '\'' && !inDoubleQuote) {
+                inSingleQuote = !inSingleQuote;
+                currentToken += char;
+                continue;
+            }
+            if (char === '"' && !inSingleQuote) {
+                inDoubleQuote = !inDoubleQuote;
+                currentToken += char;
+                continue;
+            }
+            
+            // Track parenthesis depth and handle separator when not in quotes
+            if (!inSingleQuote && !inDoubleQuote) {
+                if (char === '(') parenDepth++;
+                else if (char === ')') parenDepth--;
+                
+                if (parenDepth === 0 && char === sep) {
+                    out.push(currentToken);
+                    currentToken = '';
+                    continue;
+                }
+            }
+            
+            currentToken += char;
         }
-        if (cur.length) out.push(cur);
+        
+        if (currentToken.length) out.push(currentToken);
         return out.map(s => s.trim()).filter(s => s.length > 0);
     }
 

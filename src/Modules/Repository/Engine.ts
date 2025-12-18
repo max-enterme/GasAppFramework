@@ -20,37 +20,54 @@ namespace Repository.Engine {
         let rows: TEntity[] = [];
         let idx: Idx = new Map();
 
+        /**
+         * Extract key from entity based on schema key parameters
+         */
         const keyOf = (e: TEntity): Pick<TEntity, Key> => {
-            const k: any = {};
-            for (const p of deps.schema.keyParameters) k[p as string] = (e as any)[p as string];
-            return k;
+            const key: any = {};
+            for (const param of deps.schema.keyParameters) {
+                key[param as string] = (e as any)[param as string];
+            }
+            return key;
         };
 
+        /**
+         * Serialize key to string for indexing
+         */
         const keyToString = (key: Pick<TEntity, Key>): string => {
             return deps.keyCodec.stringify(key);
         };
 
+        /**
+         * Rebuild index from current rows
+         */
         const buildIndex = () => {
             idx = new Map();
             for (let i = 0; i < rows.length; i++) {
-                idx.set(keyToString(keyOf(rows[i])), i);
+                const key = keyToString(keyOf(rows[i]));
+                idx.set(key, i);
             }
         };
 
+        /**
+         * Load entities from store and build index
+         */
         function load(): void {
             const read = deps.store.load();
-            rows = read.rows.map(r => {
-                const rec = deps.schema.onAfterLoad ? deps.schema.onAfterLoad(r) : (r as any as TEntity);
-                return coerceToSchema(rec);
+            rows = read.rows.map(row => {
+                const entity = deps.schema.onAfterLoad ? deps.schema.onAfterLoad(row) : (row as any as TEntity);
+                return coerceToSchema(entity);
             });
             buildIndex();
             logger.info(`[Repository] loaded ${rows.length} rows`);
         }
 
-        function coerceToSchema(p: Partial<TEntity>): TEntity {
-            const e = deps.schema.fromPartial(p);
-            if (deps.schema.onBeforeSave) return deps.schema.onBeforeSave(e);
-            return e;
+        /**
+         * Coerce partial entity to full entity using schema
+         */
+        function coerceToSchema(partial: Partial<TEntity>): TEntity {
+            const entity = deps.schema.fromPartial(partial);
+            return deps.schema.onBeforeSave ? deps.schema.onBeforeSave(entity) : entity;
         }
 
         function find(key: Pick<TEntity, Key>): TEntity | null {
@@ -69,66 +86,103 @@ namespace Repository.Engine {
             return out;
         }
 
+        /**
+         * Insert or update entities
+         */
         function upsert(input: Partial<TEntity> | Partial<TEntity>[]): { added: TEntity[]; updated: TEntity[] } {
             ensureLoaded();
-            const arr = Array.isArray(input) ? input : [input];
+            const items = Array.isArray(input) ? input : [input];
             const added: TEntity[] = [];
             const updated: TEntity[] = [];
             const forStoreAdds: TEntity[] = [];
             const forStoreUpdates: { index: number; row: TEntity }[] = [];
 
-            for (const p of arr) {
-                const e = coerceToSchema(p);
-                const k = keyOf(e);
-                validateKey(k);
-                const ks = keyToString(k);
-                const pos = idx.get(ks);
-                if (pos == null) {
-                    rows.push(e);
-                    idx.set(ks, rows.length - 1);
-                    added.push(e);
-                    forStoreAdds.push(e);
+            for (const partial of items) {
+                const entity = coerceToSchema(partial);
+                const key = keyOf(entity);
+                validateKey(key);
+                
+                const keyStr = keyToString(key);
+                const existingIndex = idx.get(keyStr);
+                
+                if (existingIndex == null) {
+                    // Add new entity
+                    const newIndex = rows.length;
+                    rows.push(entity);
+                    idx.set(keyStr, newIndex);
+                    added.push(entity);
+                    forStoreAdds.push(entity);
                 } else {
-                    rows[pos] = e;
-                    updated.push(e);
-                    forStoreUpdates.push({ index: pos, row: e });
+                    // Update existing entity
+                    rows[existingIndex] = entity;
+                    updated.push(entity);
+                    forStoreUpdates.push({ index: existingIndex, row: entity });
                 }
             }
 
-            if (forStoreAdds.length) deps.store.saveAdded(forStoreAdds);
-            if (forStoreUpdates.length) deps.store.saveUpdated(forStoreUpdates);
+            // Persist changes to store
+            if (forStoreAdds.length > 0) deps.store.saveAdded(forStoreAdds);
+            if (forStoreUpdates.length > 0) deps.store.saveUpdated(forStoreUpdates);
+            
             return { added, updated };
         }
 
+        /**
+         * Delete entities by keys
+         */
         function deleteMany(keys: Pick<TEntity, Key> | Pick<TEntity, Key>[]): { deleted: number } {
             ensureLoaded();
-            const list = Array.isArray(keys) ? keys : [keys];
-            const toDeleteIdx: number[] = [];
-            for (const k of list) {
-                const pos = idx.get(keyToString(k));
-                if (pos != null) toDeleteIdx.push(pos);
+            const keyList = Array.isArray(keys) ? keys : [keys];
+            const indicesToDelete: number[] = [];
+            
+            // Find all entities to delete
+            for (const key of keyList) {
+                const index = idx.get(keyToString(key));
+                if (index != null) {
+                    indicesToDelete.push(index);
+                }
             }
-            if (!toDeleteIdx.length) return { deleted: 0 };
-            toDeleteIdx.sort((a, b) => a - b);
-            // remove from rows (mark and compact)
-            const keep = new Array(rows.length).fill(true);
-            for (const i of toDeleteIdx) keep[i] = false;
+            
+            if (indicesToDelete.length === 0) return { deleted: 0 };
+            
+            // Sort indexes for consistent deletion
+            indicesToDelete.sort((a, b) => a - b);
+            
+            // Mark rows to keep
+            const keepRow = new Array(rows.length).fill(true);
+            for (const index of indicesToDelete) {
+                keepRow[index] = false;
+            }
+            
+            // Compact rows array
             const newRows: TEntity[] = [];
-            for (let i = 0; i < rows.length; i++) if (keep[i]) newRows.push(rows[i]);
+            for (let i = 0; i < rows.length; i++) {
+                if (keepRow[i]) newRows.push(rows[i]);
+            }
+            
             rows = newRows;
             buildIndex();
-            deps.store.deleteByIndexes(toDeleteIdx);
-            return { deleted: toDeleteIdx.length };
+            deps.store.deleteByIndexes(indicesToDelete);
+            
+            return { deleted: indicesToDelete.length };
         }
 
+        /**
+         * Ensure data is loaded before operations
+         */
         function ensureLoaded() {
-            if (!rows.length && idx.size === 0) load();
+            if (rows.length === 0 && idx.size === 0) load();
         }
 
-        function validateKey(k: Pick<TEntity, Key>) {
-            for (const p of deps.schema.keyParameters) {
-                const v = (k as any)[p as string];
-                if (v == null || v === '') throw new Repository.RepositoryError('InvalidKey', `key part "${String(p)}" is missing`);
+        /**
+         * Validate that all key parts are present
+         */
+        function validateKey(key: Pick<TEntity, Key>) {
+            for (const param of deps.schema.keyParameters) {
+                const value = (key as any)[param as string];
+                if (value == null || value === '') {
+                    throw new Repository.RepositoryError('InvalidKey', `key part "${String(param)}" is missing`);
+                }
             }
         }
 
