@@ -1,4 +1,0 @@
-
-> gas-app-framework@1.0.0 test:node
-> jest
-
