@@ -116,7 +116,7 @@ namespace RestFramework.Examples {
         let body = {};
         try {
             body = e.postData?.contents ? JSON.parse(e.postData.contents) : {};
-        } catch (error) {
+        } catch {
             // Handle JSON parse error
         }
 
