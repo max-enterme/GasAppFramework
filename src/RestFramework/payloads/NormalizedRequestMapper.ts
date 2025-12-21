@@ -3,8 +3,8 @@ namespace RestFramework {
      * Base class for RequestMappers that use NormalizedRequest
      * Provides helper methods to access values with proper typing and defaults
      */
-    export abstract class NormalizedRequestMapper<TRequest> implements RestFramework.Interfaces.RequestMapper<Routing.NormalizedRequest, TRequest> {
-        protected request: Routing.NormalizedRequest | undefined;
+    export abstract class NormalizedRequestMapper<TRequest> implements Interfaces.RequestMapper<NormalizedRequest, TRequest> {
+        protected request: NormalizedRequest | undefined;
 
         /**
          * Get a string value from normalized request
@@ -94,7 +94,7 @@ namespace RestFramework {
         /**
          * Map method to be implemented by concrete mappers
          */
-        map(request: Routing.NormalizedRequest): TRequest {
+        map(request: NormalizedRequest): TRequest {
             this.request = request;
             return this.mapInternal();
         }

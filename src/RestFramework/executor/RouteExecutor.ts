@@ -74,7 +74,7 @@ namespace RestFramework {
      * @param normalizedRequest The normalized request context
      * @returns The mapped response or error response
      */
-    export function executeRoute(route: RouteDefinition, normalizedRequest: Routing.NormalizedRequest) {
+    export function executeRoute(route: RouteDefinition, normalizedRequest: NormalizedRequest) {
         // Create a scoped container for this route
         const scopedContainer = GasDI.Container.Root.createScope(route.endPoint);
 
@@ -82,10 +82,10 @@ namespace RestFramework {
             return GasDI.Context.run(scopedContainer, () => {
                 // Initialize logger first
                 const logger = new RestFramework.Logger(`[RouteExecutor:${route.endPoint}]`);
-                
+
                 // Initialize mandatory ErrorHandler component for centralized error handling
                 const errorHandler = new RestFramework.ErrorHandler(logger);
-                
+
                 try {
                     // Resolve all components via DI tokens with validation
                     const api = safeResolve<RestFramework.Interfaces.ApiLogic>(
