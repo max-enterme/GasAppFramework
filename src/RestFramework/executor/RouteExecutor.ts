@@ -9,6 +9,8 @@ namespace RestFramework {
         apiToken: string;
         requestMapperToken: string;
         responseMapperToken: string;
+        loggerToken?: string;
+        errorHandlerToken?: string;
     };
 
     /**
@@ -80,11 +82,25 @@ namespace RestFramework {
 
         try {
             return GasDI.Context.run(scopedContainer, () => {
-                // Initialize logger first
-                const logger = new RestFramework.Logger(`[RouteExecutor:${route.endPoint}]`);
+                // Initialize or resolve logger
+                const logger = route.loggerToken
+                    ? safeResolve<Shared.Types.Logger>(
+                        scopedContainer,
+                        route.loggerToken,
+                        'Logger',
+                        new RestFramework.Logger(`[RouteExecutor:${route.endPoint}]`) // temporary logger for resolution logging
+                    )
+                    : new RestFramework.Logger(`[RouteExecutor:${route.endPoint}]`);
 
-                // Initialize mandatory ErrorHandler component for centralized error handling
-                const errorHandler = new RestFramework.ErrorHandler(logger);
+                // Initialize or resolve ErrorHandler component for centralized error handling
+                const errorHandler = route.errorHandlerToken
+                    ? safeResolve<RestFramework.ErrorHandler>(
+                        scopedContainer,
+                        route.errorHandlerToken,
+                        'ErrorHandler',
+                        logger
+                    )
+                    : new RestFramework.ErrorHandler(logger);
 
                 try {
                     // Resolve all components via DI tokens with validation
