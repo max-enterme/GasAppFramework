@@ -386,14 +386,16 @@ describe('RouteExecutor', () => {
 
         describe('Mixed Scenarios', () => {
             it('should use default logger when loggerToken is not provided, but custom errorHandler when token is provided', () => {
-                const route: {
+                type TestRoute = {
                     endPoint: string;
                     apiToken: string;
                     requestMapperToken: string;
                     responseMapperToken: string;
                     loggerToken?: string;
                     errorHandlerToken?: string;
-                } = {
+                };
+                
+                const route: TestRoute = {
                     endPoint: '/test',
                     apiToken: 'api-token',
                     requestMapperToken: 'request-mapper-token',
@@ -407,14 +409,16 @@ describe('RouteExecutor', () => {
             });
 
             it('should use custom logger when token is provided, but default errorHandler when token is not provided', () => {
-                const route: {
+                type TestRoute = {
                     endPoint: string;
                     apiToken: string;
                     requestMapperToken: string;
                     responseMapperToken: string;
                     loggerToken?: string;
                     errorHandlerToken?: string;
-                } = {
+                };
+                
+                const route: TestRoute = {
                     endPoint: '/test',
                     apiToken: 'api-token',
                     requestMapperToken: 'request-mapper-token',
