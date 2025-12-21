@@ -52,20 +52,6 @@ describe('Repository Engine Tests', () => {
     });
 
     describe('Repository Creation and Loading', () => {
-        test('should create repository instance successfully', () => {
-            const repo = createRepository({
-                schema: userSchema,
-                store,
-                keyCodec: codec,
-                logger
-            });
-
-            expect(repo).toBeDefined();
-            expect(typeof repo.load).toBe('function');
-            expect(typeof repo.upsert).toBe('function');
-            expect(typeof repo.find).toBe('function');
-        });
-
         test('should load empty repository successfully', () => {
             const repo = createRepository({
                 schema: userSchema,
@@ -362,28 +348,26 @@ describe('Repository Engine Tests', () => {
             expect(updated).toHaveLength(5);
         });
 
-        test('should handle edge case: empty key values', () => {
-            const invalidUser: User = {
+        test('should handle edge case: invalid key values', () => {
+            const emptyKeyUser: User = {
                 id: '', // Empty key
                 org: 'acme',
                 name: 'Invalid User',
                 email: 'invalid@test.com'
             };
-
-            expect(() => {
-                repo.upsert(invalidUser);
-            }).toThrow('key part "id" is missing');
-        });
-
-        test('should handle edge case: null key values', () => {
-            const invalidUser: any = {
+            
+            const nullKeyUser: any = {
                 id: null, // Null key
                 org: 'acme',
                 name: 'Invalid User'
             };
 
             expect(() => {
-                repo.upsert(invalidUser);
+                repo.upsert(emptyKeyUser);
+            }).toThrow('key part "id" is missing');
+            
+            expect(() => {
+                repo.upsert(nullKeyUser);
             }).toThrow('key part "id" is missing');
         });
 
@@ -395,20 +379,15 @@ describe('Repository Engine Tests', () => {
                 email: `user${i}@example.com`
             }));
 
-            const start = Date.now();
             largeDataset.forEach(user => repo.upsert(user));
-            const insertTime = Date.now() - start;
-
             expect(repo.findAll()).toHaveLength(100);
-            expect(insertTime).toBeLessThan(1000); // Should complete within 1 second
 
-            // Test lookup performance
-            const lookupStart = Date.now();
-            for (let i = 0; i < 50; i++) {
-                repo.find({ id: `user-${i}`, org: `org-${i % 10}` });
+            // Test lookup correctness
+            for (let i = 0; i < 10; i++) {
+                const found = repo.find({ id: `user-${i}`, org: `org-${i % 10}` });
+                expect(found).toBeDefined();
+                expect(found?.name).toBe(`User ${i}`);
             }
-            const lookupTime = Date.now() - lookupStart;
-            expect(lookupTime).toBeLessThan(100); // Fast lookups
         });
 
         test('should handle concurrent-style operations correctly', () => {

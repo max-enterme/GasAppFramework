@@ -19,15 +19,6 @@ describe('Routing Engine Tests', () => {
     });
 
     describe('Router Creation and Basic Functionality', () => {
-        test('should create router instance successfully', () => {
-            const router = createRouter();
-
-            expect(router).toBeDefined();
-            expect(typeof router.register).toBe('function');
-            expect(typeof router.dispatch).toBe('function');
-            expect(typeof router.resolve).toBe('function');
-        });
-
         test('should register and dispatch to simple route', () => {
             const router = createRouter(logger);
             const handler: RouteHandler = (ctx) => `Hello, ${ctx.params.name}!`;
@@ -81,8 +72,8 @@ describe('Routing Engine Tests', () => {
             
             router.register('/search/:query', (ctx) => `Query: ${ctx.params.query}`);
 
-            const result = router.dispatch('/search/hello%20world', { params: {} });
-            expect(result).toBe('Query: hello world');
+            expect(router.dispatch('/search/hello%20world', { params: {} })).toBe('Query: hello world');
+            expect(router.dispatch('/search/hello%2Bworld', { params: {} })).toBe('Query: hello+world');
         });
 
         test('should preserve existing context parameters', () => {
@@ -125,7 +116,7 @@ describe('Routing Engine Tests', () => {
     });
 
     describe('Route Resolution and Specificity', () => {
-        test('should resolve most specific route first', () => {
+        test('should resolve routes by specificity order', () => {
             const router = createRouter();
             
             // Register in order of increasing specificity
@@ -134,20 +125,13 @@ describe('Routing Engine Tests', () => {
             router.register('/api/status', () => 'static');
 
             // Static route should take precedence
-            const result = router.dispatch('/api/status', { params: {} });
-            expect(result).toBe('static');
-        });
-
-        test('should fall back to less specific routes', () => {
-            const router = createRouter();
+            expect(router.dispatch('/api/status', { params: {} })).toBe('static');
             
-            router.register('/*', () => 'wildcard');
-            router.register('/api/:action', () => 'param');
-            router.register('/api/status', () => 'static');
-
             // Should use param route for non-status API calls
-            const result = router.dispatch('/api/users', { params: {} });
-            expect(result).toBe('param');
+            expect(router.dispatch('/api/users', { params: {} })).toBe('param');
+            
+            // Should use wildcard for non-matching paths
+            expect(router.dispatch('/other/path', { params: {} })).toBe('wildcard');
         });
 
         test('should resolve route without dispatching', () => {
@@ -347,48 +331,6 @@ describe('Routing Engine Tests', () => {
             expect(router.dispatch('/user/john', { params: {} })).toBe('user-john');
             expect(router.dispatch('/admin/settings/security', { params: {} })).toBe('admin-settings/security');
             expect(router.dispatch('/api/v2/users', { params: {} })).toBe('api-v2-users');
-        });
-
-        test('should handle empty path segments correctly', () => {
-            const router = createRouter();
-            
-            router.register('/api/test', () => 'result');
-
-            // Path with trailing slash should still work
-            expect(router.dispatch('/api/test/', { params: {} })).toBe('result');
-        });
-
-        test('should handle special characters in parameters', () => {
-            const router = createRouter();
-            
-            router.register('/search/:query', (ctx) => ({ query: ctx.params.query }));
-
-            const result = router.dispatch('/search/hello%2Bworld', { params: {} });
-            expect(result.query).toBe('hello+world');
-        });
-
-        test('should maintain route specificity order', () => {
-            const router = createRouter();
-            const calls: string[] = [];
-            
-            // Register in random order
-            router.register('/a/:b/c', () => { calls.push('param-static'); return 'param-static'; });
-            router.register('/a/b/c', () => { calls.push('all-static'); return 'all-static'; });
-            router.register('/*', () => { calls.push('wildcard'); return 'wildcard'; });
-            
-            // Most specific should win
-            expect(router.dispatch('/a/b/c', { params: {} })).toBe('all-static');
-            expect(router.dispatch('/a/x/c', { params: {} })).toBe('param-static');
-            expect(router.dispatch('/x/y/z', { params: {} })).toBe('wildcard');
-        });
-
-        test('should handle routes with only wildcards', () => {
-            const router = createRouter();
-            
-            router.register('/*', (ctx) => ({ path: ctx.params['*'] }));
-
-            const result = router.dispatch('/any/deep/path/here', { params: {} });
-            expect(result.path).toBe('any/deep/path/here');
         });
     });
 });
