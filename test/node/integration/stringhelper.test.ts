@@ -3,7 +3,7 @@
  * Comprehensive Node.js tests for the StringHelper module functionality
  */
 
-import { setupGASMocks } from '../src/testing/node/test-utils';
+import { setupGASMocks } from '../../../src/testing/node/test-utils';
 import { formatString, formatDate, resolveString, get } from './stringhelper-module';
 
 // Set up GAS environment mocks before tests

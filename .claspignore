@@ -4,10 +4,8 @@ dist/**
 build/**
 
 # Node.js tooling and test files
-test_node/**
+test/node/**
 src/testing/node/**
-*.test.ts
-*.spec.ts
 
 # Development configuration files
 .eslintrc.*

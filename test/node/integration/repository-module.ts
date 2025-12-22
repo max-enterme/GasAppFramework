@@ -3,13 +3,13 @@
  * This module loads and exposes the Repository namespace for testing
  */
 
-/// <reference path="../src/core/shared/CommonTypes.d.ts" />
-/// <reference path="../src/core/modules/Repository/Core.Types.d.ts" />
+/// <reference path="../../../src/core/shared/CommonTypes.d.ts" />
+/// <reference path="../../../src/core/modules/Repository/Core.Types.d.ts" />
 
 // Load namespace files by requiring them with TypeScript
-import '../src/core/modules/Repository/Adapters.Memory';
-import '../src/core/modules/Repository/Codec.Simple';
-import '../src/core/modules/Repository/Engine';
+import '../../../src/core/modules/Repository/Adapters.Memory';
+import '../../../src/core/modules/Repository/Codec.Simple';
+import '../../../src/core/modules/Repository/Engine';
 
 // Re-export for testing
 declare global {

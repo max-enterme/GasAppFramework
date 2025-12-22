@@ -9,7 +9,7 @@
  * behavior patterns that the actual implementation should follow.
  */
 
-import { setupGASMocks, createMockLogger } from '../src/testing/node/test-utils';
+import { setupGASMocks, createMockLogger } from '../../../src/testing/node/test-utils';
 
 // Expected timezone from test-utils.ts mock
 const MOCK_TIMEZONE = 'America/New_York';
