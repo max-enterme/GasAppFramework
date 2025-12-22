@@ -390,8 +390,8 @@ namespace TestHelpers {
             private source: any = null;
 
             constructor(
-                private functionName: string,
-                private onCreate: (trigger: MockTrigger) => MockTrigger
+                protected functionName: string,
+                protected onCreate: (trigger: MockTrigger) => MockTrigger
             ) {}
 
             timeBased(): MockTimeTriggerBuilder {
@@ -489,7 +489,7 @@ namespace TestHelpers {
                 delete (globalThis as any).Utilities;
             }
 
-            formatDate(date: Date, timeZone: string, format: string): string {
+            formatDate(date: Date, timeZone: string, _format: string): string {
                 // Simple mock - in real GAS this would format properly
                 return `${date.toISOString().split('T')[0]} (${timeZone})`;
             }

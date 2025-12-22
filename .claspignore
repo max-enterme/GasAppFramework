@@ -5,6 +5,7 @@ build/**
 
 # Node.js tooling and test files
 test_node/**
+src/testing/node/**
 *.test.ts
 *.spec.ts
 

@@ -7,35 +7,48 @@ A comprehensive TypeScript framework for Google Apps Script (GAS) applications, 
 ```
 GasAppFramework/
 ├── src/
-│   ├── Modules/           # Core functional modules
-│   │   ├── EventSystem/   # Cron jobs, triggers, and workflows
-│   │   ├── GasDI/         # Dependency injection container
-│   │   ├── Locking/       # Distributed locking mechanisms
-│   │   ├── Repository/    # Data persistence abstraction
-│   │   ├── Routing/       # URL routing and request handling
-│   │   └── StringHelper/  # String templating and utilities
-│   └── Shared/            # Common types, errors, and utilities
-│       ├── CommonTypes.d.ts    # Shared interfaces (Logger, Clock, etc.)
-│       ├── ErrorTypes.d.ts     # Error type definitions
-│       ├── Errors.ts           # Base error classes
-│       └── Time.ts             # Time utilities
-└── test/                  # GAS-compatible test framework
-    ├── @entrypoint.ts         # Main test runner (call test_RunAll() in GAS)
-    ├── _framework/            # Custom test runner and helpers for GAS
-    │   ├── Assert.ts              # Assertion utilities
-    │   ├── GasReporter.ts         # Test result reporting  
-    │   ├── Runner.ts              # Test execution engine
-    │   ├── Test.ts                # Test definition utilities
-    │   └── TestHelpers.ts         # Test doubles, GAS mocks, and utilities
-    └── Modules/               # Module-specific GAS integration tests
-        ├── EventSystem/           # GAS triggers, cron jobs, ScriptApp tests
-        ├── GAS/                   # Advanced GAS runtime feature tests
-        ├── GasDI/                 # Dependency injection in GAS environment
-        ├── Locking/               # LockService and PropertiesService tests
-        ├── Repository/            # SpreadsheetApp integration tests
-        ├── Routing/               # URL routing tests
-        └── StringHelper/          # String utility tests
+│   ├── core/                    # Framework core (☆ pushed to GAS)
+│   │   ├── modules/             # Core functional modules
+│   │   │   ├── GasDI/          # Dependency injection container
+│   │   │   ├── Locking/        # Distributed locking mechanisms
+│   │   │   ├── Repository/     # Data persistence abstraction
+│   │   │   ├── Routing/        # URL routing and request handling
+│   │   │   └── StringHelper/   # String templating and utilities
+│   │   ├── restframework/       # REST API framework
+│   │   ├── shared/              # Common types, errors, and utilities
+│   │   │   ├── CommonTypes.d.ts    # Shared interfaces (Logger, Clock, etc.)
+│   │   │   ├── ErrorTypes.d.ts     # Error type definitions
+│   │   │   ├── Errors.ts           # Base error classes
+│   │   │   └── Time.ts             # Time utilities
+│   │   └── index.ts             # Core module exports
+│   └── testing/                 # Test framework modules
+│       ├── common/              # Common test framework (☆ pushed to GAS)
+│       │   ├── Assert.ts           # Assertion utilities
+│       │   ├── Test.ts             # Test definition utilities
+│       │   ├── Runner.ts           # Test execution engine
+│       │   └── index.ts            # Common test exports
+│       ├── gas/                 # GAS-specific test support (☆ pushed to GAS)
+│       │   ├── GasReporter.ts      # Test result reporting for GAS
+│       │   ├── TestHelpers.ts      # Test doubles, GAS mocks, and utilities
+│       │   └── index.ts            # GAS test exports
+│       └── node/                # Node.js-specific test support (local only)
+│           ├── test-utils.ts       # Jest test utilities
+│           └── index.ts            # Node.js test exports
+├── test/                        # GasAppFramework's own GAS tests
+│   ├── @entrypoint.ts              # Main test runner (call test_RunAll() in GAS)
+│   └── Modules/                    # Module-specific GAS integration tests
+│       ├── GAS/                    # Advanced GAS runtime feature tests
+│       ├── GasDI/                  # Dependency injection in GAS environment
+│       ├── Locking/                # LockService and PropertiesService tests
+│       ├── Repository/             # SpreadsheetApp integration tests
+│       ├── Routing/                # URL routing tests
+│       └── StringHelper/           # String utility tests
+└── test_node/                   # GasAppFramework's own Node.js tests (local only)
 ```
+
+**Legend:**
+- ☆ = Pushed to GAS projects (included in `clasp push`)
+- (local only) = Development only, excluded from GAS deployment
 
 ## 🚀 Quick Start
 
@@ -113,6 +126,83 @@ The framework includes comprehensive integration tests for GAS-specific function
 
 **For detailed testing instructions and patterns, see [GAS_TESTING_GUIDE.md](./GAS_TESTING_GUIDE.md)**
 
+## 📚 Using as a Library
+
+The GasAppFramework can be used as a library in external projects. The framework provides selective imports for different use cases:
+
+### Core Framework Only
+
+Use only the framework modules in your GAS project:
+
+```typescript
+// Import from namespaces (GAS style)
+// Framework modules are available globally after deployment
+
+// Use Repository module
+const repo = Repository.Engine.create({
+    schema: mySchema,
+    store: myStore,
+    keyCodec: myCodec
+});
+
+// Use StringHelper
+const formatted = StringHelper.formatString('Hello {0}!', 'World');
+```
+
+### Test Framework in GAS Projects
+
+Include the common test framework and GAS-specific test utilities:
+
+```typescript
+// Define tests using the common test framework
+T.it('should work correctly', () => {
+    const result = myFunction();
+    TAssert.equals(result, expectedValue);
+}, 'MyModule');
+
+// Run tests in GAS
+function test_RunAll() {
+    const results = TRunner.runAll();
+    TGasReporter.print(results);
+}
+
+// Use test helpers
+const mockLogger = new TestHelpers.Doubles.MockLogger();
+TestHelpers.GAS.installAll(); // Install GAS environment mocks
+```
+
+### Test Framework in Node.js Projects
+
+For Node.js/Jest testing with GAS compatibility:
+
+```typescript
+import { setupGASMocks, createMockLogger } from 'gas-app-framework/testing/node';
+
+// Set up GAS environment mocks
+beforeAll(() => {
+    setupGASMocks();
+});
+
+// Create test data
+const logger = createMockLogger();
+```
+
+### Deployment Configuration
+
+When deploying to GAS, the `.claspignore` file ensures only necessary modules are pushed:
+
+**Pushed to GAS (☆):**
+- `src/core/` - Framework core modules
+- `src/testing/common/` - Common test framework (GAS + Node.js compatible)
+- `src/testing/gas/` - GAS-specific test utilities
+- `test/` - Your GAS test files
+
+**NOT pushed to GAS (local only):**
+- `src/testing/node/` - Node.js-specific test utilities
+- `test_node/` - Node.js test files
+- `node_modules/` - Dependencies
+- `*.test.ts`, `*.spec.ts` - Test files
+
 ## 📦 Module Downloads & Deployment
 
 ### Individual Module Download
@@ -138,8 +228,12 @@ clasp push
 Copy only required modules to your project:
 ```bash
 # Copy specific modules
-cp -r src/Modules/Repository/* your-project/src/
-cp -r src/Shared/* your-project/src/
+cp -r src/core/modules/Repository/* your-project/src/
+cp -r src/core/shared/* your-project/src/
+
+# Optionally include test framework
+cp -r src/testing/common/* your-project/test/framework/
+cp -r src/testing/gas/* your-project/test/framework/
 ```
 
 #### Option 3: Generated Bundle

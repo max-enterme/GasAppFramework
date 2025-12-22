@@ -9,12 +9,6 @@ The test framework now supports **categorized testing** with module-specific ent
 ```
 test/
 ├── @entrypoint.ts              # Main test entry point
-├── _framework/                 # Test framework core
-│   ├── Test.ts                 # Enhanced with category support
-│   ├── Runner.ts               # Category-aware test runner
-│   ├── GasReporter.ts          # Category-organized reporting
-│   ├── Assert.ts               # Test assertions
-│   └── TestHelpers.ts          # GAS service mocks
 └── Modules/                    # Module-specific tests
     ├── @entrypoint.ts          # Module overview and utilities
     ├── EventSystem/
@@ -32,7 +26,23 @@ test/
     └── GAS/
         ├── @entrypoint.ts      # GAS Advanced-specific entry point
         └── *.ts                # GAS Advanced test files
+
+src/testing/                    # Test framework (moved from test/_framework)
+├── common/                     # Common test framework (GAS + Node.js)
+│   ├── Test.ts                 # Enhanced with category support
+│   ├── Runner.ts               # Category-aware test runner
+│   ├── Assert.ts               # Test assertions
+│   └── index.ts                # Common test exports
+├── gas/                        # GAS-specific test support
+│   ├── GasReporter.ts          # Category-organized reporting
+│   ├── TestHelpers.ts          # GAS service mocks
+│   └── index.ts                # GAS test exports
+└── node/                       # Node.js-specific test support
+    ├── test-utils.ts           # Jest test utilities
+    └── index.ts                # Node.js test exports
 ```
+
+**Note:** The test framework has been moved from `test/_framework/` to `src/testing/` to allow it to be used as a library in external projects.
 
 ## 🎯 Available Entry Points
 
