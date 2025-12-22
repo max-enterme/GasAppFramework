@@ -3,7 +3,7 @@
  * Comprehensive Node.js tests for the Repository module functionality
  */
 
-import { setupGASMocks, createMockLogger, createTestUser, createTestUsers } from './test-utils';
+import { setupGASMocks, createMockLogger, createTestUser, createTestUsers } from '../src/testing/node/test-utils';
 import { MemoryStore, createSimpleCodec, createRepository } from './repository-module';
 
 // Set up GAS environment mocks before tests

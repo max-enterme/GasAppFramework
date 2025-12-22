@@ -2,6 +2,12 @@
     "name": "gas-app-framework",
     "version": "1.0.0",
     "private": true,
+    "exports": {
+        "./core": "./src/core/index.ts",
+        "./testing/common": "./src/testing/common/index.ts",
+        "./testing/gas": "./src/testing/gas/index.ts",
+        "./testing/node": "./src/testing/node/index.ts"
+    },
     "scripts": {
         "lint": "eslint ./src ./test ./test_node",
         "lint:fix": "eslint ./src ./test ./test_node --fix",

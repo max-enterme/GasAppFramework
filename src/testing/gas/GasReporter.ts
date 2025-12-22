@@ -26,7 +26,7 @@ namespace TGasReporter {
             logger.log(`\n📂 [${category}] ${categoryResults.length} tests (✅${catOk} ❌${catNg})`);
             
             for (const r of categoryResults) {
-                logger.log(`  ${r.ok ? "✅" : "❌"} ${r.name} (${r.ms}ms)${r.error ? " :: " + r.error : ""}`);
+                logger.log(`  ${r.ok ? '✅' : '❌'} ${r.name} (${r.ms}ms)${r.error ? ' :: ' + r.error : ''}`);
             }
         }
         
@@ -42,7 +42,7 @@ namespace TGasReporter {
         
         logger.log(`\n📂 [${category}] total=${results.length} ok=${ok} ng=${ng}`);
         for (const r of results) {
-            logger.log(`  ${r.ok ? "✅" : "❌"} ${r.name} (${r.ms}ms)${r.error ? " :: " + r.error : ""}`);
+            logger.log(`  ${r.ok ? '✅' : '❌'} ${r.name} (${r.ms}ms)${r.error ? ' :: ' + r.error : ''}`);
         }
         if (ng > 0) throw new Error(`There were ${ng} failing tests in category ${category}`);
     }
