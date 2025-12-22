@@ -20,7 +20,7 @@ interface User {
 }
 
 describe('Repository Engine Tests', () => {
-    let store: MemoryStore<User>;
+    let store: InstanceType<typeof MemoryStore<User>>;
     let codec: ReturnType<typeof createSimpleCodec<User, 'id' | 'org'>>;
     let logger: ReturnType<typeof createMockLogger>;
 

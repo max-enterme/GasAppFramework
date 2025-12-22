@@ -3,7 +3,7 @@
  */
 
 import { setupGASMocks } from '../../../src/testing/node/test-utils';
-import { formatString, formatDate, resolveString, get } from '../integration/stringhelper-module';
+import { formatString, resolveString, get } from '../integration/stringhelper-module';
 
 // GASモックをセットアップ
 beforeAll(() => {
