@@ -80,17 +80,47 @@ GasAppFramework/
 
 ## 🧪 Testing
 
-The framework supports both Node.js testing (for business logic) and GAS testing (for integration).
+The framework supports both Node.js testing (for business logic) and GAS testing (for integration), with a new unified test structure that eliminates code duplication.
+
+### Test Structure
+
+```
+test/
+├── shared/              # Tests executable in both GAS and Node.js
+│   ├── stringhelper/    # String helper shared tests
+│   ├── routing/         # Routing shared tests
+│   ├── repository/      # Repository shared tests
+│   ├── locking/         # Locking shared tests
+│   └── gasdi/           # Dependency injection shared tests
+├── gas/                 # GAS-specific integration tests
+│   └── (planned migration from test/Modules/)
+├── node/                # Node.js test suite
+│   ├── shared/          # Jest wrappers for shared tests
+│   ├── integration/     # Integration tests
+│   └── unit/            # Unit tests
+└── Modules/             # Legacy GAS tests (being migrated)
+```
 
 ### Node.js Tests
 
 ```bash
-# Run Jest tests for core business logic
+# Run all tests
 npm run test:node
+
+# Run specific test suites
+npm run test:node:shared       # Shared tests (Jest wrappers)
+npm run test:node:integration  # Integration tests
+npm run test:node:unit         # Unit tests
 
 # Run with coverage
 npm run test:node -- --coverage
 ```
+
+**Current Coverage:**
+- **154 tests passing** in Node.js environment
+- **24 shared tests** for core business logic (StringHelper, Routing)
+- **130 integration tests** for complex scenarios
+- Zero regression from previous structure
 
 ### GAS Tests
 
@@ -102,6 +132,7 @@ The framework includes comprehensive integration tests for GAS-specific function
 - **Locking**: LockService integration, PropertiesService distributed locking
 - **GasDI**: Dependency injection with GAS services, container scoping
 - **Advanced GAS**: Trigger management, script properties, execution limits
+- **Shared Tests**: Core business logic tests executed in GAS environment
 
 **Running Tests:**
 
@@ -114,6 +145,10 @@ The framework includes comprehensive integration tests for GAS-specific function
    ```javascript
    // Call this function in GAS editor
    test_RunAll()
+   
+   // Or run by category
+   test_RunByCategory('StringHelper')
+   test_RunByCategory('Routing')
    ```
 
 3. View results in the GAS logger or execution transcript:
@@ -124,7 +159,9 @@ The framework includes comprehensive integration tests for GAS-specific function
    ❌ GAS error handling test (15ms) :: Expected behavior not met
    ```
 
-**For detailed testing instructions and patterns, see [GAS_TESTING_GUIDE.md](./GAS_TESTING_GUIDE.md)**
+**For detailed testing instructions and patterns, see:**
+- [test/README.md](./test/README.md) - Comprehensive test organization guide
+- [GAS_TESTING_GUIDE.md](./GAS_TESTING_GUIDE.md) - GAS-specific testing patterns
 
 ## 📚 Using as a Library
 

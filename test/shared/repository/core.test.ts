@@ -129,7 +129,7 @@ export function registerRepositoryCoreTests() {
       { id: 'u3', org: 'o2', name: 'Carol', age: 30 }
     ]);
     
-    const results = repo.findAll(u => u.org === 'o1');
+    const results = repo.findAll((u: User) => u.org === 'o1');
     TAssert.equals(results.length, 2, 'org=o1のレコードが2件');
   }, 'Repository');
 
@@ -147,7 +147,7 @@ export function registerRepositoryCoreTests() {
     const deleted = repo.delete({ id: 'u1', org: 'o1' });
     const found = repo.find({ id: 'u1', org: 'o1' });
     
-    TAssert.isTrue(deleted.length === 1, '1件削除');
+    TAssert.isTrue(deleted.deleted === 1, '1件削除');
     TAssert.isTrue(found === null, '削除後は見つからない');
   }, 'Repository');
 
