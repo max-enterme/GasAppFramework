@@ -3,7 +3,7 @@
  * Comprehensive Node.js tests for the Routing module functionality
  */
 
-import { setupGASMocks, createMockLogger } from '../src/testing/node/test-utils';
+import { setupGASMocks, createMockLogger } from '../../../src/testing/node/test-utils';
 import { createRouter, RouteContext, RouteHandler } from './routing-module';
 
 // Set up GAS environment mocks before tests

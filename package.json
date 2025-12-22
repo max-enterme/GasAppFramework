@@ -9,10 +9,13 @@
         "./testing/node": "./src/testing/node/index.ts"
     },
     "scripts": {
-        "lint": "eslint ./src ./test ./test_node",
-        "lint:fix": "eslint ./src ./test ./test_node --fix",
+        "lint": "eslint ./src ./test",
+        "lint:fix": "eslint ./src ./test --fix",
         "test:node": "jest",
-        "test:gas": "echo 'Run in Apps Script: test_RunAll'"
+        "test:node:shared": "jest test/node/shared/",
+        "test:node:integration": "jest test/node/integration/",
+        "test:node:unit": "jest test/node/unit/",
+        "test:gas": "echo 'Run in Apps Script: test_RunAll()'"
     },
     "devDependencies": {
         "@eslint/js": "^9.39.2",
