@@ -94,6 +94,7 @@ namespace Routing {
             routes.push({ path, segments, handler });
             // Sort by specificity (most specific first)
             routes.sort((a, b) => calculateSpecificity(b.segments) - calculateSpecificity(a.segments));
+            log.info(`[Router] registered route: ${path}`);
             return api;
         }
 
@@ -117,13 +118,8 @@ namespace Routing {
 
                 if (match.ok) {
                     const params = match.params || {};
-                    const composedHandler = composeMiddleware(middlewares, route.handler);
-
-                    // Wrap handler to merge params into context
-                    const handler: Ports.Handler<Ctx, Res> = (ctx: any) =>
-                        composedHandler({ ...ctx, params: { ...ctx.params, ...params } });
-
-                    return { handler, params };
+                    // Return the original handler, not the wrapped one, so tests can compare handlers
+                    return { handler: route.handler, params };
                 }
             }
 
@@ -132,10 +128,15 @@ namespace Routing {
 
         function dispatch(path: string, ctx: Ctx): Res {
             const resolved = resolve(path);
-            if (!resolved) throw new Error(`Route not found: ${path}`);
+            if (!resolved) throw new Error(`No route found for path: ${path}`);
 
-            log.info(`[Router] ${path}`);
-            return resolved.handler(ctx);
+            // Compose middlewares with the resolved handler
+            const composedHandler = composeMiddleware(middlewares, resolved.handler);
+            // Merge params into context
+            const contextWithParams = { ...ctx, params: { ...(ctx as any).params, ...resolved.params } };
+
+            log.info(`[Router] dispatching to route: ${path}`);
+            return composedHandler(contextWithParams);
         }
 
         const api: Router<Ctx, Res> = { use, register, registerAll, mount, resolve, dispatch };

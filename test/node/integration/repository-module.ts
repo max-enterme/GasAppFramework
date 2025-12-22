@@ -7,6 +7,7 @@
  * - src/core/modules/Repository/Engine.ts
  * - src/core/modules/Repository/Adapters.Memory.ts
  * - src/core/modules/Repository/Codec.Simple.ts
+ * - src/core/modules/Repository/Errors.ts
  * 
  * To regenerate: npm run build:test-modules
  */
@@ -152,11 +153,13 @@ export namespace Engine {
                     idx.set(keyStr, newIndex);
                     added.push(entity);
                     forStoreAdds.push(entity);
+                    logger.info(`[Repository] added entity with key: ${keyStr}`);
                 } else {
                     // Update existing entity
                     rows[existingIndex] = entity;
                     updated.push(entity);
                     forStoreUpdates.push({ index: existingIndex, row: entity });
+                    logger.info(`[Repository] updated entity with key: ${keyStr}`);
                 }
             }
 
@@ -177,9 +180,11 @@ export namespace Engine {
             
             // Find all entities to delete
             for (const key of keyList) {
-                const index = idx.get(keyToString(key));
+                const keyStr = keyToString(key);
+                const index = idx.get(keyStr);
                 if (index != null) {
                     indicesToDelete.push(index);
+                    logger.info(`[Repository] deleted entity with key: ${keyStr}`);
                 }
             }
             
@@ -294,13 +299,16 @@ export namespace Adapters.Memory {
 }
 
 export namespace Codec {
-    export function simple<TEntity extends object, Key extends keyof TEntity>(delim = '|') {
+    export function simple<TEntity extends object, Key extends keyof TEntity>(keyFields?: string[], delim = '|') {
         /**
          * Escape special characters (backslash and delimiter)
          */
         const delimRegex = new RegExp(`[${delim}]`, 'g');
         const escape = (s: string): string => 
             s.replace(/\\/g, '\\\\').replace(delimRegex, match => '\\' + match);
+        
+        // Store key field names from parameter or first stringify call
+        let storedKeyFields: string[] | null = keyFields || null;
         
         return {
             /**
@@ -309,6 +317,11 @@ export namespace Codec {
             stringify(key: any): string {
                 const parts: string[] = [];
                 const keys = Object.keys(key);
+                
+                // Store key fields on first call for use in parse (if not already provided)
+                if (storedKeyFields === null) {
+                    storedKeyFields = keys;
+                }
                 
                 for (const k of keys) {
                     const value = key[k];
@@ -320,8 +333,7 @@ export namespace Codec {
             },
             
             /**
-             * Parse delimited string back to array of values
-             * Note: Returns array - caller must map back to key object
+             * Parse delimited string back to key object
              */
             parse(s: string): any {
                 const parts: string[] = [];
@@ -344,15 +356,33 @@ export namespace Codec {
                 }
                 
                 parts.push(current);
-                return parts;
+                
+                // Map array back to object using stored key fields
+                const result: any = {};
+                if (storedKeyFields) {
+                    for (let i = 0; i < storedKeyFields.length && i < parts.length; i++) {
+                        result[storedKeyFields[i]] = parts[i];
+                    }
+                }
+                
+                return result;
             }
         } as Repository.Ports.KeyCodec<TEntity, Key> as any;
     }
 
 }
 
+export class RepositoryError extends Error {
+        constructor(public code: Repository.Types.ErrorCode, message: string) {
+            super(message);
+            this.name = 'RepositoryError';
+        }
+    }
+
 
 // Compatibility exports for existing tests
 export const MemoryStore = Adapters.Memory.Store;
 export const createSimpleCodec = Codec.simple;
 export const createRepository = Engine.create;
+// Export Repository namespace for cross-namespace references
+export const Repository = { RepositoryError };

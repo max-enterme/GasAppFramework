@@ -47,7 +47,7 @@ describe('Repository Engine Tests', () => {
 
     beforeEach(() => {
         store = new MemoryStore<User>();
-        codec = createSimpleCodec<User, 'id' | 'org'>('|');
+        codec = createSimpleCodec<User, 'id' | 'org'>(['id', 'org'], '|');
         logger = createMockLogger();
     });
 
@@ -152,7 +152,7 @@ describe('Repository Engine Tests', () => {
             expect(found).toEqual(user);
 
             const notFound = repo.find({ id: 'notexist', org: 'testorg' });
-            expect(notFound).toBeUndefined();
+            expect(notFound).toBeNull();
         });
 
         test('should delete entity by key', () => {
@@ -162,13 +162,13 @@ describe('Repository Engine Tests', () => {
             expect(repo.entities).toHaveLength(1);
 
             const deleted = repo.delete({ id: 'deleteme', org: 'testorg' });
-            expect(deleted).toBe(true);
+            expect(deleted.deleted).toBe(1);
             expect(repo.entities).toHaveLength(0);
             expect(logger.info).toHaveBeenCalledWith('[Repository] deleted entity with key: deleteme|testorg');
 
             // Try to delete non-existent entity
             const notDeleted = repo.delete({ id: 'notexist', org: 'testorg' });
-            expect(notDeleted).toBe(false);
+            expect(notDeleted.deleted).toBe(0);
         });
     });
 

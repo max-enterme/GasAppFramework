@@ -31,7 +31,8 @@
         "src/core/modules/Repository/Core.Types.d.ts",
         "src/core/modules/Repository/Engine.ts",
         "src/core/modules/Repository/Adapters.Memory.ts",
-        "src/core/modules/Repository/Codec.Simple.ts"
+        "src/core/modules/Repository/Codec.Simple.ts",
+        "src/core/modules/Repository/Errors.ts"
       ],
       "outputFile": "test/node/integration/repository-module.ts",
       "namespace": "Repository",
@@ -40,7 +41,9 @@
         "// Compatibility exports for existing tests",
         "export const MemoryStore = Adapters.Memory.Store;",
         "export const createSimpleCodec = Codec.simple;",
-        "export const createRepository = Engine.create;"
+        "export const createRepository = Engine.create;",
+        "// Export Repository namespace for cross-namespace references",
+        "export const Repository = { RepositoryError };"
       ]
     }
   ]
