@@ -1,175 +1,162 @@
-# GAS App Framework - Test Organization Guide
+# GasAppFramework テストコード構成
 
-## 📋 Overview
+## ディレクトリ構造
 
-The test framework now supports **categorized testing** with module-specific entry points, making it easy to run focused test suites for different parts of the application.
+### test/shared/ - 両環境で実行可能なテストロジック
+GAS と Node.js 両方で実行可能な純粋なロジックテスト。
+テストコードの重複を避け、1箇所で管理。
 
-## 🏗️ Test Structure
+**主なテストファイル:**
+- `stringhelper/core.test.ts` - StringHelper の共通テスト
+- `routing/core.test.ts` - Routing の共通テスト
+- `repository/core.test.ts` - Repository の共通テスト
+- `locking/core.test.ts` - Locking の共通テスト
+- `gasdi/core.test.ts` - GasDI の共通テスト
 
-```
-test/
-├── @entrypoint.ts              # Main test entry point
-└── Modules/                    # Module-specific tests
-    ├── @entrypoint.ts          # Module overview and utilities
-    ├── EventSystem/
-    │   ├── @entrypoint.ts      # EventSystem-specific entry point
-    │   └── *.ts                # EventSystem test files
-    ├── Repository/
-    │   ├── @entrypoint.ts      # Repository-specific entry point
-    │   └── *.ts                # Repository test files
-    ├── Locking/
-    │   ├── @entrypoint.ts      # Locking-specific entry point
-    │   └── *.ts                # Locking test files
-    ├── GasDI/
-    │   ├── @entrypoint.ts      # GasDI-specific entry point
-    │   └── *.ts                # GasDI test files
-    └── GAS/
-        ├── @entrypoint.ts      # GAS Advanced-specific entry point
-        └── *.ts                # GAS Advanced test files
+### test/gas/ - GAS固有機能のテスト
+SpreadsheetApp, PropertiesService, ScriptApp など、
+GAS固有のサービスを使用するテスト。
 
-src/testing/                    # Test framework (moved from test/_framework)
-├── common/                     # Common test framework (GAS + Node.js)
-│   ├── Test.ts                 # Enhanced with category support
-│   ├── Runner.ts               # Category-aware test runner
-│   ├── Assert.ts               # Test assertions
-│   └── index.ts                # Common test exports
-├── gas/                        # GAS-specific test support
-│   ├── GasReporter.ts          # Category-organized reporting
-│   ├── TestHelpers.ts          # GAS service mocks
-│   └── index.ts                # GAS test exports
-└── node/                       # Node.js-specific test support
-    ├── test-utils.ts           # Jest test utilities
-    └── index.ts                # Node.js test exports
-```
+**実装予定:**
+- `stringhelper/utilities-format.test.ts` - GAS Utilities.formatDate のテスト
+- `repository/spreadsheet.test.ts` - SpreadsheetApp 統合テスト
+- `locking/properties-store.test.ts` - PropertiesService を使ったストアのテスト
+- `gasdi/decorators.test.ts` - デコレータ機能のテスト
+- `gas-advanced/` - ScriptApp トリガー管理などの高度な機能のテスト
 
-**Note:** The test framework has been moved from `test/_framework/` to `src/testing/` to allow it to be used as a library in external projects.
+### test/node/ - Node.js用テスト
+- **shared/**: 共有テストのNode.js実行ラッパー（Jest形式）
+  - `stringhelper.test.ts` - StringHelper 共通テストの Node.js ラッパー
+  - `routing.test.ts` - Routing 共通テストの Node.js ラッパー
+- **integration/**: 複雑な統合テスト（旧 test_node/ の内容）
+  - `repository.engine.test.ts` - Repository エンジンの統合テスト
+  - `routing.engine.test.ts` - Routing エンジンの統合テスト
+  - `stringhelper.test.ts` - StringHelper の統合テスト
+  - `schedule.engine.test.ts` - スケジューリングの統合テスト
+  - `restframework/` - REST フレームワークのテスト
+- **unit/**: Node.js固有のユニットテスト（今後追加予定）
 
-## 🎯 Available Entry Points
+### test/Modules/ - 既存のGASテスト（段階的に移行中）
+現在の GAS 環境で実行されるテスト。
+段階的に `test/shared/` と `test/gas/` に移行予定。
 
-### Main Test Entry Points
-- `test_RunAll()` - Run all tests with category organization
-- `test_RunByCategory(category)` - Run tests for specific category
-- `test_ListCategories()` - Show all available test categories
-- `test_ShowModuleHelp()` - Show module-specific entry points
+## テストの実行方法
 
-### Module-Specific Entry Points
-- `test_RunEventSystem()` - EventSystem module tests only
-- `test_RunRepository()` - Repository module tests only
-- `test_RunLocking()` - Locking module tests only
-- `test_RunGasDI()` - GasDI module tests only
-- `test_RunGASAdvanced()` - GAS Advanced tests only
+### GAS環境
+1. `clasp push` でデプロイ
+2. GAS IDE で以下を実行：
+   - `test_RunAll()` - 全テスト
+   - `test_RunByCategory('StringHelper')` - カテゴリ別テスト
+   - `test_ListCategories()` - カテゴリ一覧を表示
 
-### Demo Entry Points (for testing the category system)
-- `test_RunEventSystemDemo()` - Demo tests with EventSystem category
-- `test_RunRepositoryDemo()` - Demo tests with Repository category
-- `test_RunLockingDemo()` - Demo tests with Locking category
-- `test_RunGasDIDemo()` - Demo tests with GasDI category
-- `test_RunGASDemo()` - Demo tests with GAS category
-
-## 📊 Enhanced Test Output
-
-Tests are now organized by category in the output:
-
-```
-[TEST] total=72 ok=65 ng=7
-
-📂 [EventSystem] 10 tests (✅9 ❌1)
-  ✅ GAS GlobalInvoker calls global functions correctly (1ms)
-  ✅ GAS SpreadsheetJobStore loads jobs from spreadsheet correctly (5ms)
-  ❌ Complete EventSystem workflow in GAS environment (2ms) :: Error details
-
-📂 [Repository] 15 tests (✅15 ❌0)
-  ✅ GAS SpreadsheetStore loads data from spreadsheet correctly (1ms)
-  ✅ GAS SpreadsheetStore handles empty and malformed sheets (0ms)
-  
-📂 [Locking] 8 tests (✅2 ❌6)
-  ✅ GAS PropertiesStore handles property operations correctly (0ms)
-  ❌ GAS distributed locking with PropertiesStore (1ms) :: Invalid time value
+### Node.js環境
+```bash
+npm run test:node              # 全テスト
+npm run test:node:shared       # 共有テストのみ
+npm run test:node:integration  # 統合テストのみ
+npm run test:node:unit         # ユニットテストのみ
 ```
 
-## 🚀 Usage in GAS IDE
+## テスト構成の方針
 
-1. **Deploy tests to GAS:**
-   ```bash
-   clasp push
-   ```
+### 1. 共有テスト (test/shared/)
+- **目的**: テストロジックの重複を排除
+- **内容**: GAS環境とNode.js環境の両方で実行可能な純粋なロジックテスト
+- **形式**: GAS環境では `T.it()` を使用、Node.js環境ではラッパーで `test()` に変換
 
-2. **Run all tests with organization:**
-   ```javascript
-   test_RunAll()
-   ```
+### 2. GAS固有テスト (test/gas/)
+- **目的**: GASの特殊な機能のテスト
+- **内容**: SpreadsheetApp, PropertiesService, ScriptApp などGAS固有のAPIを使用するテスト
+- **実行**: GAS環境でのみ実行
 
-3. **Run specific module tests:**
-   ```javascript
-   test_RunEventSystem()     // Only EventSystem tests
-   test_RunRepository()      // Only Repository tests
-   test_RunLocking()         // Only Locking tests
-   ```
+### 3. Node.js統合テスト (test/node/integration/)
+- **目的**: 複雑なワークフローと統合シナリオのテスト
+- **内容**: 複数のモジュールを組み合わせた高度なテストケース
+- **実行**: Node.js環境（Jest）でのみ実行
 
-4. **Explore available options:**
-   ```javascript
-   test_ListCategories()     // Show all categories
-   test_ShowModuleHelp()     // Show module entry points
-   ```
+## 新しいテストの追加方法
 
-## 🛠️ Framework Enhancements
+### 両環境で実行するテストの場合
 
-### Enhanced Test Registration
+1. `test/shared/<module>/` にテストファイルを作成
 ```typescript
-// Tests can now include category information
-T.it('Test name', () => {
-    // Test implementation
-}, 'CategoryName');
+// test/shared/mymodule/core.test.ts
+export function registerMyModuleCoreTests() {
+  T.it('テスト名', () => {
+    const result = MyModule.someFunction();
+    TAssert.equals(result, expected, 'メッセージ');
+  }, 'MyModule');
+}
+
+if (typeof T !== 'undefined') {
+  registerMyModuleCoreTests();
+}
 ```
 
-### Category-Aware Runner
+2. `test/node/shared/` にNode.js用ラッパーを作成
 ```typescript
-// Run all tests
-const allResults = TRunner.runAll();
+// test/node/shared/mymodule.test.ts
+import { setupGASMocks } from '../../../src/testing/node/test-utils';
+import { myFunction } from '../integration/mymodule-module';
 
-// Run tests by category
-const categoryResults = TRunner.runByCategory('EventSystem');
+beforeAll(() => {
+  setupGASMocks();
+});
+
+describe('MyModule Core Tests (Shared)', () => {
+  test('テスト名', () => {
+    const result = myFunction();
+    expect(result).toBe(expected);
+  });
+});
 ```
 
-### Organized Reporting
+### GAS固有機能のテストの場合
+
+`test/gas/<module>/` に直接テストファイルを作成
 ```typescript
-// Print all results with category grouping
-TGasReporter.print(results);
-
-// Print category-specific results
-TGasReporter.printCategory(results, 'EventSystem');
+// test/gas/mymodule/gas-feature.test.ts
+namespace Spec_MyModule_GAS {
+  T.it('GAS固有の機能', () => {
+    // SpreadsheetApp や PropertiesService を使用
+    const sheet = SpreadsheetApp.getActiveSheet();
+    // テストロジック
+  }, 'MyModule:GAS');
+}
 ```
 
-## 📋 Test Categories
+## マイグレーション状況
 
-The following categories are available:
+### 完了
+- [x] test_node/ → test/node/integration/ への移動
+- [x] ディレクトリ構造の作成
+- [x] 設定ファイルの更新 (.claspignore, jest.config.cjs, package.json)
+- [x] StringHelper の共通テスト作成
+- [x] Routing の共通テスト作成
+- [x] Repository の共通テスト作成
+- [x] Locking の共通テスト作成
+- [x] GasDI の共通テスト作成
 
-- **EventSystem** - Cron jobs, triggers, and workflow management
-- **Repository** - Data persistence with Google Sheets integration
-- **Locking** - Distributed locking mechanisms using GAS services
-- **GasDI** - Dependency injection container for GAS services
-- **GAS** - Advanced GAS runtime features and application lifecycle
-- **Routing** - URL routing and request handling
-- **StringHelper** - String templating and utility functions
-- **General** - Uncategorized tests (default category)
+### 進行中
+- [ ] GAS固有テストの作成 (test/gas/)
+- [ ] 既存テスト (test/Modules/) の段階的移行
 
-## 🎯 Benefits
+### 今後の予定
+- [ ] test/@entrypoint.ts の更新
+- [ ] GAS環境での共有テストの動作確認
+- [ ] 全既存テストの移行完了
 
-1. **Focused Testing** - Run only the tests relevant to your current work
-2. **Organized Output** - Clear categorization makes it easy to identify issues
-3. **Modular Development** - Each module has its own test entry point
-4. **Better Debugging** - Category-specific test runs help isolate problems
-5. **Improved Workflow** - Faster feedback cycles during development
+## 利点
 
-## 🔧 Adding New Tests
+1. **テストコードの重複排除**: 同じロジックのテストを1箇所で管理
+2. **保守性の向上**: バグ修正やテスト追加が1箇所で完結
+3. **明確な役割分離**: shared/gas/node の3層構造で責務が明確
+4. **実行効率の向上**: 必要なテストのみを選択的に実行可能
+5. **論理的一貫性**: すべてのテストコードが `test/` 配下に統一
 
-When adding new tests, include the category parameter:
+## 注意事項
 
-```typescript
-T.it('New feature test', () => {
-    // Test implementation
-    TAssert.isTrue(someCondition, 'Should meet condition');
-}, 'ModuleName');
-```
-
-This ensures your tests are properly categorized and can be run independently when needed.
+- 共有テスト (`test/shared/`) は GAS環境とNode.js環境の**両方**でテストを実行してください
+- GAS固有テスト (`test/gas/`) はデプロイ時に含まれます
+- Node.js専用テスト (`test/node/`) は `.claspignore` で除外されます
+- テスト追加時は適切なカテゴリ (`'StringHelper'`, `'Routing'` など) を指定してください
