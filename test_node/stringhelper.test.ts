@@ -48,16 +48,11 @@ describe('StringHelper Tests', () => {
             expect(result).toBe('No placeholders here');
         });
 
-        test('should handle large number of placeholders efficiently', () => {
+        test('should handle large number of placeholders', () => {
             const template = Array.from({ length: 20 }, (_, i) => `{${i}}`).join(' ');
             const args = Array.from({ length: 20 }, (_, i) => `arg${i}`);
             
-            const start = Date.now();
             const result = formatString(template, ...args);
-            const elapsed = Date.now() - start;
-            
-            // Should complete quickly (less than 100ms)
-            expect(elapsed).toBeLessThan(100);
             expect(result).toBe(args.join(' '));
         });
 

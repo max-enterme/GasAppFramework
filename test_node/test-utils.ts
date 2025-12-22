@@ -27,9 +27,7 @@ export function setupGASMocks() {
 export function createMockLogger() {
     return {
         info: jest.fn(),
-        error: jest.fn(),
-        warn: jest.fn(),
-        debug: jest.fn()
+        error: jest.fn()
     };
 }
 

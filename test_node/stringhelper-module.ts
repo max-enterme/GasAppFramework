@@ -70,14 +70,12 @@ function resolveExpression(expr: string, root: any): any {
         if (current == null) return undefined;
         
         // Handle array indexing [0], [1], etc.
-        if (part.includes('[') && part.includes(']')) {
-            const [key, indexPart] = part.split('[');
-            const index = indexPart.replace(']', '');
-            
+        const arrayMatch = part.match(/^(\w*)\[(\d+)\]$/);
+        if (arrayMatch) {
+            const [, key, index] = arrayMatch;
             if (key) {
                 current = current[key];
             }
-            
             if (current != null && Array.isArray(current)) {
                 current = current[parseInt(index, 10)];
             }
