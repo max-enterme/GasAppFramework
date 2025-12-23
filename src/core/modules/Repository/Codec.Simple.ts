@@ -35,31 +35,31 @@ namespace Repository.Codec {
             stringify(key: any): string {
                 const parts: string[] = [];
                 const keys = Object.keys(key);
-                
+
                 // Store key fields on first call for use in parse (if not already provided)
                 if (storedKeyFields === null) {
                     storedKeyFields = keys;
                 }
-                
+
                 for (const k of keys) {
                     const value = key[k];
                     const stringValue = value == null ? '' : String(value);
                     parts.push(escape(stringValue));
                 }
-                
+
                 return parts.join(delim);
             },
-            
+
             /**
              * Parse delimited string back to key object
              */
             parse(s: string): any {
                 const parts: string[] = [];
                 let current = '';
-                
+
                 for (let i = 0; i < s.length; i++) {
                     const char = s[i];
-                    
+
                     // Handle escape sequences
                     if (char === '\\' && i + 1 < s.length) {
                         current += s[i + 1];
@@ -72,9 +72,9 @@ namespace Repository.Codec {
                         current += char;
                     }
                 }
-                
+
                 parts.push(current);
-                
+
                 // Map array back to object using stored key fields
                 const result: any = {};
                 if (storedKeyFields) {
@@ -82,9 +82,9 @@ namespace Repository.Codec {
                         result[storedKeyFields[i]] = parts[i];
                     }
                 }
-                
+
                 return result;
             }
-        } as Repository.Ports.KeyCodec<TEntity, Key> as any;
+        } as Repository.Ports.KeyCodec<TEntity, Key>;
     }
 }

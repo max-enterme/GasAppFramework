@@ -21,7 +21,7 @@ namespace Spec_Repo {
 
     // Compose a codec that lists keys in schema.keyParameters order
     const codec = (function () {
-        const c = Repository.Codec.simple<User, Key>(',');
+        const c = Repository.Codec.simple<User, Key>(['id', 'org'], ',');
         return {
             stringify(key: Pick<User, Key>): string {
                 return [key.id, key.org].map(v => (v == null ? '' : String(v))).join(',');

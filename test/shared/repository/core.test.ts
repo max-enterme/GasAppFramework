@@ -26,8 +26,8 @@ export function registerRepositoryCoreTests() {
     schemaVersion: 1
   });
 
-  const createTestCodec = (): Repository.Ports.KeyCodec<User, Key> => {
-    const c = Repository.Codec.simple<User, Key>(',');
+    const createTestCodec = (): Repository.Ports.KeyCodec<User, Key> => {
+    const c = Repository.Codec.simple<User, Key>(['id', 'org'], ',');
     return {
       stringify(key: Pick<User, Key>): string {
         return [key.id, key.org].map(v => (v == null ? '' : String(v))).join(',');
