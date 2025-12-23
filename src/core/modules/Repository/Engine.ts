@@ -112,11 +112,13 @@ namespace Repository.Engine {
                     idx.set(keyStr, newIndex);
                     added.push(entity);
                     forStoreAdds.push(entity);
+                    logger.info(`[Repository] added entity with key: ${keyStr}`);
                 } else {
                     // Update existing entity
                     rows[existingIndex] = entity;
                     updated.push(entity);
                     forStoreUpdates.push({ index: existingIndex, row: entity });
+                    logger.info(`[Repository] updated entity with key: ${keyStr}`);
                 }
             }
 
@@ -137,9 +139,11 @@ namespace Repository.Engine {
             
             // Find all entities to delete
             for (const key of keyList) {
-                const index = idx.get(keyToString(key));
+                const keyStr = keyToString(key);
+                const index = idx.get(keyStr);
                 if (index != null) {
                     indicesToDelete.push(index);
+                    logger.info(`[Repository] deleted entity with key: ${keyStr}`);
                 }
             }
             

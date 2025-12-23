@@ -61,3 +61,6 @@ src/@const.ts
 
 bin
 obj
+
+# Auto-generated test modules (uncomment after migration is complete)
+# test/node/integration/*-module.ts

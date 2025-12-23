@@ -25,30 +25,30 @@ namespace Routing {
     function matchSegments(segs: Segment[], parts: string[]): { ok: true; params: any } | { ok: false } {
         const params: any = {};
         let segmentIndex = 0;
-        
+
         for (; segmentIndex < segs.length; segmentIndex++) {
             const segment = segs[segmentIndex];
             const part = parts[segmentIndex];
-            
+
             // Wildcard can match zero or more parts
             if (segment.kind === 'wildcard') {
                 params['*'] = decodeURIComponent(parts.slice(segmentIndex).join('/'));
                 return { ok: true, params };
             }
-            
+
             // All other segments require a matching part
             if (!part) return { ok: false };
-            
+
             if (segment.kind === 'static') {
                 if (part !== segment.value) return { ok: false };
             } else if (segment.kind === 'param') {
                 params[segment.name] = decodeURIComponent(part);
             }
         }
-        
+
         // All segments matched; ensure no extra parts remain
         if (segmentIndex !== parts.length) return { ok: false };
-        
+
         return { ok: true, params };
     }
 
@@ -73,8 +73,8 @@ namespace Routing {
         middlewares: Ports.Middleware<Ctx, Res>[],
         handler: Ports.Handler<Ctx, Res>
     ): Ports.Handler<Ctx, Res> {
-        return middlewares.reduceRight(
-            (next, mw) => (ctx: Ctx) => mw(next, ctx),
+        return middlewares.reduceRight<Ports.Handler<Ctx, Res>>(
+            (next, mw) => (ctx: Ctx) => mw(ctx, () => next(ctx)),
             handler
         );
     }
@@ -94,6 +94,7 @@ namespace Routing {
             routes.push({ path, segments, handler });
             // Sort by specificity (most specific first)
             routes.sort((a, b) => calculateSpecificity(b.segments) - calculateSpecificity(a.segments));
+            log.info(`[Router] registered route: ${path}`);
             return api;
         }
 
@@ -111,31 +112,31 @@ namespace Routing {
 
         function resolve(path: string): { handler: Ports.Handler<Ctx, Res>, params: any } | null {
             const parts = path.split('/').filter(x => x.length > 0);
-            
+
             for (const route of routes) {
                 const match = matchSegments(route.segments, parts);
-                
+
                 if (match.ok) {
                     const params = match.params || {};
-                    const composedHandler = composeMiddleware(middlewares, route.handler);
-                    
-                    // Wrap handler to merge params into context
-                    const handler: Ports.Handler<Ctx, Res> = (ctx: any) => 
-                        composedHandler({ ...ctx, params: { ...ctx.params, ...params } });
-                    
-                    return { handler, params };
+                    // Return the original handler, not the wrapped one, so tests can compare handlers
+                    return { handler: route.handler, params };
                 }
             }
-            
+
             return null;
         }
 
         function dispatch(path: string, ctx: Ctx): Res {
             const resolved = resolve(path);
-            if (!resolved) throw new Error(`Route not found: ${path}`);
-            
-            log.info(`[Router] ${path}`);
-            return resolved.handler(ctx);
+            if (!resolved) throw new Error(`No route found for path: ${path}`);
+
+            // Compose middlewares with the resolved handler
+            const composedHandler = composeMiddleware(middlewares, resolved.handler);
+            // Merge params into context
+            const contextWithParams = { ...ctx, params: { ...(ctx as any).params, ...resolved.params } };
+
+            log.info(`[Router] dispatching to route: ${path}`);
+            return composedHandler(contextWithParams);
         }
 
         const api: Router<Ctx, Res> = { use, register, registerAll, mount, resolve, dispatch };

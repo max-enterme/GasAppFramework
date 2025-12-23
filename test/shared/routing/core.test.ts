@@ -52,13 +52,13 @@ export function registerRoutingCoreTests() {
     const r = Routing.create();
     const seq: string[] = [];
     
-    r.use((next, ctx: any) => { 
+    r.use((ctx: any, next) => { 
       seq.push('mw1'); 
-      return next(ctx); 
+      return next(); 
     });
-    r.use((next, ctx: any) => { 
+    r.use((ctx: any, next) => { 
       seq.push('mw2'); 
-      return next(ctx); 
+      return next(); 
     });
     
     r.register('/test', () => 'result');

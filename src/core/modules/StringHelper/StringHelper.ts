@@ -46,17 +46,20 @@ namespace StringHelper {
         const placeholderPattern = /{{(.*?)}}/g;
         return String(str).replace(placeholderPattern, (_match, p1) => {
             const expr = String(p1).trim();
+            if (!expr || expr === '') return '';  // Return empty string for empty expressions
             const v = resolveExpression(expr, context);
             return v == null ? '' : String(v);
         });
     }
 
     export function get(obj: any, path: string, defaultValue?: any): any {
+        if (!path || path === '') return obj;  // Return the object itself for empty path
         const v = resolveExpression(path, obj);
         return v == null ? defaultValue : v;
     }
 
     function resolveExpression(expr: string, root: any): any {
+        if (!expr || expr.trim() === '') return '';  // Return empty string for empty expressions
         // Supports: a.b, a[0], func(x, 'y'), and wildcard-free simple expressions chained by dots
         const tokens = splitTopLevel(expr, '.');
         let current = root;

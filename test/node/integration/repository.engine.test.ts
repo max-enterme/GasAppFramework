@@ -20,7 +20,7 @@ interface User {
 }
 
 describe('Repository Engine Tests', () => {
-    let store: MemoryStore<User>;
+    let store: InstanceType<typeof MemoryStore<User>>;
     let codec: ReturnType<typeof createSimpleCodec<User, 'id' | 'org'>>;
     let logger: ReturnType<typeof createMockLogger>;
 
@@ -47,7 +47,7 @@ describe('Repository Engine Tests', () => {
 
     beforeEach(() => {
         store = new MemoryStore<User>();
-        codec = createSimpleCodec<User, 'id' | 'org'>('|');
+        codec = createSimpleCodec<User, 'id' | 'org'>(['id', 'org'], '|');
         logger = createMockLogger();
     });
 
@@ -63,7 +63,7 @@ describe('Repository Engine Tests', () => {
             repo.load();
 
             expect(logger.info).toHaveBeenCalledWith('[Repository] loaded 0 rows');
-            expect(repo.findAll()).toEqual([]);
+            expect(repo.entities).toEqual([]);
         });
 
         test('should load pre-existing data from store', () => {
@@ -81,7 +81,7 @@ describe('Repository Engine Tests', () => {
             repo.load();
 
             expect(logger.info).toHaveBeenCalledWith('[Repository] loaded 2 rows');
-            expect(repo.findAll()).toHaveLength(2);
+            expect(repo.entities).toHaveLength(2);
         });
     });
 
@@ -109,8 +109,8 @@ describe('Repository Engine Tests', () => {
             repo.upsert(user);
 
             expect(logger.info).toHaveBeenCalledWith('[Repository] added entity with key: user1|acme');
-            expect(repo.findAll()).toHaveLength(1);
-            
+            expect(repo.entities).toHaveLength(1);
+
             const found = repo.find({ id: 'user1', org: 'acme' });
             expect(found).toEqual(user);
         });
@@ -132,11 +132,11 @@ describe('Repository Engine Tests', () => {
 
             // Insert original
             repo.upsert(originalUser);
-            expect(repo.findAll()).toHaveLength(1);
+            expect(repo.entities).toHaveLength(1);
 
             // Update
             repo.upsert(updatedUser);
-            expect(repo.findAll()).toHaveLength(1); // Should still be 1 entity
+            expect(repo.entities).toHaveLength(1); // Should still be 1 entity
 
             const found = repo.find({ id: 'user1', org: 'acme' });
             expect(found?.name).toBe('John Smith');
@@ -152,23 +152,23 @@ describe('Repository Engine Tests', () => {
             expect(found).toEqual(user);
 
             const notFound = repo.find({ id: 'notexist', org: 'testorg' });
-            expect(notFound).toBeUndefined();
+            expect(notFound).toBeNull();
         });
 
         test('should delete entity by key', () => {
             const user = createTestUser({ id: 'deleteme', org: 'testorg' });
             repo.upsert(user);
 
-            expect(repo.findAll()).toHaveLength(1);
+            expect(repo.entities).toHaveLength(1);
 
             const deleted = repo.delete({ id: 'deleteme', org: 'testorg' });
-            expect(deleted).toBe(true);
-            expect(repo.findAll()).toHaveLength(0);
+            expect(deleted.deleted).toBe(1);
+            expect(repo.entities).toHaveLength(0);
             expect(logger.info).toHaveBeenCalledWith('[Repository] deleted entity with key: deleteme|testorg');
 
             // Try to delete non-existent entity
             const notDeleted = repo.delete({ id: 'notexist', org: 'testorg' });
-            expect(notDeleted).toBe(false);
+            expect(notDeleted.deleted).toBe(0);
         });
     });
 
@@ -233,7 +233,7 @@ describe('Repository Engine Tests', () => {
             const specialKey = { id: 'user|with|pipes', org: 'org\\with\\backslashes' };
             const stringified = codec.stringify(specialKey);
             const parsed = codec.parse(stringified);
-            
+
             // The codec should handle escaping and unescaping
             expect(typeof stringified).toBe('string');
             expect(parsed.id).toBeDefined();
@@ -244,10 +244,10 @@ describe('Repository Engine Tests', () => {
     describe('Memory Store Functionality', () => {
         test('should store and retrieve data correctly', () => {
             const testData = createTestUsers(3);
-            
+
             store.saveAdded(testData);
             const loaded = store.load();
-            
+
             expect(loaded.rows).toHaveLength(3);
             expect(loaded.rows).toEqual(testData);
         });
@@ -300,8 +300,8 @@ describe('Repository Engine Tests', () => {
 
             users.forEach(user => repo.upsert(user));
 
-            expect(repo.findAll()).toHaveLength(3);
-            
+            expect(repo.entities).toHaveLength(3);
+
             // Should be able to find each user by their composite key
             expect(repo.find({ id: 'user1', org: 'acme' })?.email).toBe('john@acme.com');
             expect(repo.find({ id: 'user1', org: 'corp' })?.email).toBe('john@corp.com');
@@ -312,20 +312,20 @@ describe('Repository Engine Tests', () => {
             // Add several users
             const users = createTestUsers(5);
             users.forEach(user => repo.upsert(user));
-            expect(repo.findAll()).toHaveLength(5);
+            expect(repo.entities).toHaveLength(5);
 
             // Update some users
             const updatedUser = { ...users[2], name: 'Updated Name' };
             repo.upsert(updatedUser);
-            expect(repo.findAll()).toHaveLength(5); // Still 5 users
+            expect(repo.entities).toHaveLength(5); // Still 5 users
 
             // Delete some users
             repo.delete({ id: users[0].id, org: users[0].org });
             repo.delete({ id: users[4].id, org: users[4].org });
-            expect(repo.findAll()).toHaveLength(3);
+            expect(repo.entities).toHaveLength(3);
 
             // Verify remaining data
-            const remaining = repo.findAll();
+            const remaining = repo.entities;
             expect(remaining.some(u => u.name === 'Updated Name')).toBe(true);
             expect(remaining.some(u => u.id === users[0].id)).toBe(false);
             expect(remaining.some(u => u.id === users[4].id)).toBe(false);
@@ -333,18 +333,18 @@ describe('Repository Engine Tests', () => {
 
         test('should handle batch upsert operations', () => {
             const users = createTestUsers(10);
-            
+
             // Batch insert
             users.forEach(user => repo.upsert(user));
-            expect(repo.findAll()).toHaveLength(10);
+            expect(repo.entities).toHaveLength(10);
 
             // Batch update (modify half of them)
             const updates = users.slice(0, 5).map(u => ({ ...u, name: `Updated ${u.name}` }));
             updates.forEach(user => repo.upsert(user));
-            expect(repo.findAll()).toHaveLength(10); // Still 10 users
+            expect(repo.entities).toHaveLength(10); // Still 10 users
 
             // Verify updates applied
-            const updated = repo.findAll().filter(u => u.name.startsWith('Updated'));
+            const updated = repo.entities.filter(u => u.name.startsWith('Updated'));
             expect(updated).toHaveLength(5);
         });
 
@@ -355,7 +355,7 @@ describe('Repository Engine Tests', () => {
                 name: 'Invalid User',
                 email: 'invalid@test.com'
             };
-            
+
             const nullKeyUser: any = {
                 id: null, // Null key
                 org: 'acme',
@@ -365,7 +365,7 @@ describe('Repository Engine Tests', () => {
             expect(() => {
                 repo.upsert(emptyKeyUser);
             }).toThrow('key part "id" is missing');
-            
+
             expect(() => {
                 repo.upsert(nullKeyUser);
             }).toThrow('key part "id" is missing');
@@ -380,7 +380,7 @@ describe('Repository Engine Tests', () => {
             }));
 
             largeDataset.forEach(user => repo.upsert(user));
-            expect(repo.findAll()).toHaveLength(100);
+            expect(repo.entities).toHaveLength(100);
 
             // Test lookup correctness
             for (let i = 0; i < 10; i++) {
@@ -400,7 +400,7 @@ describe('Repository Engine Tests', () => {
 
             const result = repo.find({ id: 'shared', org: 'acme' });
             expect(result?.name).toBe('Second Version');
-            expect(repo.findAll()).toHaveLength(1); // Only one entity
+            expect(repo.entities).toHaveLength(1); // Only one entity
         });
     });
 });

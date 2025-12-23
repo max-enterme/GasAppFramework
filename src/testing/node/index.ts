@@ -9,11 +9,15 @@
  * Usage in Node.js projects:
  * ```typescript
  * import { setupGASMocks, createMockLogger, createTestUser } from 'gas-app-framework/testing/node';
+ * import { setupTestAdapter } from 'gas-app-framework/testing/node';
  * 
  * // Set up GAS environment mocks
  * beforeAll(() => {
  *   setupGASMocks();
  * });
+ * 
+ * // Set up test adapter for shared tests
+ * setupTestAdapter();
  * 
  * // Create test data
  * const user = createTestUser({ name: 'Alice' });
@@ -24,3 +28,4 @@
  */
 
 export { setupGASMocks, createMockLogger, createTestUser, createTestUsers } from './test-utils';
+export { setupTestAdapter, TestAdapter, AssertAdapter } from './test-adapter';
