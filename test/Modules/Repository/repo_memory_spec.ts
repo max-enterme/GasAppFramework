@@ -27,8 +27,7 @@ namespace Spec_Repo {
                 return [key.id, key.org].map(v => (v == null ? '' : String(v))).join(',');
             },
             parse(s: string): Pick<User, Key> {
-                const parts = (c.parse as any)(s) as string[];
-                return { id: (parts[0] ?? ''), org: (parts[1] ?? '') };
+                return c.parse(s) as Pick<User, Key>;
             }
         } as Repository.Ports.KeyCodec<User, Key>;
     })();
@@ -40,7 +39,7 @@ namespace Spec_Repo {
         const store = new Repository.Adapters.Memory.Store<User>();
         const repo = Repository.Engine.create<User, Key>({ schema, store, keyCodec: codec, logger: new Log() });
         repo.load();
-        
+
         // Test: Adding a new record
         const r1 = repo.upsert({ id: 'u1', org: 'o1', name: ' Alice ', age: 20 });
         TAssert.equals(r1.added.length, 1, 'added 1');
@@ -68,17 +67,17 @@ namespace Spec_Repo {
         const store = new Repository.Adapters.Memory.Store<User>();
         const repo = Repository.Engine.create<User, Key>({ schema, store, keyCodec: codec });
         repo.load();
-        
+
         // Setup: Add test records
         repo.upsert([
-            { id: 'u1', org: 'o1', name: 'n1', age: null }, 
+            { id: 'u1', org: 'o1', name: 'n1', age: null },
             { id: 'u2', org: 'o1', name: 'n2', age: null }
         ]);
-        
+
         // Test: Delete single record
         const d1 = repo.delete({ id: 'u1', org: 'o1' });
         TAssert.equals(d1.deleted, 1, 'deleted 1');
-        
+
         // Verify: Record is actually removed
         const f1 = repo.find({ id: 'u1', org: 'o1' });
         TAssert.isTrue(f1 === null, 'deleted record is gone');
@@ -89,7 +88,7 @@ namespace Spec_Repo {
         const store = new Repository.Adapters.Memory.Store<User>();
         const repo = Repository.Engine.create<User, Key>({ schema, store, keyCodec: codec });
         repo.load();
-        
+
         // Edge Case: Empty string in required key field should throw
         TAssert.throws(() => repo.upsert({ id: '', org: 'o1', name: 'x', age: null }), 'missing key should throw');
     }, 'Repository');
@@ -99,7 +98,7 @@ namespace Spec_Repo {
         const store = new Repository.Adapters.Memory.Store<User>();
         const repo = Repository.Engine.create<User, Key>({ schema, store, keyCodec: codec });
         repo.load();
-        
+
         // Test: onBeforeSave hook transforms data (trimming spaces)
         repo.upsert({ id: 'u3', org: 'o1', name: ' Carol  ', age: 33 });
         const e = repo.find({ id: 'u3', org: 'o1' })!;
@@ -111,12 +110,12 @@ namespace Spec_Repo {
         const store = new Repository.Adapters.Memory.Store<User>();
         const repo = Repository.Engine.create<User, Key>({ schema, store, keyCodec: codec });
         repo.load();
-        
+
         // Test: Null age value should be preserved
         repo.upsert({ id: 'u4', org: 'o1', name: 'David', age: null });
         const e1 = repo.find({ id: 'u4', org: 'o1' })!;
         TAssert.isTrue(e1.age === null, 'null age preserved');
-        
+
         // Test: Partial entity with missing optional field
         repo.upsert({ id: 'u5', org: 'o1', name: 'Eve' } as any);
         const e2 = repo.find({ id: 'u5', org: 'o1' })!;
@@ -128,11 +127,11 @@ namespace Spec_Repo {
         const store = new Repository.Adapters.Memory.Store<User>();
         const repo = Repository.Engine.create<User, Key>({ schema, store, keyCodec: codec });
         repo.load();
-        
+
         // Edge Case: Finding non-existent record should return null, not throw
         const notFound = repo.find({ id: 'nonexistent', org: 'missing' });
         TAssert.isTrue(notFound === null, 'non-existent record returns null');
-        
+
         // Edge Case: Batch find with all non-existent keys returns empty array
         const noneFound = repo.findAll([{ id: 'x', org: 'y' }, { id: 'a', org: 'b' }]);
         TAssert.equals(noneFound.length, 0, 'all non-existent returns empty array');

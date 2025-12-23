@@ -4,46 +4,46 @@
  */
 
 export const TestAdapter = {
-    it(description: string, testFn: () => void, category?: string) {
+    it(description: string, testFn: () => void, _category?: string) {
         // Jestのtest()にマッピング
         test(description, testFn);
     }
 };
 
 export const AssertAdapter = {
-    equals(actual: any, expected: any, message?: string) {
+    equals(actual: any, expected: any, _message?: string) {
         expect(actual).toBe(expected);
     },
 
-    isTrue(value: boolean, message?: string) {
+    isTrue(value: boolean, _message?: string) {
         expect(value).toBe(true);
     },
 
-    isFalse(value: boolean, message?: string) {
+    isFalse(value: boolean, _message?: string) {
         expect(value).toBe(false);
     },
 
-    throws(fn: () => void, message?: string) {
+    throws(fn: () => void, _message?: string) {
         expect(fn).toThrow();
     },
 
-    notThrows(fn: () => void, message?: string) {
+    notThrows(fn: () => void, _message?: string) {
         expect(fn).not.toThrow();
     },
 
-    isNull(value: any, message?: string) {
+    isNull(value: any, _message?: string) {
         expect(value).toBeNull();
     },
 
-    isNotNull(value: any, message?: string) {
+    isNotNull(value: any, _message?: string) {
         expect(value).not.toBeNull();
     },
 
-    isDefined(value: any, message?: string) {
+    isDefined(value: any, _message?: string) {
         expect(value).toBeDefined();
     },
 
-    isUndefined(value: any, message?: string) {
+    isUndefined(value: any, _message?: string) {
         expect(value).toBeUndefined();
     }
 };

@@ -23,7 +23,7 @@ namespace Spec_Repository_GAS {
                 name: String(p.name ?? ''),
                 value: Number(p.value ?? 0),
                 active: (() => {
-                    const val = p.active;
+                    const val: unknown = p.active;
                     if (typeof val === 'boolean') return val;
                     if (typeof val === 'string') {
                         const str = val.toLowerCase().trim();
@@ -49,7 +49,7 @@ namespace Spec_Repository_GAS {
         TestHelpers.GAS.installAll();
 
         try {
-            const mockApp = globalThis.SpreadsheetApp as TestHelpers.GAS.MockSpreadsheetApp;
+            const mockApp = globalThis.SpreadsheetApp as unknown as TestHelpers.GAS.MockSpreadsheetApp;
             const sheetId = 'test-entities-123';
 
             // Setup: Create spreadsheet with entity data including headers
@@ -92,7 +92,7 @@ namespace Spec_Repository_GAS {
         TestHelpers.GAS.installAll();
 
         try {
-            const mockApp = globalThis.SpreadsheetApp as TestHelpers.GAS.MockSpreadsheetApp;
+            const mockApp = globalThis.SpreadsheetApp as unknown as TestHelpers.GAS.MockSpreadsheetApp;
 
             // Edge Case 1: Empty sheet (only headers)
             const emptySheetId = 'empty-sheet';
@@ -127,7 +127,7 @@ namespace Spec_Repository_GAS {
         TestHelpers.GAS.installAll();
 
         try {
-            const mockApp = globalThis.SpreadsheetApp as TestHelpers.GAS.MockSpreadsheetApp;
+            const mockApp = globalThis.SpreadsheetApp as unknown as TestHelpers.GAS.MockSpreadsheetApp;
             const sheetId = 'custom-header-sheet';
 
             // Setup: Data with headers on row 3
@@ -162,7 +162,7 @@ namespace Spec_Repository_GAS {
         TestHelpers.GAS.installAll();
 
         try {
-            const mockApp = globalThis.SpreadsheetApp as TestHelpers.GAS.MockSpreadsheetApp;
+            const mockApp = globalThis.SpreadsheetApp as unknown as TestHelpers.GAS.MockSpreadsheetApp;
             const sheetId = 'soft-delete-sheet';
 
             // Setup: Data with soft delete flag
@@ -203,7 +203,7 @@ namespace Spec_Repository_GAS {
         TestHelpers.GAS.installAll();
 
         try {
-            const mockApp = globalThis.SpreadsheetApp as TestHelpers.GAS.MockSpreadsheetApp;
+            const mockApp = globalThis.SpreadsheetApp as unknown as TestHelpers.GAS.MockSpreadsheetApp;
             const sheetId = 'save-test-sheet';
 
             // Setup: Empty sheet with headers
@@ -242,7 +242,7 @@ namespace Spec_Repository_GAS {
         TestHelpers.GAS.installAll();
 
         try {
-            const mockApp = globalThis.SpreadsheetApp as TestHelpers.GAS.MockSpreadsheetApp;
+            const mockApp = globalThis.SpreadsheetApp as unknown as TestHelpers.GAS.MockSpreadsheetApp;
             const sheetId = 'update-test-sheet';
 
             // Setup: Sheet with existing data
@@ -290,7 +290,7 @@ namespace Spec_Repository_GAS {
         TestHelpers.GAS.installAll();
 
         try {
-            const mockApp = globalThis.SpreadsheetApp as TestHelpers.GAS.MockSpreadsheetApp;
+            const mockApp = globalThis.SpreadsheetApp as unknown as TestHelpers.GAS.MockSpreadsheetApp;
             const sheetId = 'conversion-test-sheet';
 
             // Setup: Data with various type formats (as they might appear in spreadsheets)
@@ -336,7 +336,7 @@ namespace Spec_Repository_GAS {
         TestHelpers.GAS.installAll();
 
         try {
-            const mockApp = globalThis.SpreadsheetApp as TestHelpers.GAS.MockSpreadsheetApp;
+            const mockApp = globalThis.SpreadsheetApp as unknown as TestHelpers.GAS.MockSpreadsheetApp;
             const sheetId = 'range-test-sheet';
 
             // Setup: Large dataset to test range operations
@@ -391,7 +391,7 @@ namespace Spec_Repository_GAS {
             );
 
             // Edge Case 2: Create valid spreadsheet to test sheet name errors
-            const mockApp = globalThis.SpreadsheetApp as TestHelpers.GAS.MockSpreadsheetApp;
+            const mockApp = globalThis.SpreadsheetApp as unknown as TestHelpers.GAS.MockSpreadsheetApp;
             mockApp.setupSpreadsheet('valid-sheet', { 'ValidSheet': [['id', 'name']] });
 
             TAssert.throws(
@@ -414,7 +414,7 @@ namespace Spec_Repository_GAS {
         TestHelpers.GAS.installAll();
 
         try {
-            const mockApp = globalThis.SpreadsheetApp as TestHelpers.GAS.MockSpreadsheetApp;
+            const mockApp = globalThis.SpreadsheetApp as unknown as TestHelpers.GAS.MockSpreadsheetApp;
             const sheetId = 'workflow-sheet';
 
             // Setup: Empty sheet for full workflow test
