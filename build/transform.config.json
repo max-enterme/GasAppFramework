@@ -45,6 +45,34 @@
         "// Export Repository namespace for cross-namespace references",
         "export const Repository = { RepositoryError };"
       ]
+    },
+    {
+      "name": "GasDI",
+      "sourceFiles": [
+        "src/core/modules/GasDI/Core.Types.d.ts",
+        "src/core/modules/GasDI/Container.ts",
+        "src/core/modules/GasDI/Context.ts",
+        "src/core/modules/GasDI/GenericFactory.ts",
+        "src/core/modules/GasDI/Decorators.ts"
+      ],
+      "outputFile": "test/node/integration/gasdi-module.ts",
+      "namespace": "GasDI",
+      "includeTypes": true,
+      "compatibilityExports": [
+        "// Compatibility exports for cross-namespace references",
+        "export const GasDI = { Container, Context, GenericFactory, Decorators };"
+      ]
+    },
+    {
+      "name": "Locking Engine",
+      "sourceFiles": [
+        "src/core/modules/Locking/Core.Types.d.ts",
+        "src/core/modules/Locking/Engine.ts",
+        "src/core/modules/Locking/Adapters.GAS.ts"
+      ],
+      "outputFile": "test/node/integration/locking-module.ts",
+      "namespace": "Locking",
+      "includeTypes": true
     }
   ]
 }

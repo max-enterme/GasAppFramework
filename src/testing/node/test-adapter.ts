@@ -1,11 +1,24 @@
-// test/node/shared/test-adapter.ts
 /**
- * GASテストフレームワーク（T, TAssert）をJestにマッピングするアダプター
+ * GAS Test Framework (T, TAssert) to Jest Adapter
+ * 
+ * This adapter allows shared test code written for GAS testing framework
+ * to run seamlessly in Node.js/Jest environment.
+ * 
+ * Usage:
+ * ```typescript
+ * import { setupTestAdapter } from '@testing/node/test-adapter';
+ * 
+ * // Set up adapter before running shared tests
+ * setupTestAdapter();
+ * 
+ * // Now shared tests using T and TAssert will work
+ * registerSharedTests();
+ * ```
  */
 
 export const TestAdapter = {
     it(description: string, testFn: () => void, _category?: string) {
-        // Jestのtest()にマッピング
+        // Map to Jest's test() function
         test(description, testFn);
     }
 };
@@ -45,11 +58,16 @@ export const AssertAdapter = {
 
     isUndefined(value: any, _message?: string) {
         expect(value).toBeUndefined();
+    },
+
+    fail(message?: string) {
+        throw new Error(message || 'Assertion failed');
     }
 };
 
 /**
- * グローバルにT, TAssertを注入
+ * Inject T and TAssert into global scope
+ * This allows shared test code to access these without imports
  */
 export function setupTestAdapter() {
     (globalThis as any).T = TestAdapter;
