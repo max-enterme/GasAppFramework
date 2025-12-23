@@ -9,8 +9,8 @@ namespace Spec_Routing {
     T.it('param and wildcard matching with middleware', () => {
         const r = Routing.create();
         const seq: string[] = [];
-        r.use((next, ctx: any) => { seq.push('mw1'); return next(ctx); });
-        r.use((next, ctx: any) => { seq.push('mw2'); return next(ctx); });
+        r.use((ctx: any, next) => { seq.push('mw1'); return next(); });
+        r.use((ctx: any, next) => { seq.push('mw2'); return next(); });
 
         r.register('/user/:id', (ctx: any) => `user#${ctx.params.id}`);
         r.register('/files/*', (ctx: any) => `file:${ctx.params['*']}`);

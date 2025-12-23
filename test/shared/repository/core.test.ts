@@ -128,8 +128,8 @@ export function registerRepositoryCoreTests() {
       { id: 'u2', org: 'o1', name: 'Bob', age: 25 },
       { id: 'u3', org: 'o2', name: 'Carol', age: 30 }
     ]);
-    
-    const results = repo.findAll((u: User) => u.org === 'o1');
+
+    const results = repo.entities.filter((u: User) => u.org === 'o1');
     TAssert.equals(results.length, 2, 'org=o1のレコードが2件');
   }, 'Repository');
 
