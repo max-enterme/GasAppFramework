@@ -34,7 +34,7 @@ namespace TestHelpers {
             constructor(initialTime?: Date) {
                 // Use a specific valid date if no initial time provided to avoid GAS Date() issues
                 const baseTime = initialTime || new Date(2024, 0, 15, 10, 0, 0); // Jan 15, 2024 10:00:00
-                
+
                 // Validate that the base time is valid
                 const baseTimeMs = baseTime.getTime();
                 if (isNaN(baseTimeMs)) {
@@ -123,8 +123,8 @@ namespace TestHelpers {
             messagePattern: string | RegExp
         ): void {
             const messages = logger.messages.filter(m => m.level === level);
-            const found = messages.some(m => 
-                typeof messagePattern === 'string' 
+            const found = messages.some(m =>
+                typeof messagePattern === 'string'
                     ? m.msg.includes(messagePattern)
                     : messagePattern.test(m.msg)
             );
@@ -159,7 +159,7 @@ namespace TestHelpers {
         export function createTestUser(overrides: Partial<{ id: string; org: string; name: string }> = {}) {
             return {
                 id: overrides.id || 'test-user',
-                org: overrides.org || 'test-org', 
+                org: overrides.org || 'test-org',
                 name: overrides.name || 'Test User',
                 ...overrides
             };
@@ -172,7 +172,7 @@ namespace TestHelpers {
         ) {
             const logger = new Doubles.MockLogger();
             const store = new Doubles.MemoryStore<TEntity>();
-            
+
             const repository = Repository.Engine.create({
                 schema,
                 store,
@@ -227,7 +227,7 @@ namespace TestHelpers {
         export class MockSpreadsheet {
             private sheets: Map<string, MockSheet> = new Map();
 
-            constructor(public readonly id: string) {}
+            constructor(public readonly id: string) { }
 
             getSheetByName(name: string): MockSheet | null {
                 return this.sheets.get(name) || null;
@@ -244,7 +244,7 @@ namespace TestHelpers {
             constructor(
                 public readonly name: string,
                 private data: any[][] = []
-            ) {}
+            ) { }
 
             getDataRange(): MockRange {
                 return new MockRange(this.data, 0, 0, this.data.length, this.data[0]?.length || 0);
@@ -255,7 +255,7 @@ namespace TestHelpers {
                 const startCol = col - 1;
                 const endRow = numRows ? startRow + numRows : this.data.length;
                 const endCol = numCols ? startCol + numCols : (this.data[0]?.length || 0);
-                
+
                 return new MockRange(this.data, startRow, startCol, endRow, endCol);
             }
 
@@ -318,7 +318,7 @@ namespace TestHelpers {
                     while (this.sheetData.length <= targetRow) {
                         this.sheetData.push([]);
                     }
-                    
+
                     for (let c = 0; c < values[r].length; c++) {
                         const targetCol = this.startCol + c;
                         while (this.sheetData[targetRow].length <= targetCol) {
@@ -346,7 +346,6 @@ namespace TestHelpers {
         /** Mock ScriptApp for testing triggers and script properties */
         export class MockScriptApp {
             private triggers: MockTrigger[] = [];
-            private properties: { [key: string]: string } = {};
 
             static install(): void {
                 (globalThis as any).ScriptApp = new MockScriptApp();
@@ -381,7 +380,6 @@ namespace TestHelpers {
             // Helper for tests
             reset(): void {
                 this.triggers = [];
-                this.properties = {};
             }
         }
 
@@ -392,7 +390,7 @@ namespace TestHelpers {
             constructor(
                 protected functionName: string,
                 protected onCreate: (trigger: MockTrigger) => MockTrigger
-            ) {}
+            ) { }
 
             timeBased(): MockTimeTriggerBuilder {
                 return new MockTimeTriggerBuilder(this.functionName, this.onCreate);
@@ -433,7 +431,7 @@ namespace TestHelpers {
                 public readonly handlerFunction: string,
                 public readonly eventType: string,
                 public readonly source: any
-            ) {}
+            ) { }
 
             getHandlerFunction(): string {
                 return this.handlerFunction;
@@ -559,7 +557,7 @@ namespace TestHelpers {
             constructor(
                 private type: string,
                 private lockService: MockLockService
-            ) {}
+            ) { }
 
             tryLock(timeoutInMillis: number): boolean {
                 return this.lockService._acquireLock(this.type, timeoutInMillis);
