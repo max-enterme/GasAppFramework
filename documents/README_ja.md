@@ -256,12 +256,11 @@ GASデプロイとNode.js開発の両方に最適化:
 
 フレームワークには以下のモジュールが含まれており、それぞれに包括的なドキュメントが用意されています:
 
-- **[Repository](src/Modules/Repository/README_ja.md)** - Google Sheetsを使った型安全データ永続化
-- **[EventSystem](src/Modules/EventSystem/README_ja.md)** - Cronジョブ、トリガー、ワークフロー自動化  
-- **[GasDI](src/Modules/GasDI/README_ja.md)** - 依存性注入コンテナ
-- **[Routing](src/Modules/Routing/README_ja.md)** - Webアプリケーションリクエストルーティング
-- **[Locking](src/Modules/Locking/README_ja.md)** - 分散ロックと並行制御
-- **[StringHelper](src/Modules/StringHelper/README_ja.md)** - 文字列テンプレートとフォーマットユーティリティ
+- **[GasDI](../src/core/modules/GasDI/README_ja.md)** - 依存性注入コンテナ
+- **[Locking](../src/core/modules/Locking/README_ja.md)** - 分散ロックと並行制御
+- **[Repository](../src/core/modules/Repository/README_ja.md)** - Google Sheetsを使った型安全データ永続化
+- **[Routing](../src/core/modules/Routing/README_ja.md)** - Webアプリケーションリクエストルーティング
+- **[StringHelper](../src/core/modules/StringHelper/README_ja.md)** - 文字列テンプレートとフォーマットユーティリティ
 
 各モジュールディレクトリには、API文書、使用例、テスト戦略を含む詳細なREADMEファイルが含まれています。
 
@@ -356,13 +355,14 @@ const codec = Repository.Codec.simple('|')
 
 問題、質問、または貢献については:
 1. 既存のドキュメントとテストを確認
-2. **`src/Modules/`ディレクトリ内のモジュール固有のREADMEファイル**を確認
+2. **`src/core/modules/`ディレクトリ内のモジュール固有のREADMEファイル**を確認
 3. 使用例についてテストケースを調査
 4. バグや機能リクエストはissueを開いてください
 
 ---
 
 **フレームワークバージョン:** 1.0.0  
+**最終更新日:** 2025-12-27  
 **GASランタイム:** V8 (ES2020)  
 **TypeScript:** 5.x  
 **Node.js:** 16+
