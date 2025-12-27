@@ -23,7 +23,7 @@
       ],
       "outputFile": "test/node/integration/stringhelper-module.ts",
       "namespace": "StringHelper",
-      "includeTypes": false
+      "includeTypes": true
     },
     {
       "name": "Repository Engine",
