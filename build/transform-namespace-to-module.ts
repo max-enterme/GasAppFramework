@@ -53,7 +53,8 @@ function loadConfig(): Config {
 function processNamespace(
     namespace: ModuleDeclaration,
     targetNamespace: string,
-    outputLines: string[]
+    outputLines: string[],
+    includeTypes: boolean
 ): void {
     const namespaceName = namespace.getName();
 
@@ -74,16 +75,31 @@ function processNamespace(
     const isNestedNamespace = namespaceName.includes('.');
     const namespaceBaseName = isNestedNamespace ? namespaceName.split('.')[0] : namespaceName;
 
-    // Only process namespaces matching our target (or nested within it)
-    if (namespaceBaseName !== targetNamespace) {
+    // Support both exact match and base namespace match
+    // e.g., targetNamespace can be "YTamaLeagueManagement" or "YTamaLeagueManagement.Services"
+    const isExactMatch = namespaceName === targetNamespace;
+    const isBaseMatch = namespaceBaseName === targetNamespace;
+    const isTargetNestedInNamespace = targetNamespace.startsWith(namespaceName + '.');
+
+    // Only process namespaces matching our target
+    if (!isExactMatch && !isBaseMatch && !isTargetNestedInNamespace) {
         return;
     }
 
     // Check if this is a declare namespace (for type definitions)
     const isDeclareNamespace = namespace.hasDeclareKeyword();
 
+    // If targetNamespace is an exact match, extract contents directly without wrapping
+    if (isExactMatch) {
+        // For exact match, extract all statements directly
+        for (const statement of body.getStatements()) {
+            processStatement(statement, outputLines, '', isDeclareNamespace, includeTypes);
+        }
+        return;
+    }
+
     // If this is a nested namespace like "Repository.Engine" or "Routing.Ports", export it as a namespace
-    if (isNestedNamespace) {
+    if (isNestedNamespace && isBaseMatch) {
         const nestingLevels = namespaceName.split('.');
         const nestedName = nestingLevels.slice(1).join('.');
 
@@ -93,7 +109,7 @@ function processNamespace(
         // Process all statements within the nested namespace
         for (const statement of body.getStatements()) {
             // For declare namespaces, always export types
-            processStatement(statement, outputLines, '    ', isDeclareNamespace);
+            processStatement(statement, outputLines, '    ', isDeclareNamespace, includeTypes);
         }
 
         outputLines.push('}');
@@ -103,14 +119,27 @@ function processNamespace(
 
     // For top-level namespace, extract all statements
     for (const statement of body.getStatements()) {
-        processStatement(statement, outputLines, '', isDeclareNamespace);
+        processStatement(statement, outputLines, '', isDeclareNamespace, includeTypes);
     }
+}
+
+/**
+ * Remove type annotations from code when includeTypes is false
+ */
+function stripTypeAnnotations(text: string, includeTypes: boolean): string {
+    if (includeTypes) {
+        return text;
+    }
+
+    // For now, we don't strip type annotations as it's too complex with regex
+    // Type checking will be disabled with @ts-nocheck at the file level
+    return text;
 }
 
 /**
  * Process a single statement from the namespace
  */
-function processStatement(statement: Node, outputLines: string[], indent: string, forceExport = false): void {
+function processStatement(statement: Node, outputLines: string[], indent: string, forceExport = false, includeTypes = true): void {
     const kind = statement.getKind();
 
     // Check if the statement was exported in the namespace using ts-morph API
@@ -130,7 +159,7 @@ function processStatement(statement: Node, outputLines: string[], indent: string
             outputLines.push(indent + `export namespace ${nestedName} {`);
 
             for (const nestedStatement of nestedBody.getStatements()) {
-                processStatement(nestedStatement, outputLines, indent + '    ', true);
+                processStatement(nestedStatement, outputLines, indent + '    ', true, includeTypes);
             }
 
             outputLines.push(indent + '}');
@@ -157,10 +186,26 @@ function processStatement(statement: Node, outputLines: string[], indent: string
     // Handle class declarations
     if (kind === SyntaxKind.ClassDeclaration) {
         const text = statement.getText();
-        const cleanText = text.replace(/^(\s*)export\s+/, '$1');
+        
+        // Remove 'export' keyword if present, handling decorators properly
+        // Look for export keyword that comes after decorators
+        const cleanText = text.replace(/^((?:@[\w.]+(?:\([^)]*\))?\s*)*\s*)export\s+/, '$1');
 
         if (hasExport) {
-            outputLines.push(indent + 'export ' + cleanText);
+            // Add export before decorators
+            const lines = cleanText.split('\n');
+            if (lines[0].trim().startsWith('@')) {
+                // Has decorators, find where class keyword is
+                const classLineIndex = lines.findIndex(line => line.includes('class '));
+                if (classLineIndex !== -1) {
+                    lines[classLineIndex] = lines[classLineIndex].replace(/^(\s*)class\s/, '$1export class ');
+                    outputLines.push(indent + lines.join('\n'));
+                } else {
+                    outputLines.push(indent + 'export ' + cleanText);
+                }
+            } else {
+                outputLines.push(indent + 'export ' + cleanText);
+            }
         } else {
             outputLines.push(indent + cleanText);
         }
@@ -270,6 +315,12 @@ function transformFiles(config: TransformConfig): void {
     outputLines.push(' * To regenerate: npm run build:test-modules');
     outputLines.push(' */');
     outputLines.push('');
+    
+    // Add @ts-nocheck if includeTypes is false
+    if (!config.includeTypes) {
+        outputLines.push('// @ts-nocheck - Type checking disabled for test module');
+        outputLines.push('');
+    }
 
     // Process each source file
     for (const sourceFile of sourceFiles) {
@@ -278,7 +329,7 @@ function transformFiles(config: TransformConfig): void {
             .filter(stmt => stmt.getKind() === SyntaxKind.ModuleDeclaration) as ModuleDeclaration[];
 
         for (const namespace of namespaces) {
-            processNamespace(namespace, config.namespace, outputLines);
+            processNamespace(namespace, config.namespace, outputLines, config.includeTypes);
         }
     }
 
