@@ -126,8 +126,8 @@ npm run test:node -- --coverage
 
 **Current Coverage:**
 - **184 tests passing** in Node.js environment
-- **35 shared tests** for core business logic (StringHelper, Routing, Repository, Locking, GasDI)
-- **149 integration tests** for complex scenarios
+- **54 shared tests** for core business logic (StringHelper, Routing, Repository, Locking, GasDI)
+- **130 integration tests** for complex scenarios
 - Zero regression from previous structure
 
 ### GAS Tests
