@@ -21,11 +21,6 @@ test/
 │   ├── Test.ts                 # Test definition utilities
 │   └── TestHelpers.ts          # Mocks and test utilities
 └── Modules/                    # Module-specific tests
-    ├── EventSystem/
-    │   ├── gas_integration_spec.ts    # GAS-specific EventSystem tests
-    │   ├── schedule_spec.ts           # Schedule engine tests
-    │   ├── trigger_spec.ts            # Trigger engine tests
-    │   └── workflow_spec.ts           # Workflow engine tests
     ├── GAS/
     │   └── gas_advanced_spec.ts       # Advanced GAS runtime features
     ├── GasDI/
@@ -85,7 +80,7 @@ test/
 2. **Run specific test modules** (if needed):
    ```bash
    # You can create specific test runners for modules
-   clasp run test_EventSystem_Only  # If implemented
+   clasp run test_Routing_Only  # If implemented
    ```
 
 ### Method 3: Automated Testing via GitHub Actions
@@ -176,7 +171,7 @@ T.it('Repository loads data from spreadsheet', () => {
 
 #### Testing Trigger-Based Workflows
 ```typescript
-T.it('EventSystem creates and manages triggers', () => {
+T.it('Creates and manages ScriptApp triggers', () => {
     TestHelpers.GAS.installAll();
     
     try {
@@ -272,7 +267,7 @@ namespace Spec_ModuleName_GAS {
 - Module integration with GAS services
 - Dependency injection in GAS environment
 - Repository patterns with Spreadsheet backend
-- EventSystem workflow execution
+- Routing and request handling
 
 ### 3. Best Practices
 
@@ -397,3 +392,7 @@ T.it('Debug complex workflow step by step', () => {
 - [clasp Command Line Tool](https://github.com/google/clasp)
 - [GAS Runtime Limits](https://developers.google.com/apps-script/guides/services/quotas)
 - [Framework Repository Tests](./test/) - Examples of all test patterns
+
+---
+
+**Last Updated:** 2025-12-27

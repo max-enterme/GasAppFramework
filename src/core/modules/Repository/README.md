@@ -167,7 +167,7 @@ expect(testRepo.has({ id: 'test1' })).toBe(true)
 
 ### Unit Tests (Node.js)
 ```typescript
-import { Repository } from '../src/Modules/Repository'
+import { Repository } from '../src/core/modules/Repository'
 
 describe('Repository Engine', () => {
     let repo: any

@@ -145,7 +145,6 @@ TAssert.fail('Custom failure message');
 Organize your tests using categories. You can use existing framework categories or create your own:
 
 **Framework Categories:**
-- `EventSystem` - Event handling and triggers
 - `Repository` - Data persistence
 - `Locking` - Distributed locking
 - `GasDI` - Dependency injection
@@ -171,8 +170,8 @@ T.it('test name', () => { /* test */ }, 'YourProjectUtils');
 test_RunAll()
 
 // Run specific framework module tests
-test_RunByCategory('EventSystem')
 test_RunByCategory('Repository')
+test_RunByCategory('Routing')
 
 // List available categories
 test_ListCategories()

@@ -21,12 +21,6 @@ Global Namespaces:
 │   ├── Adapters             # Storage adapters (GAS, Memory)
 │   ├── Ports                # Interface definitions
 │   └── Types                # Repository-specific types
-├── EventSystem              # Job scheduling and workflows
-│   ├── Schedule             # Cron scheduling engine
-│   ├── Trigger              # Job trigger management
-│   ├── Workflow             # Multi-step workflow execution
-│   ├── Adapters             # GAS-specific adapters
-│   └── Ports                # Interface definitions
 ├── GasDI                    # Dependency injection
 │   ├── Container            # IoC container implementation
 │   ├── Decorators           # Injection decorators
@@ -51,8 +45,9 @@ Global Namespaces:
 
 ### Module-Specific Types
 - `Repository/RepositoryPorts.d.ts` - Repository domain interfaces
-- `EventSystem/Core.Types.d.ts` - EventSystem interfaces
 - `GasDI/Core.Types.d.ts` - DI container interfaces
+- `Routing/RoutingPorts.d.ts` - Routing interfaces
+- `Locking/LockingPorts.d.ts` - Locking interfaces
 - etc.
 
 ## Namespace Usage Patterns
@@ -70,8 +65,12 @@ GasDI.Root.registerValue('config', { key: 'value' })
 // String utilities
 const formatted = StringHelper.formatString('Hello {0}!', 'World')
 
-// Event scheduling
-const scheduler = EventSystem.Schedule.create(deps)
+// Routing
+const router = Routing.Engine.create()
+router.addRoute('/api/users', handleUsers)
+
+// Locking
+const lock = Locking.Engine.acquireLock('resource-id', 30000)
 ```
 
 ### Type Definitions
@@ -94,21 +93,15 @@ const schema: Repository.Ports.Schema<User, 'id'> = {
 
 ```
 ┌─────────────┐    ┌──────────────┐    ┌─────────────┐
-│   Shared    │    │  Repository  │    │ EventSystem │
-│ (base types)│◄───┤   (data)     │◄───┤  (jobs)     │
+│   Shared    │    │  Repository  │    │   Routing   │
+│ (base types)│◄───┤   (data)     │    │ (web apps)  │
 └─────────────┘    └──────────────┘    └─────────────┘
        ▲                   ▲                   ▲
        │                   │                   │
 ┌─────────────┐    ┌──────────────┐    ┌─────────────┐
-│   GasDI     │    │   Locking    │    │   Routing   │
-│    (DI)     │    │  (locks)     │    │ (web apps)  │
+│   GasDI     │    │   Locking    │    │StringHelper │
+│    (DI)     │    │  (locks)     │    │ (utilities) │
 └─────────────┘    └──────────────┘    └─────────────┘
-       ▲
-       │
-┌─────────────┐
-│StringHelper │
-│ (utilities) │
-└─────────────┘
 ```
 
 ## File Organization
@@ -146,3 +139,7 @@ The namespace approach provides several advantages specifically for Google Apps 
 - **Global Access**: All functionality available globally in the GAS environment
 - **Reduced Complexity**: No need to understand module systems or bundling for basic usage
 - **IDE Support**: Excellent autocomplete and IntelliSense with TypeScript namespace declarations
+
+---
+
+**Last Updated:** 2025-12-27
