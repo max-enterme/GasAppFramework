@@ -250,18 +250,6 @@ GasDI.Root.registerValue('dataStore', myStore);
 GasDI.Root.registerValue('keyCodec', myCodec);
 ```
 
-### EventSystem Module
-
-**DI-Enabled Components**:
-- `JobStore`: Job persistence (mandatory)
-- `GlobalInvoker`: Function execution (mandatory)
-- `Logger`: Logging (optional)
-- `Clock`: Time operations (optional)
-
-### GasDI Module
-
-**Self-contained**: GasDI itself doesn't require DI as it IS the DI system.
-
 ### Locking Module
 
 **DI-Enabled Components**:
@@ -486,11 +474,11 @@ describe('MyTest', () => {
 7. **Test with mocks** by registering test doubles in DI container
 
 **Related Documentation**:
-- [GasDI Module README](src/Modules/GasDI/README.md)
-- [RestFramework Optional Utilities](src/RestFramework/optional-utilities/README.md)
-- [RestFramework Examples](src/RestFramework/examples/README.md)
+- [GasDI Module README](../src/core/modules/GasDI/README.md)
+- [RestFramework Optional Utilities](../src/core/restframework/optional-utilities/README.md)
+- [RestFramework Examples](../src/core/restframework/examples/README.md)
 
 **Need Help?**
-- Check the [GasDI tests](test/Modules/GasDI/) for usage examples
-- Review [RestFramework tests](test_node/restframework/) for DI patterns
+- Check the [GasDI tests](../test/Modules/GasDI/) for usage examples
+- Review [RestFramework tests](../test/node/integration/) for DI patterns
 - See individual module READMEs for module-specific DI patterns

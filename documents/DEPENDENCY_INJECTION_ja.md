@@ -250,18 +250,6 @@ GasDI.Root.registerValue('dataStore', myStore);
 GasDI.Root.registerValue('keyCodec', myCodec);
 ```
 
-### EventSystemモジュール
-
-**DI有効化コンポーネント**:
-- `JobStore`: ジョブ永続化（必須）
-- `GlobalInvoker`: 関数実行（必須）
-- `Logger`: ログ（オプション）
-- `Clock`: 時間操作（オプション）
-
-### GasDIモジュール
-
-**自己完結型**: GasDI自体がDIシステムであるため、DIを必要としません。
-
 ### Lockingモジュール
 
 **DI有効化コンポーネント**:
@@ -486,11 +474,11 @@ describe('MyTest', () => {
 7. DIコンテナにテストダブルを登録して**モックでテスト**
 
 **関連ドキュメント**:
-- [GasDIモジュールREADME](src/Modules/GasDI/README_ja.md)
-- [RestFrameworkオプショナルユーティリティ](src/RestFramework/optional-utilities/README_ja.md)
-- [RestFramework使用例](src/RestFramework/examples/README_ja.md)
+- [GasDIモジュールREADME](../src/core/modules/GasDI/README_ja.md)
+- [RestFrameworkオプショナルユーティリティ](../src/core/restframework/optional-utilities/README_ja.md)
+- [RestFramework使用例](../src/core/restframework/examples/README_ja.md)
 
 **サポートが必要ですか？**
-- 使用例については[GasDIテスト](test/Modules/GasDI/)を確認
-- DIパターンについては[RestFrameworkテスト](test_node/restframework/)を確認
+- 使用例については[GasDIテスト](../test/Modules/GasDI/)を確認
+- DIパターンについては[RestFrameworkテスト](../test/node/integration/)を確認
 - モジュール固有のDIパターンについては各モジュールのREADMEを参照

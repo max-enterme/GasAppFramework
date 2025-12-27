@@ -145,7 +145,6 @@ TAssert.fail('カスタム失敗メッセージ');
 カテゴリを使用してテストを整理します。既存のフレームワークカテゴリを使用するか、独自のものを作成できます：
 
 **フレームワークカテゴリ:**
-- `EventSystem` - イベント処理とトリガー
 - `Repository` - データ永続化
 - `Locking` - 分散ロック
 - `GasDI` - 依存性注入
@@ -171,8 +170,8 @@ T.it('テスト名', () => { /* テスト */ }, 'YourProjectUtils');
 test_RunAll()
 
 // 特定のフレームワークモジュールテストを実行
-test_RunByCategory('EventSystem')
 test_RunByCategory('Repository')
+test_RunByCategory('Routing')
 
 // 利用可能なカテゴリをリスト
 test_ListCategories()
