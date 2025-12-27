@@ -12,12 +12,12 @@ const collectedTests: CollectedTest[] = [];
 
 export const TestAdapter = {
     it(description: string, testFn: () => void, category?: string) {
-        // JestŠÂ‹«‚Å‚Íí‚ÉûWƒ‚[ƒh
+        // Jestç’°å¢ƒã§ã¯å¸¸ã«åé›†ãƒ¢ãƒ¼ãƒ‰
         if (typeof test !== 'undefined') {
             collectedTests.push({ description, testFn, category });
         } else {
-            // GASŠÂ‹«‚Å‚Í’Êí‚Ì“®ìi•K—v‚É‰‚¶‚ÄÀ‘•j
-            // Œ»“_‚Å‚ÍGAS—p‚ÌÀ‘•‚Í•s—v
+            // GASç’°å¢ƒã§ã¯é€šå¸¸ã®å‹•ä½œï¼ˆå¿…è¦ã«å¿œã˜ã¦å®Ÿè£…ï¼‰
+            // ç¾æ™‚ç‚¹ã§ã¯GASç”¨ã®å®Ÿè£…ã¯ä¸è¦
         }
     }
 };
@@ -74,16 +74,16 @@ export function setupTestAdapter() {
 }
 
 /**
- * ûW‚µ‚½ƒeƒXƒg‚ğJest‚É“o˜^
- * describeƒuƒƒbƒN“à‚ÅŒÄ‚Ño‚·•K—v‚ª‚ ‚é
+ * åé›†ã—ãŸãƒ†ã‚¹ãƒˆã‚’Jestã«ç™»éŒ²
+ * describeãƒ–ãƒ­ãƒƒã‚¯å†…ã§å‘¼ã³å‡ºã™å¿…è¦ãŒã‚ã‚‹
  * 
- * @returns “o˜^‚³‚ê‚½ƒeƒXƒg”
+ * @returns ç™»éŒ²ã•ã‚ŒãŸãƒ†ã‚¹ãƒˆæ•°
  */
 export function registerCollectedTests(): number {
     const testsToRegister = [...collectedTests];
     collectedTests.length = 0;
 
-    // ƒJƒeƒSƒŠ‚²‚Æ‚ÉƒOƒ‹[ƒv‰»
+    // ã‚«ãƒ†ã‚´ãƒªã”ã¨ã«ã‚°ãƒ«ãƒ¼ãƒ—åŒ–
     const byCategory = new Map<string, CollectedTest[]>();
 
     for (const test of testsToRegister) {
@@ -94,13 +94,13 @@ export function registerCollectedTests(): number {
         byCategory.get(category)!.push(test);
     }
 
-    // ƒJƒeƒSƒŠ‚²‚Æ‚Édescribe‚ğì¬
+    // ã‚«ãƒ†ã‚´ãƒªã”ã¨ã«describeã‚’ä½œæˆ
     for (const [category, tests] of byCategory) {
         if (tests.length === 1 && category === 'Uncategorized') {
-            // ƒJƒeƒSƒŠ‚È‚µ‚Å1‚Â‚¾‚¯‚Ìê‡‚Í’¼Ú“o˜^
+            // ã‚«ãƒ†ã‚´ãƒªãªã—ã§1ã¤ã ã‘ã®å ´åˆã¯ç›´æ¥ç™»éŒ²
             test(tests[0].description, tests[0].testFn);
         } else {
-            // ƒJƒeƒSƒŠ‚²‚Æ‚ÉƒOƒ‹[ƒv‰»
+            // ã‚«ãƒ†ã‚´ãƒªã”ã¨ã«ã‚°ãƒ«ãƒ¼ãƒ—åŒ–
             describe(category, () => {
                 for (const { description, testFn } of tests) {
                     test(description, testFn);
@@ -113,7 +113,7 @@ export function registerCollectedTests(): number {
 }
 
 /**
- * ûW‚³‚ê‚½ƒeƒXƒg”‚ğæ“¾iƒfƒoƒbƒO—pj
+ * åé›†ã•ã‚ŒãŸãƒ†ã‚¹ãƒˆæ•°ã‚’å–å¾—ï¼ˆãƒ‡ãƒãƒƒã‚°ç”¨ï¼‰
  */
 export function getCollectedTestCount(): number {
     return collectedTests.length;
