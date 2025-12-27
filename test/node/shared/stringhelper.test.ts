@@ -3,7 +3,7 @@
  */
 
 import { setupGASMocks } from '../../../src/testing/node/test-utils';
-import { setupTestAdapter } from '../../../src/testing/node/test-adapter';
+import { setupTestAdapter, registerCollectedTests } from '../../../src/testing/node/test-adapter';
 import { registerStringHelperCoreTests } from '../../shared/stringhelper/core.test';
 import { formatString, resolveString, get } from '../integration/stringhelper-module';
 
@@ -24,4 +24,5 @@ beforeAll(() => {
 
 describe('StringHelper Core Tests (Shared)', () => {
     registerStringHelperCoreTests();
+    registerCollectedTests();
 });

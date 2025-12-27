@@ -6,7 +6,7 @@ namespace GasDI {
     type Lifetime = GasDI.Ports.Lifetime
     type Token<T = any> = GasDI.Ports.Token<T>
 
-    type Reg<T = any> =
+    type Register<T = any> =
         | { kind: 'value'; token: Token<T>; value: T }
         | { kind: 'factory'; token: Token<T>; lifetime: Lifetime; make: () => T }
 
@@ -18,7 +18,7 @@ namespace GasDI {
 
         static readonly DEFAULT_SCOPE = 'default';
 
-        private regs = new Map<string, Reg<any>>();
+        private registers = new Map<string, Register<any>>();
         private singletons = new Map<string, any>();
         private scopedByName = new Map<string, Map<string, any>>(); // scopeName -> (token -> instance)
         private parent?: Container;
@@ -33,12 +33,12 @@ namespace GasDI {
         }
 
         registerValue<T>(token: Token<T>, value: T): this {
-            this.regs.set(token, { kind: 'value', token, value });
+            this.registers.set(token, { kind: 'value', token, value });
             return this;
         }
 
         registerFactory<T>(token: Token<T>, make: () => T, lifetime: Lifetime = 'transient'): this {
-            this.regs.set(token, { kind: 'factory', token, lifetime, make });
+            this.registers.set(token, { kind: 'factory', token, lifetime, make });
             return this;
         }
 
@@ -55,7 +55,7 @@ namespace GasDI {
         }
 
         private tryResolve<T>(token: Token<T>, scopeName: string): T | undefined {
-            const reg = this.regs.get(token);
+            const reg = this.registers.get(token);
             if (reg) return this.instantiate(reg, scopeName);
 
             if (this.parent) {
@@ -65,7 +65,7 @@ namespace GasDI {
             return undefined;
         }
 
-        private instantiate<T>(reg: Reg<T>, scopeName: string): T {
+        private instantiate<T>(reg: Register<T>, scopeName: string): T {
             if (reg.kind === 'value') return reg.value;
 
             if (reg.lifetime === 'singleton') {
@@ -90,7 +90,7 @@ namespace GasDI {
          * Disposes the scoped container and cleans up scoped instances
          * Should be called after GasDI.Context.run to prevent resource leaks
          * Only cleans up resources for scoped containers (those with a scope name)
-         * 
+         *
          * Note: Scoped containers typically don't have their own registrations,
          * they inherit from parent. This method focuses on cleaning up instances.
          */

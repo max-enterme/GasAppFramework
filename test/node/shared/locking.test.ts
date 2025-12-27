@@ -3,7 +3,7 @@
  */
 
 import { setupGASMocks } from '../../../src/testing/node/test-utils';
-import { setupTestAdapter } from '../../../src/testing/node/test-adapter';
+import { setupTestAdapter, registerCollectedTests } from '../../../src/testing/node/test-adapter';
 import { registerLockingCoreTests } from '../../shared/locking/core.test';
 import * as LockingModule from '../integration/locking-module';
 
@@ -20,4 +20,5 @@ beforeAll(() => {
 
 describe('Locking Core Tests (Shared)', () => {
     registerLockingCoreTests();
+    registerCollectedTests();
 });

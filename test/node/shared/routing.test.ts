@@ -5,7 +5,7 @@
 import { setupGASMocks } from '../../../src/testing/node/test-utils';
 import { createRouter } from '../integration/routing-module';
 import { registerRoutingCoreTests } from '../../shared/routing/core.test';
-import { setupTestAdapter } from '../../../src/testing/node/test-adapter';
+import { setupTestAdapter, registerCollectedTests } from '../../../src/testing/node/test-adapter';
 
 // テストアダプターをセットアップ
 setupTestAdapter();
@@ -20,4 +20,5 @@ beforeAll(() => {
 
 describe('Routing Core Tests (Shared)', () => {
     registerRoutingCoreTests();
+    registerCollectedTests();
 });

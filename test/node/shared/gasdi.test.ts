@@ -3,7 +3,7 @@
  */
 
 import { setupGASMocks } from '../../../src/testing/node/test-utils';
-import { setupTestAdapter } from '../../../src/testing/node/test-adapter';
+import { setupTestAdapter, registerCollectedTests } from '../../../src/testing/node/test-adapter';
 import { registerGasDICoreTests } from '../../shared/gasdi/core.test';
 import { Container } from '../integration/gasdi-module';
 
@@ -22,4 +22,5 @@ beforeAll(() => {
 
 describe('GasDI Core Tests (Shared)', () => {
     registerGasDICoreTests();
+    registerCollectedTests();
 });

@@ -3,7 +3,7 @@
  */
 
 import { setupGASMocks } from '../../../src/testing/node/test-utils';
-import { setupTestAdapter } from '../../../src/testing/node/test-adapter';
+import { setupTestAdapter, registerCollectedTests } from '../../../src/testing/node/test-adapter';
 import { registerRepositoryCoreTests } from '../../shared/repository/core.test';
 import { createRepository, MemoryStore, createSimpleCodec } from '../integration/repository-module';
 
@@ -29,4 +29,5 @@ beforeAll(() => {
 
 describe('Repository Core Tests (Shared)', () => {
     registerRepositoryCoreTests();
+    registerCollectedTests();
 });

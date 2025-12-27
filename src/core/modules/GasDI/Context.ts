@@ -1,9 +1,9 @@
 namespace GasDI {
     export class Context {
-        private static _current: Container = GasDI.Container.Root;
+        private static _current: Container;
 
         static run<T>(container: Container, fn: () => T): T {
-            const prev = Context._current;
+            const prev = this.current;
             Context._current = container;
             try {
                 return fn();
@@ -13,7 +13,7 @@ namespace GasDI {
         }
 
         static get current(): Container {
-            return Context._current;
+            return Context._current ?? GasDI.Container.Root;
         }
     }
 }
