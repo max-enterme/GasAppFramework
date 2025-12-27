@@ -1,6 +1,6 @@
 # GAS App Framework
 
-A comprehensive TypeScript framework for Google Apps Script (GAS) applications, providing modular architecture, dependency injection, event systems, and robust testing infrastructure.
+A comprehensive TypeScript framework for Google Apps Script (GAS) applications, providing modular architecture, dependency injection, REST API framework, and robust testing infrastructure.
 
 ## 🏗️ Architecture Overview
 
