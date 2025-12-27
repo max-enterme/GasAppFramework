@@ -34,16 +34,24 @@ GasAppFramework/
 │       └── node/                # Node.js-specific test support (local only)
 │           ├── test-utils.ts       # Jest test utilities
 │           └── index.ts            # Node.js test exports
-├── test/                        # GasAppFramework's own GAS tests
+├── test/                        # GasAppFramework's own tests
 │   ├── @entrypoint.ts              # Main test runner (call test_RunAll() in GAS)
-│   └── Modules/                    # Module-specific GAS integration tests
+│   ├── shared/                     # Shared tests (run in both GAS and Node.js)
+│   │   ├── gasdi/                  # GasDI shared tests
+│   │   ├── locking/                # Locking shared tests
+│   │   ├── repository/             # Repository shared tests
+│   │   ├── routing/                # Routing shared tests
+│   │   └── stringhelper/           # StringHelper shared tests
+│   ├── node/                       # Node.js test suite (local only)
+│   │   ├── shared/                 # Jest wrappers for shared tests
+│   │   └── integration/            # Integration tests
+│   └── Modules/                    # Legacy GAS tests (being migrated)
 │       ├── GAS/                    # Advanced GAS runtime feature tests
 │       ├── GasDI/                  # Dependency injection in GAS environment
 │       ├── Locking/                # LockService and PropertiesService tests
 │       ├── Repository/             # SpreadsheetApp integration tests
 │       ├── Routing/                # URL routing tests
 │       └── StringHelper/           # String utility tests
-└── test_node/                   # GasAppFramework's own Node.js tests (local only)
 ```
 
 **Legend:**
@@ -238,7 +246,7 @@ When deploying to GAS, the `.claspignore` file ensures only necessary modules ar
 
 **NOT pushed to GAS (local only):**
 - `src/testing/node/` - Node.js-specific test utilities
-- `test_node/` - Node.js test files
+- `test/node/` - Node.js test files
 - `node_modules/` - Dependencies
 - `*.test.ts`, `*.spec.ts` - Test files
 
