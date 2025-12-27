@@ -1,6 +1,6 @@
 # GAS App Framework
 
-A comprehensive TypeScript framework for Google Apps Script (GAS) applications, providing modular architecture, dependency injection, event systems, and robust testing infrastructure.
+A comprehensive TypeScript framework for Google Apps Script (GAS) applications, providing modular architecture, dependency injection, REST API framework, and robust testing infrastructure.
 
 ## 🏗️ Architecture Overview
 
@@ -34,16 +34,24 @@ GasAppFramework/
 │       └── node/                # Node.js-specific test support (local only)
 │           ├── test-utils.ts       # Jest test utilities
 │           └── index.ts            # Node.js test exports
-├── test/                        # GasAppFramework's own GAS tests
+├── test/                        # GasAppFramework's own tests
 │   ├── @entrypoint.ts              # Main test runner (call test_RunAll() in GAS)
-│   └── Modules/                    # Module-specific GAS integration tests
+│   ├── shared/                     # Shared tests (run in both GAS and Node.js)
+│   │   ├── gasdi/                  # GasDI shared tests
+│   │   ├── locking/                # Locking shared tests
+│   │   ├── repository/             # Repository shared tests
+│   │   ├── routing/                # Routing shared tests
+│   │   └── stringhelper/           # StringHelper shared tests
+│   ├── node/                       # Node.js test suite (local only)
+│   │   ├── shared/                 # Jest wrappers for shared tests
+│   │   └── integration/            # Integration tests
+│   └── Modules/                    # Legacy GAS tests (being migrated)
 │       ├── GAS/                    # Advanced GAS runtime feature tests
 │       ├── GasDI/                  # Dependency injection in GAS environment
 │       ├── Locking/                # LockService and PropertiesService tests
 │       ├── Repository/             # SpreadsheetApp integration tests
 │       ├── Routing/                # URL routing tests
 │       └── StringHelper/           # String utility tests
-└── test_node/                   # GasAppFramework's own Node.js tests (local only)
 ```
 
 **Legend:**
@@ -117,8 +125,8 @@ npm run test:node -- --coverage
 ```
 
 **Current Coverage:**
-- **154 tests passing** in Node.js environment
-- **24 shared tests** for core business logic (StringHelper, Routing)
+- **184 tests passing** in Node.js environment
+- **54 shared tests** for core business logic (StringHelper, Routing, Repository, Locking, GasDI)
 - **130 integration tests** for complex scenarios
 - Zero regression from previous structure
 
@@ -127,10 +135,11 @@ npm run test:node -- --coverage
 The framework includes comprehensive integration tests for GAS-specific functionality:
 
 **Test Coverage:**
-- **EventSystem**: GAS triggers, cron jobs, ScriptApp integration, timezone handling
 - **Repository**: SpreadsheetApp integration, data persistence, range operations
 - **Locking**: LockService integration, PropertiesService distributed locking
 - **GasDI**: Dependency injection with GAS services, container scoping
+- **Routing**: URL routing and request handling
+- **StringHelper**: String templating and formatting utilities
 - **Advanced GAS**: Trigger management, script properties, execution limits
 - **Shared Tests**: Core business logic tests executed in GAS environment
 
@@ -160,8 +169,9 @@ The framework includes comprehensive integration tests for GAS-specific function
    ```
 
 **For detailed testing instructions and patterns, see:**
-- [test/README.md](./test/README.md) - Comprehensive test organization guide
+- [test/README.md](../test/README.md) - Comprehensive test organization guide
 - [GAS_TESTING_GUIDE.md](./GAS_TESTING_GUIDE.md) - GAS-specific testing patterns
+- [src/testing/README.md](../src/testing/README.md) - Shared test infrastructure guide
 
 ## 📚 Using as a Library
 
@@ -236,7 +246,7 @@ When deploying to GAS, the `.claspignore` file ensures only necessary modules ar
 
 **NOT pushed to GAS (local only):**
 - `src/testing/node/` - Node.js-specific test utilities
-- `test_node/` - Node.js test files
+- `test/node/` - Node.js test files
 - `node_modules/` - Dependencies
 - `*.test.ts`, `*.spec.ts` - Test files
 
@@ -247,11 +257,10 @@ When deploying to GAS, the `.claspignore` file ensures only necessary modules ar
 Each module can be used independently:
 
 1. **Repository Module** - Data persistence with Google Sheets
-2. **EventSystem Module** - Cron jobs and workflow automation  
-3. **GasDI Module** - Dependency injection
-4. **Routing Module** - Web app request routing
-5. **Locking Module** - Distributed locks
-6. **StringHelper Module** - Template string processing
+2. **GasDI Module** - Dependency injection
+3. **Routing Module** - Web app request routing
+4. **Locking Module** - Distributed locks
+5. **StringHelper Module** - Template string processing
 
 ### Deployment Methods
 
@@ -299,12 +308,11 @@ Optimized for both GAS deployment and Node.js development:
 
 The framework includes the following modules, each with comprehensive documentation:
 
-- **[Repository](src/Modules/Repository/README.md)** - Type-safe data persistence with Google Sheets
-- **[EventSystem](src/Modules/EventSystem/README.md)** - Cron jobs, triggers, and workflow automation  
-- **[GasDI](src/Modules/GasDI/README.md)** - Dependency injection container
-- **[Routing](src/Modules/Routing/README.md)** - Web app request routing
-- **[Locking](src/Modules/Locking/README.md)** - Distributed locks and concurrency control
-- **[StringHelper](src/Modules/StringHelper/README.md)** - String templating and formatting utilities
+- **[GasDI](../src/core/modules/GasDI/README.md)** - Dependency injection container
+- **[Locking](../src/core/modules/Locking/README.md)** - Distributed locks and concurrency control
+- **[Repository](../src/core/modules/Repository/README.md)** - Type-safe data persistence with Google Sheets
+- **[Routing](../src/core/modules/Routing/README.md)** - Web app request routing
+- **[StringHelper](../src/core/modules/StringHelper/README.md)** - String templating and formatting utilities
 
 Each module directory contains detailed README files with API documentation, usage examples, and testing strategies.
 
@@ -361,19 +369,20 @@ const codec = Repository.Codec.simple('|')
 
 ## 📄 License
 
-[Add license information here]
+To be determined
 
 ## 🆘 Support
 
 For issues, questions, or contributions:
 1. Check existing documentation and tests
-2. **Review module-specific README files** in `src/Modules/` directories
+2. **Review module-specific README files** in `src/core/modules/` directories
 3. Examine test cases for usage examples
 4. Open issues for bugs or feature requests
 
 ---
 
 **Framework Version:** 1.0.0  
+**Last Updated:** 2025-12-27  
 **GAS Runtime:** V8 (ES2020)  
 **TypeScript:** 5.x  
 **Node.js:** 16+
