@@ -392,3 +392,7 @@ T.it('Debug complex workflow step by step', () => {
 - [clasp Command Line Tool](https://github.com/google/clasp)
 - [GAS Runtime Limits](https://developers.google.com/apps-script/guides/services/quotas)
 - [Framework Repository Tests](./test/) - Examples of all test patterns
+
+---
+
+**Last Updated:** 2025-12-27

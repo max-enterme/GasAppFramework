@@ -482,3 +482,7 @@ describe('MyTest', () => {
 - Check the [GasDI tests](../test/Modules/GasDI/) for usage examples
 - Review [RestFramework tests](../test/node/integration/) for DI patterns
 - See individual module READMEs for module-specific DI patterns
+
+---
+
+**Last Updated:** 2025-12-27
