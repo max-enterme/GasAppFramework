@@ -1,32 +1,25 @@
 {
-    "compilerOptions": {
-        "target": "ES2020",
-        "module": "commonjs",
-        "lib": [
-            "es2020",
-            "dom"
-        ],
-        "strict": true,
-        "noImplicitReturns": true,
-        "noFallthroughCasesInSwitch": true,
-        "esModuleInterop": true,
-        "experimentalDecorators": true,
-        "skipLibCheck": true,
-        "forceConsistentCasingInFileNames": true,
-        "outDir": "dist",
-        "declaration": true,
-        "sourceMap": true,
-        "types": ["google-apps-script", "jest"]
-    },
-    "include": [
-        "src/**/*.ts",
-        "test/**/*.ts",
-        "test_node/**/*.ts",
-        "types/**/*.d.ts"
-    ],
-    "exclude": [
-        "node_modules",
-        "dist",
-        "build"
-    ]
+  "compilerOptions": {
+    "target": "ES2019",
+    "module": "ES2020",
+    "lib": ["ES2019"],
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "strict": false,
+    "noImplicitAny": false,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "outDir": "./build",
+    "rootDir": "./modules",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./modules/*"]
+    }
+  },
+  "include": ["modules/**/*"],
+  "exclude": ["node_modules", "build", "src"]
 }
