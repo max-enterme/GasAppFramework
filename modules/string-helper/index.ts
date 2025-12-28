@@ -1,0 +1,178 @@
+/**
+ * StringHelper - String templating and formatting utilities
+ */
+
+/**
+ * Format string with indexed placeholders {0}, {1}, etc.
+ * @param formatText Template string with {n} placeholders
+ * @param args Values to substitute into placeholders
+ * @returns Formatted string
+ */
+export function formatString(formatText: string, ...args: Array<string | number>): string {
+    // Performance optimization: use single replace with callback instead of multiple RegExp instances
+    return String(formatText).replace(/\{(\d+)\}/g, (match, index) => {
+        const i = parseInt(index, 10);
+        return i < args.length ? String(args[i]) : match;
+    });
+}
+
+export function formatDate(date: Date, format: string, tz?: string | null): string {
+    // Use Utilities + Session in GAS environment. Fallback to lightweight formatter in other environments.
+    try {
+        if (
+            typeof Utilities !== 'undefined' &&
+            typeof Session !== 'undefined' &&
+            Session.getScriptTimeZone
+        ) {
+            const zone = typeof tz === 'string' && tz.trim() ? tz : Session.getScriptTimeZone();
+            return Utilities.formatDate(date, zone, format);
+        }
+    } catch {}
+    // Fallback: limited tokens yyyy MM dd HH mm ss
+    const pad = (n: number, w = 2) => String(n).padStart(w, '0');
+    const y = date.getUTCFullYear();
+    const M = pad(date.getUTCMonth() + 1);
+    const d = pad(date.getUTCDate());
+    const H = pad(date.getUTCHours());
+    const m = pad(date.getUTCMinutes());
+    const s = pad(date.getUTCSeconds());
+    return format
+        .replace(/yyyy/g, String(y))
+        .replace(/MM/g, M)
+        .replace(/dd/g, d)
+        .replace(/HH/g, H)
+        .replace(/mm/g, m)
+        .replace(/ss/g, s);
+}
+
+export function resolveString(str: string, context: any): string {
+    const placeholderPattern = /{{(.*?)}}/g;
+    return String(str).replace(placeholderPattern, (_match, p1) => {
+        const expr = String(p1).trim();
+        if (!expr || expr === '') return ''; // Return empty string for empty expressions
+        const v = resolveExpression(expr, context);
+        return v == null ? '' : String(v);
+    });
+}
+
+export function get(obj: any, path: string, defaultValue?: any): any {
+    if (!path || path === '') return obj; // Return the object itself for empty path
+    const v = resolveExpression(path, obj);
+    return v == null ? defaultValue : v;
+}
+
+function resolveExpression(expr: string, root: any): any {
+    if (!expr || expr.trim() === '') return ''; // Return empty string for empty expressions
+    // Supports: a.b, a[0], func(x, 'y'), and wildcard-free simple expressions chained by dots
+    const tokens = splitTopLevel(expr, '.');
+    let current = root;
+
+    for (const token of tokens) {
+        if (current == null) break;
+
+        if (token.endsWith(')')) {
+            // Function call: extract function name and arguments
+            const parenIndex = token.indexOf('(');
+            const fnName = token.slice(0, parenIndex);
+            const argStr = token.slice(parenIndex + 1, -1);
+            const fn = resolveSimple(current, fnName);
+
+            if (typeof fn !== 'function') return null;
+
+            const args = parseArgs(argStr, root, current);
+            current = fn.apply(current, args);
+        } else {
+            // Simple property or array access
+            current = resolveSimple(current, token);
+        }
+    }
+
+    return current;
+}
+
+function resolveSimple(base: any, token: string): any {
+    // token examples: user, user[0], name
+    const m = token.match(/^(.*?)\[(\d+)\]$/);
+    if (m) {
+        const head = m[1];
+        const idx = Number(m[2]);
+        const obj = head ? (base ? base[head] : undefined) : base;
+        return obj ? obj[idx] : undefined;
+    }
+    return base ? base[token] : undefined;
+}
+
+function splitTopLevel(input: string, sep: string): string[] {
+    const out: string[] = [];
+    let currentToken = '';
+    let parenDepth = 0;
+    let inSingleQuote = false;
+    let inDoubleQuote = false;
+
+    for (let i = 0; i < input.length; i++) {
+        const char = input[i];
+
+        // Handle escape sequences
+        if (char === '\\' && i + 1 < input.length) {
+            currentToken += char + input[++i];
+            continue;
+        }
+
+        // Track quote state
+        if (char === "'" && !inDoubleQuote) {
+            inSingleQuote = !inSingleQuote;
+            currentToken += char;
+            continue;
+        }
+        if (char === '"' && !inSingleQuote) {
+            inDoubleQuote = !inDoubleQuote;
+            currentToken += char;
+            continue;
+        }
+
+        // Track parenthesis depth and handle separator when not in quotes
+        if (!inSingleQuote && !inDoubleQuote) {
+            if (char === '(') parenDepth++;
+            else if (char === ')') parenDepth--;
+
+            if (parenDepth === 0 && char === sep) {
+                out.push(currentToken);
+                currentToken = '';
+                continue;
+            }
+        }
+
+        currentToken += char;
+    }
+
+    if (currentToken.length) out.push(currentToken);
+    return out
+        .map((s) => s.trim())
+        .filter((s) => s.length > 0);
+}
+
+function parseArgs(argsStr: string, root: any, thisObj: any): any[] {
+    const parts = splitTopLevel(argsStr, ',');
+    return parts.map((p) => parseArg(p, root, thisObj));
+}
+
+function parseArg(src: string, root: any, thisObj: any): any {
+    const s = src.trim();
+    if (!s) return undefined;
+    if ((s.startsWith('"') && s.endsWith('"')) || (s.startsWith("'") && s.endsWith("'"))) {
+        try {
+            return JSON.parse(s.replace(/'/g, '"'));
+        } catch {
+            return s.slice(1, -1);
+        }
+    }
+    if (/^\d+(\.\d+)?$/.test(s)) return Number(s);
+    if (s === 'true') return true;
+    if (s === 'false') return false;
+    if (s === 'null') return null;
+    if (s === 'undefined') return undefined;
+    // path lookup: prefer thisObj then root
+    const fromThis = resolveExpression(s, thisObj);
+    if (fromThis != null) return fromThis;
+    return resolveExpression(s, root);
+}

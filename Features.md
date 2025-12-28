@@ -4,62 +4,82 @@
 
 ### ✅ 完了済み (Phase 1)
 - **modules/di/** - DI Container機能（ES Modules化済み）
-  - Container.ts, Context.ts, Decorators.ts, Types.ts
-  - webpack build成功（13.7 KiB）
+  - Container.ts, Context.ts, Decorators.ts, Types.ts, GenericFactory.ts
+  - webpack build成功（51.6 KiB）
   - 統合テスト: 11/11 PASS
 - **modules/shared/** - 共通ユーティリティ（ES Modules化済み）
-  - Time.ts, Errors.ts
+  - Time.ts, Errors.ts, CommonTypes.ts
 - **webpack設定** - ビルド環境構築完了
+
+### ✅ 完了済み (Phase 2)
+- **modules/locking/** - Locking Module（ES Modules化済み）
+  - Engine.ts, Adapters.ts, Types.ts
+  - webpack build成功
+- **modules/repository/** - Repository Module（ES Modules化済み）
+  - Engine.ts, MemoryAdapter.ts, SpreadsheetAdapter.ts, Codec.ts, SchemaFactory.ts, Errors.ts, Types.ts
+  - webpack build成功
+- **modules/routing/** - Routing Module（ES Modules化済み）
+  - Engine.ts, Types.ts
+  - webpack build成功
+- **modules/string-helper/** - StringHelper Module（ES Modules化済み）
+  - index.ts
+  - webpack build成功
 
 ### 🔄 移行対象モジュール
 
 #### Phase 2: Core Modules（高優先度）
 
 **2-A. Locking Module** (src/core/modules/Locking/)
-- [ ] Engine.ts - ロックエンジン実装
-- [ ] Adapters.GAS.ts - GAS PropertiesStore, Clock, Logger実装
-- [ ] Core.Types.d.ts - 型定義
+- [x] Engine.ts - ロックエンジン実装
+- [x] Adapters.GAS.ts - GAS PropertiesStore, Clock, Logger実装
+- [x] Core.Types.d.ts - 型定義
 - **移行先**: modules/locking/
 - **依存関係**: Shared.Types.Clock, Shared.Types.Logger
 - **推定行数**: ~150行
+- **✅ 完了**: webpack build成功 (51.6 KiB)
 
 **2-B. Repository Module** (src/core/modules/Repository/)
-- [ ] Engine.ts - Repository Engine実装
-- [ ] Adapters.GAS.Spreadsheet.ts - Spreadsheet adapter
-- [ ] Adapters.Memory.ts - Memory adapter
-- [ ] Codec.Simple.ts - Simple codec
-- [ ] SchemaFactory.ts - Schema factory
-- [ ] Errors.ts - Repository errors
-- [ ] Core.Types.d.ts - 型定義
+- [x] Engine.ts - Repository Engine実装
+- [x] Adapters.GAS.Spreadsheet.ts - Spreadsheet adapter
+- [x] Adapters.Memory.ts - Memory adapter
+- [x] Codec.Simple.ts - Simple codec
+- [x] SchemaFactory.ts - Schema factory
+- [x] Errors.ts - Repository errors
+- [x] Core.Types.d.ts - 型定義
 - **移行先**: modules/repository/
 - **依存関係**: Shared.DomainError
 - **推定行数**: ~500行
+- **✅ 完了**: webpack build成功
 
 **2-C. Routing Module** (src/core/modules/Routing/)
-- [ ] Engine.ts - Routing engine実装
-- [ ] Core.Types.d.ts - 型定義
+- [x] Engine.ts - Routing engine実装
+- [x] Core.Types.d.ts - 型定義
 - **移行先**: modules/routing/
 - **依存関係**: なし
 - **推定行数**: ~100行
+- **✅ 完了**: webpack build成功
 
 **2-D. StringHelper Module** (src/core/modules/StringHelper/)
-- [ ] StringHelper.ts - 文字列ユーティリティ
+- [x] StringHelper.ts - 文字列ユーティリティ
 - **移行先**: modules/string-helper/
 - **依存関係**: なし
 - **推定行数**: ~50行
+- **✅ 完了**: webpack build成功
 
 **2-E. GasDI Module** (src/core/modules/GasDI/)
-- [ ] GenericFactory.ts - Generic factory (namespace版削除、modules/di/に統合)
+- [x] GenericFactory.ts - Generic factory (namespace版削除、modules/di/に統合)
 - **移行先**: modules/di/（既存に追加）
 - **依存関係**: modules/di/
 - **推定行数**: ~50行
+- **✅ 完了**: webpack build成功
 
 **2-F. Shared Module** (src/core/shared/)
 - [x] Time.ts - ✅ 完了（modules/shared/）
 - [x] Errors.ts - ✅ 完了（modules/shared/）
-- [ ] CommonTypes.d.ts - 共通型定義の移行確認
-- [ ] ErrorTypes.d.ts - エラー型定義の移行確認
+- [x] CommonTypes.d.ts - 共通型定義の移行確認
+- [x] ErrorTypes.d.ts - エラー型定義の移行確認
 - **移行先**: modules/shared/（既存に追加）
+- **✅ 完了**: CommonTypes.ts作成、webpack build成功
 
 #### Phase 3: RestFramework（中優先度）
 

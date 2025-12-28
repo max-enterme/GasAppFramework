@@ -1,0 +1,1 @@
+{"version":3,"file":"GenericFactory.d.ts","sourceRoot":"","sources":["../../modules/di/GenericFactory.ts"],"names":[],"mappings":"AAAA;;GAEG;AAEH,OAAO,KAAK,EAAE,OAAO,EAAE,MAAM,SAAS,CAAC;AAEvC;;GAEG;AACH,qBAAa,cAAc,CAAC,CAAC,CAAE,YAAW,OAAO,CAAC,CAAC,CAAC;IAChD,OAAO,CAAC,QAAQ,CAAC,IAAI,CAAc;gBAEvB,IAAI,EAAE,UAAU,CAAC;IAI7B,WAAW,IAAI,CAAC;CAGnB"}

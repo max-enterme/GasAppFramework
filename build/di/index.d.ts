@@ -6,4 +6,5 @@ export * from './Types';
 export { Container } from './Container';
 export { Context } from './Context';
 export { Inject, Resolve } from './Decorators';
+export { GenericFactory } from './GenericFactory';
 //# sourceMappingURL=index.d.ts.map

@@ -3,4 +3,5 @@
  */
 export * from './Time';
 export * from './Errors';
+export * from './CommonTypes';
 //# sourceMappingURL=index.d.ts.map
