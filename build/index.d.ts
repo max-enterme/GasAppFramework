@@ -11,4 +11,5 @@ export * as Locking from './locking';
 export * as Repository from './repository';
 export * as Routing from './routing';
 export * as StringHelper from './string-helper';
+export * as RestFramework from './rest-framework';
 //# sourceMappingURL=index.d.ts.map

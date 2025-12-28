@@ -23,3 +23,6 @@ export * as Routing from './routing';
 
 // String Helper Module
 export * as StringHelper from './string-helper';
+
+// RestFramework Module
+export * as RestFramework from './rest-framework';

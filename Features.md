@@ -25,6 +25,12 @@
   - index.ts
   - webpack build成功
 
+### ✅ 完了済み (Phase 3)
+- **modules/rest-framework/** - RestFramework Module（ES Modules化済み）
+  - Types.ts, Logger.ts, ErrorHandler.ts, ApiResponseFormatter.ts
+  - RouteExecutor.ts, ApiController.ts, NormalizedRequest.ts
+  - webpack build成功 (72 KiB)
+
 ### 🔄 移行対象モジュール
 
 #### Phase 2: Core Modules（高優先度）
@@ -84,39 +90,42 @@
 #### Phase 3: RestFramework（中優先度）
 
 **3-A. RestFramework Core** (src/core/restframework/)
-- [ ] executor/RouteExecutor.ts - Route executor
-- [ ] controllers/ApiController.ts - API controller base
-- [ ] Core.Types.d.ts - 型定義
-- **移行先**: modules/rest-framework/core/
+- [x] executor/RouteExecutor.ts - Route executor
+- [x] controllers/ApiController.ts - API controller base
+- [x] Core.Types.d.ts - 型定義
+- **移行先**: modules/rest-framework/
 - **推定行数**: ~200行
+- **✅ 完了**: webpack build成功 (72 KiB)
 
 **3-B. RestFramework Payloads**
-- [ ] payloads/NormalizedRequest.ts
-- [ ] payloads/NormalizedRequestMapper.ts
-- [ ] payloads/SchemaRequestMapper.ts
-- **移行先**: modules/rest-framework/payloads/
+- [x] payloads/NormalizedRequest.ts
+- **移行先**: modules/rest-framework/
 - **推定行数**: ~150行
+- **✅ 完了**: NormalizedRequest.tsに統合
 
 **3-C. RestFramework Utilities**
-- [ ] errors/ErrorHandler.ts
-- [ ] logging/Logger.ts
-- [ ] formatters/ApiResponseFormatter.ts
-- **移行先**: modules/rest-framework/utilities/
+- [x] errors/ErrorHandler.ts
+- [x] logging/Logger.ts
+- [x] formatters/ApiResponseFormatter.ts
+- **移行先**: modules/rest-framework/
 - **推定行数**: ~150行
+- **✅ 完了**: webpack build成功
 
 **3-D. RestFramework Interfaces**
-- [ ] interfaces/ApiLogic.ts
-- [ ] interfaces/RequestMapper.ts
-- [ ] interfaces/ResponseMapper.ts
-- **移行先**: modules/rest-framework/interfaces/
+- [x] interfaces/ApiLogic.ts
+- [x] interfaces/RequestMapper.ts
+- [x] interfaces/ResponseMapper.ts
+- **移行先**: modules/rest-framework/
 - **推定行数**: ~100行
+- **✅ 完了**: Types.tsに統合
 
 **3-E. RestFramework Optional**
-- [ ] optional-utilities/AuthService.ts
-- [ ] optional-utilities/MiddlewareManager.ts
-- [ ] optional-utilities/RequestValidator.ts
-- **移行先**: modules/rest-framework/optional/
+- [x] optional-utilities/AuthService.ts (型のみ)
+- [x] optional-utilities/MiddlewareManager.ts (型のみ)
+- [x] optional-utilities/RequestValidator.ts (型のみ)
+- **移行先**: modules/rest-framework/
 - **推定行数**: ~150行
+- **✅ 完了**: Types.tsに統合（インターフェースのみ）
 
 #### Phase 4: Testing Framework（低優先度）
 
@@ -450,10 +459,10 @@ mkdir -p modules/<module-name>
 ## 成功基準
 
 ### Phase 2完了時
-- [ ] 全Core Modulesが`gas-app-framework`からimport可能
-- [ ] webpack build成功（bundle.js生成）
-- [ ] 統合テスト全PASS（50+テストケース）
-- [ ] src/core/modules/配下のnamespaceファイル削除可能
+- [x] 全Core Modulesが`gas-app-framework`からimport可能
+- [x] webpack build成功（bundle.js生成 - 51.6 KiB）
+- [ ] 統合テスト全PASS（50+テストケース） - テスト環境構築必要
+- [x] src/core/modules/配下のnamespaceファイル削除可能 - ES Modules版が完成
 
 ### Phase 3完了時
 - [ ] RestFrameworkが完全ES Modules化

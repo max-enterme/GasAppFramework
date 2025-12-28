@@ -73,6 +73,7 @@ __webpack_require__.d(__webpack_exports__, {
   Locking: () => (/* reexport */ locking_namespaceObject),
   Repository: () => (/* reexport */ repository_namespaceObject),
   Resolve: () => (/* reexport */ Resolve),
+  RestFramework: () => (/* reexport */ rest_framework_namespaceObject),
   Routing: () => (/* reexport */ routing_namespaceObject),
   Shared: () => (/* reexport */ shared_namespaceObject),
   StringHelper: () => (/* reexport */ string_helper_namespaceObject),
@@ -196,6 +197,26 @@ __webpack_require__.d(string_helper_namespaceObject, {
   formatString: () => (formatString),
   get: () => (get),
   resolveString: () => (resolveString)
+});
+
+// NAMESPACE OBJECT: ./modules/rest-framework/Types.ts
+var rest_framework_Types_namespaceObject = {};
+__webpack_require__.r(rest_framework_Types_namespaceObject);
+
+// NAMESPACE OBJECT: ./modules/rest-framework/index.ts
+var rest_framework_namespaceObject = {};
+__webpack_require__.r(rest_framework_namespaceObject);
+__webpack_require__.d(rest_framework_namespaceObject, {
+  ApiController: () => (ApiController),
+  ApiResponseFormatter: () => (ApiResponseFormatter),
+  ErrorHandler: () => (ErrorHandler),
+  Logger: () => (Logger_Logger),
+  Types: () => (rest_framework_Types_namespaceObject),
+  coerceParamValue: () => (coerceParamValue),
+  executeRoute: () => (executeRoute),
+  normalizeDoGet: () => (normalizeDoGet),
+  normalizeDoPost: () => (normalizeDoPost),
+  tryCoerceNumber: () => (tryCoerceNumber)
 });
 
 ;// ./modules/di/Types.ts
@@ -1569,6 +1590,527 @@ __webpack_require__.g.formatString = __webpack_exports__.formatString;
 __webpack_require__.g.formatDate = __webpack_exports__.formatDate;
 __webpack_require__.g.resolveString = __webpack_exports__.resolveString;
 __webpack_require__.g.get = __webpack_exports__.get;
+;// ./modules/rest-framework/Types.ts
+/**
+ * RestFramework Module - Type Definitions
+ */
+
+
+;// ./modules/rest-framework/Logger.ts
+/**
+ * RestFramework - Logger Implementation
+ */
+/**
+ * Basic logger implementation for API RestFramework
+ * Adapts to existing shared Logger interface
+ */
+class Logger_Logger {
+    constructor(prefix = '[API]') {
+        this.prefix = prefix;
+    }
+    info(msg) {
+        console.log(`${this.prefix} ${new Date().toISOString()} INFO: ${msg}`);
+    }
+    error(msg, err) {
+        const errorMsg = err ? ` | Error: ${err}` : '';
+        console.error(`${this.prefix} ${new Date().toISOString()} ERROR: ${msg}${errorMsg}`);
+    }
+    /**
+     * Creates a logger with custom prefix
+     */
+    static create(prefix = '[API]') {
+        return new Logger_Logger(prefix);
+    }
+}
+
+;// ./modules/rest-framework/ApiResponseFormatter.ts
+/**
+ * RestFramework - API Response Formatter
+ */
+/**
+ * Standard API response formatter
+ * Provides consistent response structure across all API endpoints
+ */
+class ApiResponseFormatter {
+    /**
+     * Creates a successful response
+     */
+    static success(data) {
+        return {
+            success: true,
+            data,
+            timestamp: new Date().toISOString(),
+        };
+    }
+    /**
+     * Creates an error response
+     */
+    static error(code, message, details) {
+        return {
+            success: false,
+            error: {
+                code,
+                message,
+                details,
+            },
+            timestamp: new Date().toISOString(),
+        };
+    }
+    /**
+     * Creates a response from raw data, handling errors automatically
+     */
+    static from(dataOrError, errorCode = 'InternalError') {
+        if (dataOrError instanceof Error) {
+            return this.error(errorCode, dataOrError.message, dataOrError);
+        }
+        return this.success(dataOrError);
+    }
+}
+
+;// ./modules/rest-framework/ErrorHandler.ts
+/**
+ * RestFramework - Error Handler
+ */
+
+
+/**
+ * Centralized error handling for API RestFramework
+ * Provides comprehensive error logging, monitoring, and standardized error responses
+ */
+class ErrorHandler {
+    constructor(logger = new Logger_Logger('[ErrorHandler]')) {
+        this.logger = logger;
+        this.errorCount = new Map();
+    }
+    /**
+     * Handles errors and converts them to API responses
+     * Logs comprehensive error information for monitoring and debugging
+     */
+    handle(error, context) {
+        // Log error with full context
+        this.logError(error, context);
+        // Track error frequency for monitoring
+        this.trackErrorFrequency(error);
+        // Handle known error types
+        if (error instanceof Error) {
+            return this.handleKnownError(error);
+        }
+        // Handle unknown errors
+        return ApiResponseFormatter.error('InternalError', 'An unexpected error occurred', error);
+    }
+    /**
+     * Handles known Error instances
+     */
+    handleKnownError(error) {
+        // Map common error patterns to error codes
+        const errorCode = this.mapErrorToCode(error);
+        return ApiResponseFormatter.error(errorCode, error.message, error);
+    }
+    /**
+     * Maps error types/messages to framework error codes
+     */
+    mapErrorToCode(error) {
+        const message = error.message.toLowerCase();
+        if (message.includes('validation') || message.includes('invalid')) {
+            return 'ValidationError';
+        }
+        if (message.includes('unauthorized') || message.includes('authentication')) {
+            return 'AuthenticationError';
+        }
+        if (message.includes('forbidden') || message.includes('authorization')) {
+            return 'AuthorizationError';
+        }
+        if (message.includes('not found')) {
+            return 'NotFound';
+        }
+        if (message.includes('method not allowed')) {
+            return 'MethodNotAllowed';
+        }
+        if (message.includes('bad request')) {
+            return 'BadRequest';
+        }
+        return 'InternalError';
+    }
+    /**
+     * Logs comprehensive error information for monitoring and debugging
+     */
+    logError(error, context) {
+        const errorCode = error instanceof Error ? this.mapErrorToCode(error) : 'InternalError';
+        const timestamp = (context === null || context === void 0 ? void 0 : context.timestamp) || new Date().toISOString();
+        const errorInfo = {
+            code: errorCode,
+            message: error instanceof Error ? error.message : 'Unknown error',
+            timestamp: timestamp,
+            stack: error instanceof Error ? error.stack : undefined,
+            request: (context === null || context === void 0 ? void 0 : context.request) ? this.sanitizeRequest(context.request) : undefined,
+        };
+        this.logger.error(`Error occurred: ${errorCode}`, errorInfo);
+        // Log to console for GAS execution transcript visibility
+        console.error(`[${timestamp}] ErrorHandler: ${errorCode} - ${errorInfo.message}`);
+        if (error instanceof Error && error.stack) {
+            console.error(`Stack trace: ${error.stack}`);
+        }
+    }
+    /**
+     * Sanitizes request data for logging (removes sensitive information)
+     */
+    sanitizeRequest(request) {
+        if (!request)
+            return undefined;
+        const sanitized = {
+            method: request.method,
+            path: request.path,
+        };
+        // Remove sensitive headers like authorization tokens
+        if (request.headers) {
+            sanitized.headers = { ...request.headers };
+            if (sanitized.headers.authorization) {
+                sanitized.headers.authorization = '[REDACTED]';
+            }
+            if (sanitized.headers.token) {
+                sanitized.headers.token = '[REDACTED]';
+            }
+        }
+        return sanitized;
+    }
+    /**
+     * Tracks error frequency for monitoring high-frequency errors
+     * This helps identify recurring issues that need attention
+     */
+    trackErrorFrequency(error) {
+        const errorKey = error instanceof Error
+            ? `${this.mapErrorToCode(error)}:${error.message}`
+            : 'UnknownError';
+        const currentCount = this.errorCount.get(errorKey) || 0;
+        const newCount = currentCount + 1;
+        this.errorCount.set(errorKey, newCount);
+        // Log warning for high-frequency errors (threshold: 5 occurrences)
+        if (newCount === 5) {
+            this.logger.error(`High-frequency error detected: ${errorKey} (${newCount} occurrences)`, { errorKey, count: newCount });
+            console.warn(`[MONITORING] High-frequency error: ${errorKey} occurred ${newCount} times`);
+        }
+        else if (newCount > 5 && newCount % 10 === 0) {
+            // Log every 10th occurrence after threshold
+            this.logger.error(`Continuing high-frequency error: ${errorKey} (${newCount} occurrences)`, { errorKey, count: newCount });
+        }
+    }
+    /**
+     * Gets error statistics for monitoring
+     * Useful for understanding error patterns in production
+     */
+    getErrorStatistics() {
+        const stats = [];
+        this.errorCount.forEach((count, errorKey) => {
+            stats.push({ errorKey, count });
+        });
+        return stats.sort((a, b) => b.count - a.count); // Sort by frequency descending
+    }
+    /**
+     * Resets error statistics
+     * Useful for clearing counters after a deployment or time period
+     */
+    resetErrorStatistics() {
+        this.errorCount.clear();
+        this.logger.info('Error statistics reset');
+    }
+    /**
+     * Creates an ErrorHandler with optional logger
+     */
+    static create(logger) {
+        return new ErrorHandler(logger);
+    }
+}
+
+;// ./modules/rest-framework/ApiController.ts
+/**
+ * RestFramework - API Controller Base Class
+ */
+
+
+
+/**
+ * Abstract base controller for API endpoints
+ * Provides standardized request/response handling with dependency injection support
+ */
+class ApiController {
+    constructor(_requestMapper, _responseMapper, _apiLogic, _requestValidator, _authService, _middlewareManager, _logger, _errorHandler) {
+        this._requestMapper = _requestMapper;
+        this._responseMapper = _responseMapper;
+        this._apiLogic = _apiLogic;
+        this._requestValidator = _requestValidator;
+        this._authService = _authService;
+        this._middlewareManager = _middlewareManager;
+        this._logger = _logger || Logger_Logger.create('[BaseApiController]');
+        this._errorHandler = _errorHandler || ErrorHandler.create(this._logger);
+    }
+    /**
+     * Main entry point for handling requests
+     * Follows the complete request/response pipeline
+     */
+    handle(rawRequest) {
+        const timestamp = new Date().toISOString();
+        try {
+            this._logger.info(`Handling request: ${JSON.stringify(rawRequest)}`);
+            // Execute middleware if available
+            if (this._middlewareManager) {
+                return this._middlewareManager.execute(rawRequest, () => this.processRequest(rawRequest));
+            }
+            return this.processRequest(rawRequest);
+        }
+        catch (error) {
+            // Pass request context to error handler for better logging
+            return this._errorHandler.handle(error, {
+                request: rawRequest,
+                timestamp: timestamp,
+            });
+        }
+    }
+    /**
+     * Core request processing pipeline
+     */
+    processRequest(rawRequest) {
+        // 1. Map raw request to typed request
+        const typedRequest = this._requestMapper.map(rawRequest);
+        // 2. Validate request if validator is available
+        if (this._requestValidator) {
+            const validation = this._requestValidator.validate(typedRequest);
+            if (!validation.isValid) {
+                return ApiResponseFormatter.error('ValidationError', 'Request validation failed', { errors: validation.errors });
+            }
+        }
+        // 3. Authenticate if auth service is available
+        if (this._authService) {
+            const auth = this._authService.authenticate(rawRequest.token);
+            if (!auth.isAuthenticated) {
+                return ApiResponseFormatter.error('AuthenticationError', 'Authentication required');
+            }
+            // Store user context for business logic if needed
+            typedRequest.__user = auth.user;
+        }
+        // 4. Execute business logic
+        const logicResult = this._apiLogic.execute(typedRequest);
+        // 5. Handle async logic
+        if (logicResult instanceof Promise) {
+            throw new Error('Async logic not supported in GAS environment. Use synchronous execution.');
+        }
+        // 6. Map response
+        const mappedResponse = this._responseMapper.map(logicResult);
+        // 7. Return formatted success response
+        return ApiResponseFormatter.success(mappedResponse);
+    }
+    /**
+     * Template method for handling specific HTTP methods
+     * Override in concrete controllers for method-specific logic
+     */
+    handleMethod(method, _request) {
+        throw new Error(`Method ${method} not supported`);
+    }
+}
+
+;// ./modules/rest-framework/RouteExecutor.ts
+/**
+ * RestFramework - Route Executor
+ */
+
+
+
+/**
+ * Validates a DI token before resolution
+ * @param token The token to validate
+ * @param componentName Descriptive name of the component being resolved
+ * @throws Error if token is invalid
+ */
+function validateToken(token, componentName) {
+    if (!token || typeof token !== 'string' || token.trim().length === 0) {
+        throw new Error(`Invalid DI token for ${componentName}: token must be a non-empty string`);
+    }
+}
+/**
+ * Safely resolves a dependency from the container with validation and error handling
+ * @param container The DI container
+ * @param token The DI token to resolve
+ * @param componentName Descriptive name of the component being resolved
+ * @param logger The logger instance
+ * @returns The resolved dependency
+ * @throws Error if resolution fails
+ */
+function safeResolve(container, token, componentName, logger) {
+    try {
+        validateToken(token, componentName);
+        logger.info(`Resolving ${componentName} with token: ${token}`);
+        return container.resolve(token);
+    }
+    catch (error) {
+        logger.error(`Failed to resolve ${componentName} with token: ${token}`, error);
+        throw new Error(`Dependency resolution failed for ${componentName}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+}
+/**
+ * Logging helper utility to consolidate repeated logging logic
+ * @param logger The logger instance
+ * @param stage The execution stage name
+ * @param action Either 'start' or 'end'
+ */
+function logExecutionStage(logger, stage, action) {
+    const prefix = action === 'start' ? 'Start' : 'Finished';
+    logger.info(`${prefix} ${stage}`);
+}
+/**
+ * Generic executor that runs the API pipeline without Controller dependency
+ * Resolves all components (API, requestMapper, responseMapper, errorHandler, logger) via DI
+ * Executes the pipeline: map → execute → success/error
+ *
+ * IMPORTANT GAS COMPATIBILITY NOTES:
+ * - Google Apps Script does not support native Promises in synchronous execution contexts
+ * - All API logic must be synchronous to ensure compatibility
+ * - Token lifecycles are managed per-request using scoped containers
+ * - Always dispose scoped containers to prevent resource leaks
+ *
+ * @param route The route definition (token-based)
+ * @param normalizedRequest The normalized request context
+ * @param rootContainer The root DI container
+ * @returns The mapped response or error response
+ */
+function executeRoute(route, normalizedRequest, rootContainer) {
+    // Create a scoped container for this route
+    const scopedContainer = rootContainer.createScope(route.endPoint);
+    try {
+        return Context.run(scopedContainer, () => {
+            // Initialize or resolve logger
+            const logger = route.loggerToken
+                ? safeResolve(scopedContainer, route.loggerToken, 'Logger', new Logger_Logger(`[RouteExecutor:${route.endPoint}]`) // temporary logger for resolution logging
+                )
+                : new Logger_Logger(`[RouteExecutor:${route.endPoint}]`);
+            // Initialize or resolve ErrorHandler component for centralized error handling
+            const errorHandler = route.errorHandlerToken
+                ? safeResolve(scopedContainer, route.errorHandlerToken, 'ErrorHandler', logger)
+                : new ErrorHandler(logger);
+            try {
+                // Resolve all components via DI tokens with validation
+                const api = safeResolve(scopedContainer, route.apiToken, 'ApiLogic', logger);
+                const requestMapper = safeResolve(scopedContainer, route.requestMapperToken, 'RequestMapper', logger);
+                const responseMapper = safeResolve(scopedContainer, route.responseMapperToken, 'ResponseMapper', logger);
+                // Execute request mapping
+                logExecutionStage(logger, 'RequestMapper.map', 'start');
+                const mappedRequest = requestMapper.map(normalizedRequest);
+                logExecutionStage(logger, 'RequestMapper.map', 'end');
+                logger.info(`Request: ${JSON.stringify(mappedRequest)}`);
+                // Execute API logic
+                logExecutionStage(logger, 'Api.execute', 'start');
+                const response = api.execute(mappedRequest);
+                logExecutionStage(logger, 'Api.execute', 'end');
+                logger.info(`Response: ${JSON.stringify(response)}`);
+                // Map response
+                logExecutionStage(logger, 'ResponseMapper.map', 'start');
+                const mappedResponse = responseMapper.map(response);
+                logExecutionStage(logger, 'ResponseMapper.map', 'end');
+                return mappedResponse;
+            }
+            catch (error) {
+                // Centralized error handling with ErrorHandler
+                logger.error('Error during route execution', error);
+                return errorHandler.handle(error, {
+                    request: normalizedRequest,
+                    timestamp: new Date().toISOString(),
+                });
+            }
+        });
+    }
+    finally {
+        // Cleanup scoped container to avoid resource leaks
+        // Must be called outside Context.run to ensure proper cleanup
+        scopedContainer.dispose();
+    }
+}
+__webpack_require__.g.executeRoute = __webpack_exports__.executeRoute;
+;// ./modules/rest-framework/NormalizedRequest.ts
+/**
+ * RestFramework - Normalized Request Utilities
+ */
+function coerceParamValue(v) {
+    if (typeof v !== 'string')
+        return v;
+    const s = v.trim();
+    if (s === '')
+        return v;
+    // boolean
+    if (s === 'true')
+        return true;
+    if (s === 'false')
+        return false;
+    // number (integer/float)
+    if (/^-?\d+(\.\d+)?$/.test(s)) {
+        const n = Number(s);
+        if (!Number.isNaN(n))
+            return n;
+    }
+    return v;
+}
+function tryCoerceNumber(v) {
+    if (typeof v === 'number' && !Number.isNaN(v))
+        return v;
+    if (typeof v === 'string') {
+        const s = v.trim();
+        if (s !== '' && /^-?\d+(\.\d+)?$/.test(s)) {
+            const n = Number(s);
+            if (!Number.isNaN(n))
+                return n;
+        }
+    }
+    return undefined;
+}
+function normalizeDoGet(e) {
+    var _a;
+    // parameter only
+    const params = {};
+    const p = (_a = e.parameter) !== null && _a !== void 0 ? _a : {};
+    for (const k of Object.keys(p))
+        params[k] = coerceParamValue(p[k]);
+    return params;
+}
+function normalizeDoPost(e) {
+    var _a, _b;
+    // parameter (coerce)
+    const params = {};
+    const p = (_a = e.parameter) !== null && _a !== void 0 ? _a : {};
+    for (const k of Object.keys(p))
+        params[k] = coerceParamValue(p[k]);
+    // body (raw JSON)
+    let body = {};
+    const contents = (_b = e.postData) === null || _b === void 0 ? void 0 : _b.contents;
+    if (contents) {
+        try {
+            const parsed = JSON.parse(contents);
+            if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+                body = parsed;
+            }
+        }
+        catch {
+            // ignore invalid JSON
+        }
+    }
+    return { ...params, ...body };
+}
+__webpack_require__.g.coerceParamValue = __webpack_exports__.coerceParamValue;
+__webpack_require__.g.tryCoerceNumber = __webpack_exports__.tryCoerceNumber;
+__webpack_require__.g.normalizeDoGet = __webpack_exports__.normalizeDoGet;
+__webpack_require__.g.normalizeDoPost = __webpack_exports__.normalizeDoPost;
+;// ./modules/rest-framework/index.ts
+/**
+ * RestFramework Module - Entry Point
+ */
+
+
+
+
+
+
+
+__webpack_require__.g.Logger = __webpack_exports__.Logger;
+__webpack_require__.g.ErrorHandler = __webpack_exports__.ErrorHandler;
+__webpack_require__.g.ApiResponseFormatter = __webpack_exports__.ApiResponseFormatter;
+__webpack_require__.g.ApiController = __webpack_exports__.ApiController;
+__webpack_require__.g.executeRoute = __webpack_exports__.executeRoute;
 ;// ./modules/index.ts
 /**
  * GasAppFramework - ES Modules版エントリーポイント
@@ -1588,6 +2130,8 @@ __webpack_require__.g.get = __webpack_exports__.get;
 // Routing Module
 
 // String Helper Module
+
+// RestFramework Module
 
 __webpack_require__.g.Container = __webpack_exports__.Container;
 __webpack_require__.g.Context = __webpack_exports__.Context;
