@@ -1,14 +1,14 @@
 /**
  * GasDI Mock Tests - Node.js Integration
- * 
+ *
  * GAS Mockサービス（MockLogger, MockSpreadsheetApp, MockSession等）を使用したDIコンテナテスト。
  * これらのテストはNode.js環境で実行可能で、GASデプロイ不要。
- * 
+ *
  * テスト対象:
  * - Container基本機能（register/resolve、lifetime管理）
  * - GASサービスとの統合（Mock使用）
  * - スコープ管理、エラーハンドリング、パフォーマンス
- * 
+ *
  * 注: デコレータテストはwebpackタイミング問題により除外
  */
 

@@ -12,7 +12,7 @@ describe('Locking PropertiesStore with Mocks', () => {
 
     beforeEach(() => {
         mockProperties = {};
-        
+
         // Setup Mock PropertiesService
         (globalThis as any).PropertiesService = {
             getScriptProperties: () => ({
@@ -46,7 +46,7 @@ describe('Locking PropertiesStore with Mocks', () => {
 
         // Verify prefix is applied
         expect(mockProperties['test:resource1']).toBeUndefined();
-        
+
         // Set without prefix check
         store.set('test-key', 'test-value');
         expect(mockProperties['test:test-key']).toBe('test-value');
@@ -70,7 +70,7 @@ describe('Locking PropertiesStore with Mocks', () => {
         const writeLock = lockEngine.acquire(resourceId, 'w', 30000, 'user1');
         expect(writeLock.ok).toBe(true);
         if (!writeLock.ok) throw new Error('Should acquire');
-        
+
         expect(writeLock.mode).toBe('w');
         expect(writeLock.owner).toBe('user1');
 
