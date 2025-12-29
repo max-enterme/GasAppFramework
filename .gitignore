@@ -48,12 +48,19 @@ fabric.properties
 
 # project
 node_modules/**
+
+# TypeScript build outputs
+**/*.d.ts
+**/*.d.ts.map
 **/dist/**
 src/@const.ts
 
 # Clasp
 /.clasprc.json
 .clasp.json
+
+# GAS Configuration
+.gas-config.json
 
 # VS
 .vs

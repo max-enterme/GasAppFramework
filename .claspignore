@@ -1,17 +1,31 @@
+# Source files (use build/ instead)
+modules/**
+test/node/**
+test/shared/**
+src/**
+types/**
+scripts/**
+documents/**
+gas-main.ts
+gas-main.d.ts
+gas-main.d.ts.map
+
 # Build outputs and dependencies
 node_modules/**
 dist/**
-build/**
-
-# Node.js tooling and test files
-test/node/**
-src/testing/node/**
+build/transform-namespace-to-module.ts
+build/transform.config.json
+build/tsconfig.json
+**/*.d.ts
+**/*.d.ts.map
 
 # Development configuration files
 .eslintrc.*
 .eslintignore
+eslint.config.*
 jest.config.*
 tsconfig.json
+webpack.config.js
 package*.json
 
 # IDE and system files
@@ -19,4 +33,14 @@ package*.json
 .vs/**
 .vscode/
 .git/
+.editorconfig
 *.log
+
+# Documentation and examples
+*.md
+!README.md
+
+# Config files
+.clasp.json
+.claspignore
+.gas-config.*
