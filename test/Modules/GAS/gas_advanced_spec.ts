@@ -24,7 +24,7 @@ namespace Spec_GAS_Advanced {
             TAssert.notNull(trigger, 'Trigger should be created');
 
             // Test: Create hourly trigger
-            const hourlyTrigger = mockScriptApp
+            const _hourlyTrigger = mockScriptApp
                 .newTrigger('hourlyCheck')
                 .timeBased()
                 .everyHours(2)

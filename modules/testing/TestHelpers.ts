@@ -387,7 +387,7 @@ export namespace GAS {
 
         constructor(private id: string) {}
 
-        tryLock(timeoutInMillis: number): boolean {
+        tryLock(_timeoutInMillis: number): boolean {
             if (this.acquired) {
                 return false;
             }
@@ -456,7 +456,7 @@ export namespace GAS {
             return new MockTimeBasedTriggerBuilder(this.functionName, this.scriptApp);
         }
 
-        forSpreadsheet(key: string): any {
+        forSpreadsheet(_key: string): any {
             return this;
         }
 
@@ -481,19 +481,19 @@ export namespace GAS {
             private scriptApp: MockScriptApp
         ) {}
 
-        everyMinutes(n: number): MockTimeBasedTriggerBuilder {
+        everyMinutes(_n: number): MockTimeBasedTriggerBuilder {
             return this;
         }
 
-        everyHours(n: number): MockTimeBasedTriggerBuilder {
+        everyHours(_n: number): MockTimeBasedTriggerBuilder {
             return this;
         }
 
-        everyDays(n: number): MockTimeBasedTriggerBuilder {
+        everyDays(_n: number): MockTimeBasedTriggerBuilder {
             return this;
         }
 
-        atHour(hour: number): MockTimeBasedTriggerBuilder {
+        atHour(_hour: number): MockTimeBasedTriggerBuilder {
             return this;
         }
 
@@ -514,7 +514,7 @@ export namespace GAS {
      * Mock Utilities for testing utility functions
      */
     export class MockUtilities {
-        formatDate(date: Date, timeZone: string, format: string): string {
+        formatDate(date: Date, _timeZone: string, _format: string): string {
             // Simple implementation - just return ISO string
             return date.toISOString();
         }
@@ -523,7 +523,7 @@ export namespace GAS {
             return template.replace(/%s/g, () => String(args.shift() || ''));
         }
 
-        sleep(milliseconds: number): void {
+        sleep(_milliseconds: number): void {
             // Mock implementation - does nothing in tests
         }
 
@@ -566,7 +566,7 @@ export namespace GAS {
         // Install mock Logger if not already present
         if (!(globalThis as any).Logger) {
             (globalThis as any).Logger = {
-                log: (message: string) => {
+                log: (_message: string) => {
                     // Mock logger - does nothing in tests
                 }
             };
