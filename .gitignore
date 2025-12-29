@@ -52,8 +52,12 @@ node_modules/**
 # TypeScript build outputs
 **/*.d.ts
 **/*.d.ts.map
+build/
 **/dist/**
 src/@const.ts
+
+# Temporary files
+deploy_output.txt
 
 # Clasp
 /.clasprc.json
