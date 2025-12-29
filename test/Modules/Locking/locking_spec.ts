@@ -1,9 +1,12 @@
 /**
- * Locking Module Tests
+ * Locking GAS固有テスト
  *
- * These tests cover both core locking functionality and GAS-specific integration
- * scenarios, including distributed locking with PropertiesService, LockService
- * integration, and script-level locking operations.
+ * このファイルにはGAS環境でのみ実行されるテストを含みます:
+ * - PropertiesService統合テスト
+ * - LockService統合テスト
+ * - GAS固有のタイムアウトとエラーハンドリング
+ *
+ * 共通ロジックテスト（両環境で実行）: test/shared/locking/core.test.ts
  */
 
 namespace Spec_Locking {
@@ -13,45 +16,16 @@ namespace Spec_Locking {
     const MockClock = (globalThis as any).MockClock;
     const MockLogger = (globalThis as any).MockLogger;
 
-    class MemStore implements Locking.Ports.Store {
-        private m = new Map<string, string>();
-        get(k: string) { return this.m.get(k) ?? null; }
-        set(k: string, v: string) { this.m.set(k, v); }
-        del(k: string) { this.m.delete(k); }
-    }
-    class FixedClock implements Locking.Ports.Clock {
-        constructor(private t: number) { }
-        now(): Date { return new Date(this.t); }
-    }
-    class Rand implements Locking.Ports.Random {
-        next(): number { return Math.random(); }
-        uuid(): string { return 'stub-uuid'; }
-    }
-
-    T.it('reader can acquire when no writer', () => {
-        const eng = Locking.Engine.create({ store: new MemStore(), clock: new FixedClock(Date.now()), rand: new Rand() });
-        const r1 = eng.acquire('docA', 'r', 10000, 'u1');
-        TAssert.isTrue(r1.ok === true, 'reader1 should acquire');
-    }, 'Locking');
-
-    T.it('writer denied when readers exist', () => {
-        const eng = Locking.Engine.create({ store: new MemStore(), clock: new FixedClock(Date.now()), rand: new Rand() });
-        const r1 = eng.acquire('docA', 'r', 10000, 'u1');
-        const w1 = eng.acquire('docA', 'w', 10000, 'u2');
-        TAssert.isTrue(r1.ok === true && w1.ok === false, 'writer should be denied');
-    }, 'Locking');
-
-    T.it('extend and release work', () => {
-        const eng = Locking.Engine.create({ store: new MemStore(), clock: new FixedClock(Date.now()), rand: new Rand() });
-        const w = eng.acquire('docB', 'w', 10000, 'u9');
-        if (!w.ok) TAssert.fail('writer should acquire');
-        const ex = eng.extend('docB', w.token, 20000);
-        TAssert.isTrue(ex.ok === true, 'extend ok');
-        const rl = eng.release('docB', w.token);
-        TAssert.isTrue(rl.ok === true, 'release ok');
-    }, 'Locking');
-
-    // GAS-Specific Integration Tests
+    // ============================================================================
+    // 注意: 以下の共通ロジックテストは test/shared/locking/core.test.ts に移動済み
+    // - Reader/Writerロックの取得・拒否ロジック
+    // - extend, release操作
+    // - 異なるドキュメントのロック独立性
+    // - タイムアウト処理
+    // - inspect機能
+    //
+    // このファイルにはGAS固有のテストのみを含みます
+    // ============================================================================
 
     T.it('GAS PropertiesStore handles property operations correctly', () => {
         // Test Case: PropertiesStore should use GAS PropertiesService for persistence

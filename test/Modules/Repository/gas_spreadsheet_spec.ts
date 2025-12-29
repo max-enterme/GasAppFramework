@@ -1,4 +1,15 @@
 /**
+ * Repository GAS固有テスト - Spreadsheet統合
+ *
+ * このファイルにはGAS環境でのみ実行されるテストを含みます:
+ * - MockSpreadsheetAppを使用するテスト
+ * - SpreadsheetStore統合テスト
+ * - GAS固有のデータ型変換とエラーハンドリング
+ *
+ * 共通ロジックテスト（両環境で実行）: test/shared/repository/core.test.ts
+ */
+
+/**
  * GAS-Specific Integration Tests for Repository Spreadsheet Module
  *
  * These tests cover Repository functionality that relies on Google Apps Script

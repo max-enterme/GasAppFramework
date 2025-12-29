@@ -1,9 +1,12 @@
 /**
- * GasDI (Dependency Injection) Module Tests
+ * GasDI GAS固有テスト
  *
- * These tests cover both core dependency injection functionality and GAS-specific
- * integration scenarios, including container scoping, lifecycle management,
- * decorators, and integration with GAS global services and objects.
+ * このファイルにはGAS環境でのみ実行されるテストを含みます:
+ * - TestHelpers.GAS.installAll()を使用するテスト
+ * - MockSession, MockPropertiesServiceなどのGASモックを使用するテスト
+ * - GAS固有のサービス統合テスト
+ *
+ * 共通ロジックテスト（両環境で実行）: test/shared/gasdi/core.test.ts
  */
 
 namespace Spec_GasDI_GAS {
@@ -40,7 +43,7 @@ namespace Spec_GasDI_GAS {
                 GasDI.Inject = GAF.Inject;
             }
         }
-        
+
         if (!GasDI.Resolve || typeof GasDI.Resolve !== 'function') {
             // Try post-build global first (most reliable)
             if (typeof (globalThis as any).__GasAppFramework_Resolve === 'function') {
@@ -85,7 +88,7 @@ namespace Spec_GasDI_GAS {
 
         return GasDI;
     };
-    
+
     // CRITICAL: Patch GasDI.Decorators IMMEDIATELY at module level, before any decorators are evaluated
     (() => {
         const GasDI = (globalThis as any).GasDI;
@@ -99,7 +102,7 @@ namespace Spec_GasDI_GAS {
             }
         }
     })();
-    
+
     const Logger = (globalThis as any).Logger;
 
     T.it('register and resolve values/factories with lifetimes', () => {
@@ -161,7 +164,7 @@ namespace Spec_GasDI_GAS {
                 return { a: this.a, b: x, hi: this.s!.hello() };
             }
         }
-        
+
         // Apply decorators manually using the decorator functions
         Inject('answer')(Demo.prototype, 'a', undefined as any);  // Property injection
         Inject('svc')(Demo, undefined, 0);  // Constructor param injection
@@ -179,12 +182,12 @@ namespace Spec_GasDI_GAS {
         const GasDI = getGasDI();
         const Inject = GasDI.Decorators.Inject || (globalThis as any).__GasAppFramework_Inject;
         const Resolve = GasDI.Decorators.Resolve || (globalThis as any).__GasAppFramework_Resolve;
-        
+
         // Define class WITHOUT decorators, then apply them manually
-        class Foo { 
-            constructor(public x?: any) { } 
+        class Foo {
+            constructor(public x?: any) { }
         }
-        
+
         // Apply decorator manually with optional=true
         Inject('missing', true)(Foo, undefined, 0);  // Constructor param with optional=true
         Resolve()(Foo, undefined, undefined as any);  // Class decorator (though not strictly needed for this test)

@@ -130,7 +130,7 @@ function initializeGasAppFramework() {
     // ONLY use post-build globals - webpack getters are broken
     DIInject = (globalThis as any).__GasAppFramework_Inject;
     DIResolve = (globalThis as any).__GasAppFramework_Resolve;
-    
+
     if (DIInject) {
         logger.log('[INIT] Using post-build Inject');
     } else {

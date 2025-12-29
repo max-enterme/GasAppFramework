@@ -1,3 +1,12 @@
+/**
+ * Repository共通ロジックテスト
+ *
+ * 注意: このファイルのテストは test/shared/repository/core.test.ts に移動済みです
+ * 両環境（GAS/Node.js）で実行される共通ロジックテストは shared フォルダを参照してください
+ *
+ * GAS固有のテストは gas_spreadsheet_spec.ts を参照してください
+ */
+
 namespace Spec_Repo {
     // Import global Repository into namespace scope
     const Repository = (globalThis as any).Repository;

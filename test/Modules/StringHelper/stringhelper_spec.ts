@@ -1,3 +1,10 @@
+/**
+ * StringHelper共通ロジックテスト
+ *
+ * 注意: このファイルのテストは test/shared/stringhelper/core.test.ts に移動済みです
+ * 両環境（GAS/Node.js）で実行される共通ロジックテストは shared フォルダを参照してください
+ */
+
 namespace Spec_StringHelper {
     T.it('formatString replaces indexed placeholders', () => {
         const s = StringHelper.formatString('Hello {0}, {1}!', 'Alice', 'World');

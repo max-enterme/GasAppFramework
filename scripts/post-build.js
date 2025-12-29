@@ -17,8 +17,8 @@ let content = fs.readFileSync(mainJsPath, 'utf-8');
 // Find the Container class definition and inject global assignment after it
 const containerClassPattern = /Container\.Root = new Container\(\);/;
 const contextRunPattern = /static run\(container, fn\) {[\s\S]*?}\s*static get current\(\) {[\s\S]*?}\s*}/;
-const injectFunctionPattern = /^function Inject\(token, optional = false\) \{\n    return function \(target, propertyKey, paramIndex\) \{[\s\S]{1,400}?\n    \};\n\}$/m;
-const resolveFunctionPattern = /function Resolve\(\) {[\s\S]{1,1000}?\n                }/;
+const injectFunctionPattern = /^function Inject\(token, optional = false\) \{\n {4}return function \(target, propertyKey, paramIndex\) \{[\s\S]{1,400}?\n {4}\};\n\}$/m;
+const resolveFunctionPattern = /function Resolve\(\) {[\s\S]{1,1000}?\n {16}}/;
 
 if (containerClassPattern.test(content)) {
     // Inject code after Container.Root = new Container();
@@ -107,7 +107,7 @@ if (typeof globalThis !== 'undefined' && globalThis.GasDI) {
         Logger.log('[POST-BUILD-INIT] __GasAppFramework_Inject type: ' + typeof globalThis.__GasAppFramework_Inject);
         Logger.log('[POST-BUILD-INIT] __GasAppFramework_Resolve type: ' + typeof globalThis.__GasAppFramework_Resolve);
     }
-    
+
     // Force patch with post-build globals even if properties exist but are undefined
     if ((!globalThis.GasDI.Container || typeof globalThis.GasDI.Container === 'undefined') && globalThis.__GasAppFramework_Container) {
         globalThis.GasDI.Container = globalThis.__GasAppFramework_Container;
@@ -143,7 +143,7 @@ if (typeof globalThis !== 'undefined' && globalThis.GasDI) {
     if ((!globalThis.GasDI.Decorators.Root || typeof globalThis.GasDI.Decorators.Root === 'undefined') && globalThis.GasDI.Container && globalThis.GasDI.Container.Root) {
         globalThis.GasDI.Decorators.Root = globalThis.GasDI.Container.Root;
     }
-    
+
     // Log after patching
     if (typeof Logger !== 'undefined') {
         Logger.log('[POST-BUILD-INIT] After patching - GasDI.Decorators.Inject type: ' + typeof globalThis.GasDI.Decorators.Inject);

@@ -2,7 +2,7 @@
 
 /**
  * Deploy script - Build, inject version, push, and deploy to GAS
- * 
+ *
  * Usage:
  *   node scripts/deploy.js
  *   npm run deploy
@@ -42,14 +42,14 @@ function getDeploymentId() {
     try {
         const configPath = path.join(__dirname, '../.gas-config.json');
         const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-        
+
         // Extract deployment ID from URL
         const url = config.deploymentUrl;
         const match = url.match(/\/s\/([^\/]+)\//);
         if (match) {
             return match[1];
         }
-        
+
         log('⚠️  Could not extract deployment ID from URL, will create new deployment', 'yellow');
         return null;
     } catch (e) {
@@ -61,17 +61,17 @@ function getDeploymentId() {
 async function main() {
     log('\n🚀 Starting deployment process...', 'blue');
     log('='.repeat(60), 'blue');
-    
+
     try {
         // Step 1: Build
         exec('npm run build', 'Build project');
-        
+
         // Step 2: Inject version
         exec('node scripts/inject-version.js', 'Inject version information');
-        
+
         // Step 3: Push to GAS
         exec('clasp push', 'Push files to Google Apps Script');
-        
+
         // Step 4: Deploy
         const deploymentId = getDeploymentId();
         if (deploymentId) {
@@ -84,11 +84,11 @@ async function main() {
             const deployCmd = `clasp deploy -d "Deploy ${commitHash}"`;
             exec(deployCmd, 'Create new deployment');
         }
-        
+
         log('\n' + '='.repeat(60), 'green');
         log('✅ Deployment completed successfully!', 'green');
         log('='.repeat(60), 'green');
-        
+
         // Show version info
         log('\n📋 Version Information:', 'blue');
         try {
@@ -100,7 +100,7 @@ async function main() {
         } catch (e) {
             log('   (Git info not available)', 'yellow');
         }
-        
+
     } catch (error) {
         log('\n' + '='.repeat(60), 'red');
         log('❌ Deployment failed!', 'red');
