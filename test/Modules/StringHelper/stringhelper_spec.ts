@@ -7,8 +7,11 @@
 
 namespace Spec_StringHelper {
     T.it('formatString replaces indexed placeholders', () => {
+        testLog('Testing formatString with indexed placeholders');
         const s = StringHelper.formatString('Hello {0}, {1}!', 'Alice', 'World');
+        testLog('Result:', s);
         TAssert.equals(s, 'Hello Alice, World!', 'indexed replacement works');
+        testLog('Test completed successfully');
     }, 'StringHelper');
 
     T.it('formatDate works without GAS (fallback formatter)', () => {

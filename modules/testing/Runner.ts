@@ -3,6 +3,7 @@
  */
 
 import * as Test from './Test';
+import { LogEntry, getGlobalLogCapture } from './LogCapture';
 
 export interface TestResult {
     name: string;
@@ -10,6 +11,8 @@ export interface TestResult {
     error?: string;
     ms: number;
     category: string;
+    logs?: LogEntry[];
+    metadata?: Record<string, any>;
 }
 
 /**
@@ -17,24 +20,39 @@ export interface TestResult {
  */
 export function runAll(): TestResult[] {
     const results: TestResult[] = [];
+    const logCapture = getGlobalLogCapture();
+
     for (const c of Test.all()) {
         const t0 = Date.now();
         const testCase = Test.getCaseWithCategory(c);
+
+        // Start capturing logs for this test
+        logCapture.clear();
+        logCapture.start();
+
         try {
             c.fn();
+            const logs = logCapture.getLogs();
+            logCapture.stop();
+
             results.push({
                 name: c.name,
                 ok: true,
                 ms: Date.now() - t0,
-                category: testCase.category
+                category: testCase.category,
+                logs: logs.length > 0 ? logs : undefined
             });
         } catch (e: any) {
+            const logs = logCapture.getLogs();
+            logCapture.stop();
+
             results.push({
                 name: c.name,
                 ok: false,
                 error: String(e?.message ?? e),
                 ms: Date.now() - t0,
-                category: testCase.category
+                category: testCase.category,
+                logs: logs.length > 0 ? logs : undefined
             });
         }
     }
@@ -46,24 +64,39 @@ export function runAll(): TestResult[] {
  */
 export function runByCategory(category: string): TestResult[] {
     const results: TestResult[] = [];
+    const logCapture = getGlobalLogCapture();
+
     for (const c of Test.byCategory(category)) {
         const t0 = Date.now();
         const testCase = Test.getCaseWithCategory(c);
+
+        // Start capturing logs for this test
+        logCapture.clear();
+        logCapture.start();
+
         try {
             c.fn();
+            const logs = logCapture.getLogs();
+            logCapture.stop();
+
             results.push({
                 name: c.name,
                 ok: true,
                 ms: Date.now() - t0,
-                category: testCase.category
+                category: testCase.category,
+                logs: logs.length > 0 ? logs : undefined
             });
         } catch (e: any) {
+            const logs = logCapture.getLogs();
+            logCapture.stop();
+
             results.push({
                 name: c.name,
                 ok: false,
                 error: String(e?.message ?? e),
                 ms: Date.now() - t0,
-                category: testCase.category
+                category: testCase.category,
+                logs: logs.length > 0 ? logs : undefined
             });
         }
     }

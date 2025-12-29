@@ -40,7 +40,8 @@ const args = process.argv.slice(2);
 const options = {
     category: null,
     list: false,
-    format: 'json'
+    format: 'json',
+    raw: false
 };
 
 args.forEach(arg => {
@@ -50,6 +51,8 @@ args.forEach(arg => {
         options.list = true;
     } else if (arg.startsWith('--format=')) {
         options.format = arg.split('=')[1];
+    } else if (arg === '--raw') {
+        options.raw = true;
     }
 });
 
@@ -64,9 +67,11 @@ if (params.toString()) {
     url += '?' + params.toString();
 }
 
-console.log(`🚀 Running GAS tests...`);
-console.log(`📍 URL: ${url}`);
-console.log('');
+if (!options.raw) {
+    console.log(`🚀 Running GAS tests...`);
+    console.log(`📍 URL: ${url}`);
+    console.log('');
+}
 
 // Make request with redirect handling
 function makeRequest(requestUrl, redirectCount = 0) {
@@ -80,7 +85,9 @@ function makeRequest(requestUrl, redirectCount = 0) {
     protocol.get(requestUrl, (res) => {
         // Handle redirects
         if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
-            console.log(`↪️  Following redirect...`);
+            if (!options.raw) {
+                console.log(`↪️  Following redirect...`);
+            }
             return makeRequest(res.headers.location, redirectCount + 1);
         }
 
@@ -94,6 +101,13 @@ function makeRequest(requestUrl, redirectCount = 0) {
         try {
             if (options.format === 'json') {
                 const result = JSON.parse(data);
+
+                // If raw mode, just output JSON
+                if (options.raw) {
+                    console.log(JSON.stringify(result, null, 2));
+                    process.exit(result.summary.failed > 0 ? 1 : 0);
+                    return;
+                }
 
                 // Display results
                 console.log('═══════════════════════════════════════════════════════');

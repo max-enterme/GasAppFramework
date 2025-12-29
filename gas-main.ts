@@ -26,6 +26,7 @@ function initializeGasAppFramework() {
     (globalThis as any).TRunner = Framework.Testing.Runner;
     (globalThis as any).TAssert = Framework.Testing.Assert;
     (globalThis as any).TGasReporter = Framework.Testing.GasReporter;
+    (globalThis as any).testLog = Framework.Testing.LogCapture.testLog;
 
     // Export TestHelpers namespace
     (globalThis as any).TestHelpers = Framework.Testing.TestHelpers;

@@ -6,6 +6,7 @@ export * as Test from './Test';
 export * as Runner from './Runner';
 export * as Assert from './Assert';
 export * as GasReporter from './GasReporter';
+export * as LogCapture from './LogCapture';
 
 // Export TestHelpers as a namespace
 import * as TH from './TestHelpers';

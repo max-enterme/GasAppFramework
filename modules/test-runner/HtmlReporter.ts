@@ -154,6 +154,30 @@ body {
     font-family: 'Courier New', monospace;
 }
 
+.test-logs {
+    margin: 8px 0 0 30px;
+    padding: 8px;
+    background: #f0f0f0;
+    border-radius: 4px;
+    font-size: 13px;
+    font-family: 'Courier New', monospace;
+}
+
+.test-logs-header {
+    font-weight: bold;
+    color: #555;
+    margin-bottom: 4px;
+    font-size: 12px;
+}
+
+.test-log-entry {
+    padding: 2px 0;
+    color: #333;
+    border-left: 2px solid #999;
+    padding-left: 8px;
+    margin: 2px 0;
+}
+
 .footer {
     margin-top: 24px;
     padding-top: 16px;
@@ -325,6 +349,15 @@ function formatTestItem(test: TestResult): string {
         html += `<div class="test-error">${escapeHtml(test.error)}</div>`;
     }
 
+    if (test.logs && test.logs.length > 0) {
+        html += '<div class="test-logs">';
+        html += `<div class="test-logs-header">📝 Console Logs (${test.logs.length})</div>`;
+        for (const log of test.logs) {
+            html += `<div class="test-log-entry">${escapeHtml(log.message)}</div>`;
+        }
+        html += '</div>';
+    }
+
     return html;
 }
 
@@ -359,7 +392,12 @@ export function toJson(results: TestResult[]): string {
             category: r.category || 'Uncategorized',
             ok: r.ok,
             ms: r.ms,
-            error: r.error || null
+            error: r.error || null,
+            logs: r.logs ? r.logs.map(log => ({
+                timestamp: log.timestamp,
+                message: log.message
+            })) : undefined,
+            metadata: r.metadata || undefined
         }))
     };
 
