@@ -70,7 +70,7 @@ try {
     }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+ 
 function test_RunAll() {
     // First run debug test to show Framework structure
     const logger = (typeof Logger !== 'undefined') ? Logger : console;
@@ -86,7 +86,7 @@ function test_RunAll() {
     TGasReporter.print(results);
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+ 
 function test_RunByCategory(category: string) {
     const TRunner = (globalThis as any).TRunner;
     const TGasReporter = (globalThis as any).TGasReporter;
@@ -94,7 +94,7 @@ function test_RunByCategory(category: string) {
     TGasReporter.printCategory(results, category);
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+ 
 function test_ListCategories() {
     const T = (globalThis as any).T;
     const categories = T.categories();
@@ -113,7 +113,7 @@ function test_ListCategories() {
     logger.log(`  test_ShowModuleHelp()            // Show module-specific entry points`);
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+ 
 function test_ShowModuleHelp() {
     const logger = (typeof Logger !== 'undefined') ? Logger : console;
 
