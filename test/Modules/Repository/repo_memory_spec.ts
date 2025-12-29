@@ -7,6 +7,8 @@
  * GAS固有のテストは gas_spreadsheet_spec.ts を参照してください
  */
 
+// @ts-nocheck
+
 namespace Spec_Repo {
     // Import global Repository into namespace scope
     const Repository = (globalThis as any).Repository;

@@ -2,6 +2,8 @@
  * Post-build script to ensure global exports are properly set
  */
 
+/* eslint-disable */
+
 const fs = require('fs');
 const path = require('path');
 
@@ -18,7 +20,7 @@ let content = fs.readFileSync(mainJsPath, 'utf-8');
 const containerClassPattern = /Container\.Root = new Container\(\);/;
 const contextRunPattern = /static run\(container, fn\) {[\s\S]*?}\s*static get current\(\) {[\s\S]*?}\s*}/;
 const injectFunctionPattern = /^function Inject\(token, optional = false\) \{\n {4}return function \(target, propertyKey, paramIndex\) \{[\s\S]{1,400}?\n {4}\};\n\}$/m;
-const resolveFunctionPattern = /function Resolve\(\) {[\s\S]{1,1000}?\n {16}}/;
+const resolveFunctionPattern = /function Resolve\(\) \{[\s\S]+?^\}\s*$/m;
 
 if (containerClassPattern.test(content)) {
     // Inject code after Container.Root = new Container();

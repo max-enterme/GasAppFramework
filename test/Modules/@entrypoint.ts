@@ -6,7 +6,7 @@
 function test_RunByModule(moduleName: string) {
     const TRunner = (globalThis as any).TRunner;
     const TGasReporter = (globalThis as any).TGasReporter;
-    
+
     // Run debug tests first to show Framework structure
     if (moduleName !== 'Debug') {
         const debugResults = TRunner.runByCategory('Debug');

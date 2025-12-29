@@ -147,52 +147,9 @@ namespace Spec_GasDI_GAS {
         TAssert.isTrue(a1 !== b1, 'different scope different instance');
     }, 'GasDI');
 
-    T.it('decorators: property and parameter injection with Root', () => {
-        const GasDI = getGasDI();
-        const Inject = GasDI.Decorators.Inject || (globalThis as any).__GasAppFramework_Inject;
-        const Resolve = GasDI.Decorators.Resolve || (globalThis as any).__GasAppFramework_Resolve;
-        const rootContainer = GasDI.Decorators.Root || GasDI.Container.Root;
-        rootContainer.registerValue('answer', 42);
-        rootContainer.registerFactory('svc', () => ({ hello() { return 'hi'; } }), 'singleton');
-
-        // Define class WITHOUT decorators, then apply them manually
-        class Demo {
-            private a!: number;
-            constructor(private s?: any) { }
-            run(x?: number) {
-                return { a: this.a, b: x, hi: this.s!.hello() };
-            }
-        }
-
-        // Apply decorators manually using the decorator functions
-        Inject('answer')(Demo.prototype, 'a', undefined as any);  // Property injection
-        Inject('svc')(Demo, undefined, 0);  // Constructor param injection
-        Inject('answer')(Demo.prototype, 'run', 0);  // Method param injection
-        Resolve()(Demo.prototype, 'run', Object.getOwnPropertyDescriptor(Demo.prototype, 'run')!);  // Method resolver
-
-        const d = new (Demo as any)() as any;
-        const out = d.run();
-        TAssert.equals(out.a, 42, 'property injected');
-        TAssert.equals(out.b, 42, 'method param injected');
-        TAssert.equals(out.hi, 'hi', 'constructor param injected');
-    }, 'GasDI');
-
-    T.it('optional injection does not throw when token missing', () => {
-        const GasDI = getGasDI();
-        const Inject = GasDI.Decorators.Inject || (globalThis as any).__GasAppFramework_Inject;
-        const Resolve = GasDI.Decorators.Resolve || (globalThis as any).__GasAppFramework_Resolve;
-
-        // Define class WITHOUT decorators, then apply them manually
-        class Foo {
-            constructor(public x?: any) { }
-        }
-
-        // Apply decorator manually with optional=true
-        Inject('missing', true)(Foo, undefined, 0);  // Constructor param with optional=true
-        Resolve()(Foo, undefined, undefined as any);  // Class decorator (though not strictly needed for this test)
-        const f = new (Foo as any)();
-        TAssert.isTrue(f.x === undefined, 'optional param left undefined');
-    }, 'GasDI');
+    // NOTE: Decorator tests moved to test/node/integration/gasdi-decorators.test.ts
+    // GAS環境ではロード順の制約によりデコレーターテストが困難なため、
+    // Node.js環境でテストを実行します
 
     T.it('GasDI Container works with GAS global services', () => {
         // Test Case: Container should properly inject GAS services as dependencies
