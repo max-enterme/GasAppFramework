@@ -77,6 +77,8 @@ __webpack_require__.d(__webpack_exports__, {
   Routing: () => (/* reexport */ routing_namespaceObject),
   Shared: () => (/* reexport */ shared_namespaceObject),
   StringHelper: () => (/* reexport */ string_helper_namespaceObject),
+  TestRunner: () => (/* reexport */ test_runner_namespaceObject),
+  Testing: () => (/* reexport */ testing_namespaceObject),
   ensureTimeZone: () => (/* reexport */ ensureTimeZone),
   formatDate: () => (/* reexport */ format)
 });
@@ -210,13 +212,98 @@ __webpack_require__.d(rest_framework_namespaceObject, {
   ApiController: () => (ApiController),
   ApiResponseFormatter: () => (ApiResponseFormatter),
   ErrorHandler: () => (ErrorHandler),
+  FieldType: () => (FieldType),
   Logger: () => (Logger_Logger),
+  NormalizedRequestMapper: () => (NormalizedRequestMapper),
+  SchemaRequestMapper: () => (SchemaRequestMapper),
   Types: () => (rest_framework_Types_namespaceObject),
   coerceParamValue: () => (coerceParamValue),
   executeRoute: () => (executeRoute),
   normalizeDoGet: () => (normalizeDoGet),
   normalizeDoPost: () => (normalizeDoPost),
   tryCoerceNumber: () => (tryCoerceNumber)
+});
+
+// NAMESPACE OBJECT: ./modules/testing/Test.ts
+var Test_namespaceObject = {};
+__webpack_require__.r(Test_namespaceObject);
+__webpack_require__.d(Test_namespaceObject, {
+  all: () => (Test_all),
+  byCategory: () => (byCategory),
+  categories: () => (categories),
+  clear: () => (clear),
+  getCaseWithCategory: () => (getCaseWithCategory),
+  it: () => (it)
+});
+
+// NAMESPACE OBJECT: ./modules/testing/Runner.ts
+var Runner_namespaceObject = {};
+__webpack_require__.r(Runner_namespaceObject);
+__webpack_require__.d(Runner_namespaceObject, {
+  runAll: () => (runAll),
+  runByCategory: () => (runByCategory),
+  summarize: () => (summarize)
+});
+
+// NAMESPACE OBJECT: ./modules/testing/Assert.ts
+var Assert_namespaceObject = {};
+__webpack_require__.r(Assert_namespaceObject);
+__webpack_require__.d(Assert_namespaceObject, {
+  contains: () => (contains),
+  equals: () => (equals),
+  fail: () => (fail),
+  hasLength: () => (hasLength),
+  isFalse: () => (isFalse),
+  isTrue: () => (isTrue),
+  notNull: () => (notNull),
+  strictEquals: () => (strictEquals),
+  throws: () => (Assert_throws)
+});
+
+// NAMESPACE OBJECT: ./modules/testing/GasReporter.ts
+var GasReporter_namespaceObject = {};
+__webpack_require__.r(GasReporter_namespaceObject);
+__webpack_require__.d(GasReporter_namespaceObject, {
+  print: () => (print),
+  printCategory: () => (printCategory),
+  toHtml: () => (toHtml)
+});
+
+// NAMESPACE OBJECT: ./modules/testing/TestHelpers.ts
+var TestHelpers_namespaceObject = {};
+__webpack_require__.r(TestHelpers_namespaceObject);
+__webpack_require__.d(TestHelpers_namespaceObject, {
+  Assertions: () => (Assertions),
+  MockClock: () => (MockClock),
+  MockLogger: () => (MockLogger)
+});
+
+// NAMESPACE OBJECT: ./modules/testing/index.ts
+var testing_namespaceObject = {};
+__webpack_require__.r(testing_namespaceObject);
+__webpack_require__.d(testing_namespaceObject, {
+  Assert: () => (Assert_namespaceObject),
+  GasReporter: () => (GasReporter_namespaceObject),
+  Runner: () => (Runner_namespaceObject),
+  Test: () => (Test_namespaceObject),
+  TestHelpers: () => (TestHelpers_namespaceObject)
+});
+
+// NAMESPACE OBJECT: ./modules/test-runner/HtmlReporter.ts
+var HtmlReporter_namespaceObject = {};
+__webpack_require__.r(HtmlReporter_namespaceObject);
+__webpack_require__.d(HtmlReporter_namespaceObject, {
+  generate: () => (generate),
+  toJson: () => (toJson)
+});
+
+// NAMESPACE OBJECT: ./modules/test-runner/index.ts
+var test_runner_namespaceObject = {};
+__webpack_require__.r(test_runner_namespaceObject);
+__webpack_require__.d(test_runner_namespaceObject, {
+  HtmlReporter: () => (HtmlReporter_namespaceObject),
+  WebTestRunner: () => (WebTestRunner),
+  createDoGetHandler: () => (createDoGetHandler)
 });
 
 ;// ./modules/di/Types.ts
@@ -570,8 +657,8 @@ function parse(json) {
                 token: String(e.token),
                 owner: e.owner == null ? null : String(e.owner),
                 mode: e.mode === 'w' ? 'w' : 'r',
-                expireMs: Number(e.expireMs) || 0,
-            })),
+                expireMs: Number(e.expireMs) || 0
+            }))
         };
     }
     catch {
@@ -902,7 +989,7 @@ function Engine_create(deps) {
         get entities() {
             ensureLoaded();
             return rows;
-        },
+        }
     };
     return result;
 }
@@ -982,7 +1069,7 @@ function simple(keyFields, delim = '|') {
                 }
             }
             return result;
-        },
+        }
     };
 }
 __webpack_require__.g.simple = __webpack_exports__.simple;
@@ -1028,7 +1115,7 @@ function createSchema(entityFactory, keyParameters) {
         parameters: getParametersFromEntity(sample),
         keyParameters,
         fromPartial: createFromPartial(sample),
-        instantiate: entityFactory,
+        instantiate: entityFactory
     };
 }
 __webpack_require__.g.getParametersFromEntity = __webpack_exports__.getParametersFromEntity;
@@ -1389,7 +1476,7 @@ function routing_Engine_create(logger) {
         // Merge params into context
         const contextWithParams = {
             ...ctx,
-            params: { ...ctx.params, ...resolved.params },
+            params: { ...ctx.params, ...resolved.params }
         };
         log.info(`[Router] dispatching to route: ${path}`);
         return composedHandler(contextWithParams);
@@ -1400,7 +1487,7 @@ function routing_Engine_create(logger) {
         registerAll,
         mount,
         resolve,
-        dispatch,
+        dispatch
     };
     return api;
 }
@@ -1639,7 +1726,7 @@ class ApiResponseFormatter {
         return {
             success: true,
             data,
-            timestamp: new Date().toISOString(),
+            timestamp: new Date().toISOString()
         };
     }
     /**
@@ -1651,9 +1738,9 @@ class ApiResponseFormatter {
             error: {
                 code,
                 message,
-                details,
+                details
             },
-            timestamp: new Date().toISOString(),
+            timestamp: new Date().toISOString()
         };
     }
     /**
@@ -1742,7 +1829,7 @@ class ErrorHandler {
             message: error instanceof Error ? error.message : 'Unknown error',
             timestamp: timestamp,
             stack: error instanceof Error ? error.stack : undefined,
-            request: (context === null || context === void 0 ? void 0 : context.request) ? this.sanitizeRequest(context.request) : undefined,
+            request: (context === null || context === void 0 ? void 0 : context.request) ? this.sanitizeRequest(context.request) : undefined
         };
         this.logger.error(`Error occurred: ${errorCode}`, errorInfo);
         // Log to console for GAS execution transcript visibility
@@ -1759,7 +1846,7 @@ class ErrorHandler {
             return undefined;
         const sanitized = {
             method: request.method,
-            path: request.path,
+            path: request.path
         };
         // Remove sensitive headers like authorization tokens
         if (request.headers) {
@@ -1861,7 +1948,7 @@ class ApiController {
             // Pass request context to error handler for better logging
             return this._errorHandler.handle(error, {
                 request: rawRequest,
-                timestamp: timestamp,
+                timestamp: timestamp
             });
         }
     }
@@ -2011,7 +2098,7 @@ function executeRoute(route, normalizedRequest, rootContainer) {
                 logger.error('Error during route execution', error);
                 return errorHandler.handle(error, {
                     request: normalizedRequest,
-                    timestamp: new Date().toISOString(),
+                    timestamp: new Date().toISOString()
                 });
             }
         });
@@ -2095,10 +2182,179 @@ __webpack_require__.g.coerceParamValue = __webpack_exports__.coerceParamValue;
 __webpack_require__.g.tryCoerceNumber = __webpack_exports__.tryCoerceNumber;
 __webpack_require__.g.normalizeDoGet = __webpack_exports__.normalizeDoGet;
 __webpack_require__.g.normalizeDoPost = __webpack_exports__.normalizeDoPost;
+;// ./modules/rest-framework/RequestMappers.ts
+/**
+ * RestFramework Module - Request Mappers
+ */
+/**
+ * Base class for RequestMappers that use NormalizedRequest
+ * Provides helper methods to access values with proper typing and defaults
+ */
+class NormalizedRequestMapper {
+    /**
+     * Get a string value from normalized request
+     * @param key The key to retrieve
+     * @param defaultValue Optional default if key is missing or empty
+     */
+    getString(key, defaultValue) {
+        var _a;
+        const v = (_a = this.request) === null || _a === void 0 ? void 0 : _a[key];
+        if (v === undefined || v === null || v === '') {
+            return defaultValue;
+        }
+        return String(v);
+    }
+    /**
+     * Get a number value from normalized request
+     * @param key The key to retrieve
+     * @param defaultValue Optional default if key is missing or not a valid number
+     */
+    getNumber(key, defaultValue) {
+        var _a;
+        const v = (_a = this.request) === null || _a === void 0 ? void 0 : _a[key];
+        if (v === undefined || v === null) {
+            return defaultValue;
+        }
+        if (typeof v === 'number' && !Number.isNaN(v)) {
+            return v;
+        }
+        const n = Number(v);
+        return Number.isNaN(n) ? defaultValue : n;
+    }
+    /**
+     * Get a boolean value from normalized request
+     * @param key The key to retrieve
+     * @param defaultValue Optional default if key is missing
+     */
+    getBoolean(key, defaultValue) {
+        var _a;
+        const v = (_a = this.request) === null || _a === void 0 ? void 0 : _a[key];
+        if (v === undefined || v === null) {
+            return defaultValue;
+        }
+        if (typeof v === 'boolean') {
+            return v;
+        }
+        // Handle string coercion
+        if (v === 'true' || v === '1' || v === 1)
+            return true;
+        if (v === 'false' || v === '0' || v === 0)
+            return false;
+        return defaultValue;
+    }
+    /**
+     * Require a string value - throws if missing or empty
+     * @param key The key to retrieve
+     */
+    requireString(key) {
+        const v = this.getString(key);
+        if (v === undefined) {
+            throw new Error(`Missing required parameter '${key}'`);
+        }
+        return v;
+    }
+    /**
+     * Require a number value - throws if missing or not a valid number
+     * @param key The key to retrieve
+     */
+    requireNumber(key) {
+        const v = this.getNumber(key);
+        if (v === undefined) {
+            throw new Error(`Missing required parameter '${key}'`);
+        }
+        return v;
+    }
+    /**
+     * Require a boolean value - throws if missing
+     * @param key The key to retrieve
+     */
+    requireBoolean(key) {
+        const v = this.getBoolean(key);
+        if (v === undefined) {
+            throw new Error(`Missing required parameter '${key}'`);
+        }
+        return v;
+    }
+    /**
+     * Map method to be implemented by concrete mappers
+     */
+    map(request) {
+        this.request = request;
+        return this.mapInternal();
+    }
+}
+/**
+ * Field type enum for schema definitions
+ */
+var FieldType;
+(function (FieldType) {
+    FieldType["String"] = "string";
+    FieldType["Number"] = "number";
+    FieldType["Boolean"] = "boolean";
+    FieldType["Any"] = "any";
+})(FieldType || (FieldType = {}));
+/**
+ * Generic schema-based request mapper for DoGet/DoPost endpoints
+ * Eliminates need for custom mapper classes in simple cases
+ */
+class SchemaRequestMapper extends NormalizedRequestMapper {
+    constructor(schema) {
+        super();
+        this.schema = schema;
+    }
+    mapInternal() {
+        const result = {};
+        // Process field specifications
+        if (this.schema.fields) {
+            for (const fieldSpec of this.schema.fields) {
+                const targetKey = fieldSpec.targetKey || fieldSpec.key;
+                let value;
+                // Get value based on type and required flag
+                switch (fieldSpec.type) {
+                    case FieldType.String:
+                        value = fieldSpec.required
+                            ? this.requireString(fieldSpec.key)
+                            : this.getString(fieldSpec.key, fieldSpec.defaultValue);
+                        break;
+                    case FieldType.Number:
+                        value = fieldSpec.required
+                            ? this.requireNumber(fieldSpec.key)
+                            : this.getNumber(fieldSpec.key, fieldSpec.defaultValue);
+                        break;
+                    case FieldType.Boolean:
+                        value = fieldSpec.required
+                            ? this.requireBoolean(fieldSpec.key)
+                            : this.getBoolean(fieldSpec.key, fieldSpec.defaultValue);
+                        break;
+                    case FieldType.Any:
+                        value = this.request[fieldSpec.key];
+                        if (value === undefined && fieldSpec.required) {
+                            throw new Error(`Missing required parameter '${fieldSpec.key}'`);
+                        }
+                        if (value === undefined) {
+                            value = fieldSpec.defaultValue;
+                        }
+                        break;
+                }
+                // Apply custom transformation if provided
+                if (fieldSpec.transform && value !== undefined) {
+                    value = fieldSpec.transform(value);
+                }
+                // Only set if value is not undefined
+                if (value !== undefined) {
+                    result[targetKey] = value;
+                }
+            }
+        }
+        return result;
+    }
+}
+
 ;// ./modules/rest-framework/index.ts
 /**
  * RestFramework Module - Entry Point
  */
+
 
 
 
@@ -2111,6 +2367,977 @@ __webpack_require__.g.ErrorHandler = __webpack_exports__.ErrorHandler;
 __webpack_require__.g.ApiResponseFormatter = __webpack_exports__.ApiResponseFormatter;
 __webpack_require__.g.ApiController = __webpack_exports__.ApiController;
 __webpack_require__.g.executeRoute = __webpack_exports__.executeRoute;
+__webpack_require__.g.NormalizedRequestMapper = __webpack_exports__.NormalizedRequestMapper;
+__webpack_require__.g.SchemaRequestMapper = __webpack_exports__.SchemaRequestMapper;
+__webpack_require__.g.FieldType = __webpack_exports__.FieldType;
+;// ./modules/testing/Test.ts
+/**
+ * Testing Module - Test Case Management
+ */
+const cases = [];
+/**
+ * Register a test case
+ * @param name Test case name
+ * @param fn Test function
+ * @param category Optional category for grouping tests
+ */
+function it(name, fn, category) {
+    cases.push({ name, fn, category });
+}
+/**
+ * Get all registered test cases
+ */
+function Test_all() {
+    return cases.slice();
+}
+/**
+ * Get test cases by category
+ */
+function byCategory(category) {
+    return cases.filter((c) => c.category === category);
+}
+/**
+ * Get all unique categories
+ */
+function categories() {
+    const cats = new Set();
+    cases.forEach((c) => {
+        if (c.category)
+            cats.add(c.category);
+    });
+    return Array.from(cats).sort();
+}
+/**
+ * Get test case with default category
+ */
+function getCaseWithCategory(testCase) {
+    return {
+        ...testCase,
+        category: testCase.category || 'General'
+    };
+}
+/**
+ * Clear all registered test cases
+ */
+function clear() {
+    cases.length = 0;
+}
+__webpack_require__.g.it = __webpack_exports__.it;
+__webpack_require__.g.all = __webpack_exports__.all;
+__webpack_require__.g.byCategory = __webpack_exports__.byCategory;
+__webpack_require__.g.categories = __webpack_exports__.categories;
+__webpack_require__.g.getCaseWithCategory = __webpack_exports__.getCaseWithCategory;
+__webpack_require__.g.clear = __webpack_exports__.clear;
+;// ./modules/testing/Runner.ts
+/**
+ * Testing Module - Test Runner
+ */
+
+/**
+ * Run all registered test cases
+ */
+function runAll() {
+    var _a;
+    const results = [];
+    for (const c of Test_all()) {
+        const t0 = Date.now();
+        const testCase = getCaseWithCategory(c);
+        try {
+            c.fn();
+            results.push({
+                name: c.name,
+                ok: true,
+                ms: Date.now() - t0,
+                category: testCase.category
+            });
+        }
+        catch (e) {
+            results.push({
+                name: c.name,
+                ok: false,
+                error: String((_a = e === null || e === void 0 ? void 0 : e.message) !== null && _a !== void 0 ? _a : e),
+                ms: Date.now() - t0,
+                category: testCase.category
+            });
+        }
+    }
+    return results;
+}
+/**
+ * Run test cases by category
+ */
+function runByCategory(category) {
+    var _a;
+    const results = [];
+    for (const c of byCategory(category)) {
+        const t0 = Date.now();
+        const testCase = getCaseWithCategory(c);
+        try {
+            c.fn();
+            results.push({
+                name: c.name,
+                ok: true,
+                ms: Date.now() - t0,
+                category: testCase.category
+            });
+        }
+        catch (e) {
+            results.push({
+                name: c.name,
+                ok: false,
+                error: String((_a = e === null || e === void 0 ? void 0 : e.message) !== null && _a !== void 0 ? _a : e),
+                ms: Date.now() - t0,
+                category: testCase.category
+            });
+        }
+    }
+    return results;
+}
+/**
+ * Get summary of test results
+ */
+function summarize(results) {
+    return {
+        total: results.length,
+        passed: results.filter((r) => r.ok).length,
+        failed: results.filter((r) => !r.ok).length,
+        duration: results.reduce((sum, r) => sum + r.ms, 0)
+    };
+}
+__webpack_require__.g.runAll = __webpack_exports__.runAll;
+__webpack_require__.g.runByCategory = __webpack_exports__.runByCategory;
+__webpack_require__.g.summarize = __webpack_exports__.summarize;
+;// ./modules/testing/Assert.ts
+/**
+ * Testing Module - Assertion Utilities
+ */
+/**
+ * Assert that a value is truthy
+ */
+function isTrue(v, msg) {
+    if (!v)
+        fail(msg !== null && msg !== void 0 ? msg : `Expected truthy but got: ${v}`);
+}
+/**
+ * Assert that a value is falsy
+ */
+function isFalse(v, msg) {
+    if (v)
+        fail(msg !== null && msg !== void 0 ? msg : `Expected falsy but got: ${v}`);
+}
+/**
+ * Assert that two values are equal (deep comparison via JSON)
+ */
+function equals(a, b, msg) {
+    const ok = JSON.stringify(a) === JSON.stringify(b);
+    if (!ok)
+        fail(msg !== null && msg !== void 0 ? msg : `Not equal:\nA=${JSON.stringify(a)}\nB=${JSON.stringify(b)}`);
+}
+/**
+ * Assert that a function throws an error
+ */
+function Assert_throws(fn, msg) {
+    let threw = false;
+    try {
+        fn();
+    }
+    catch {
+        threw = true;
+    }
+    if (!threw)
+        fail(msg !== null && msg !== void 0 ? msg : `Expected function to throw, but it did not.`);
+}
+/**
+ * Fail the test with a custom message
+ */
+function fail(msg) {
+    throw new Error(`[Assert] ${msg}`);
+}
+/**
+ * Assert that a value is not null or undefined
+ */
+function notNull(v, msg) {
+    if (v == null)
+        fail(msg !== null && msg !== void 0 ? msg : `Expected non-null value but got: ${v}`);
+}
+/**
+ * Assert that two values are strictly equal (===)
+ */
+function strictEquals(a, b, msg) {
+    if (a !== b)
+        fail(msg !== null && msg !== void 0 ? msg : `Not strictly equal:\nA=${a}\nB=${b}`);
+}
+/**
+ * Assert that an array contains a specific item
+ */
+function contains(arr, item, msg) {
+    if (!arr.includes(item)) {
+        fail(msg !== null && msg !== void 0 ? msg : `Array does not contain item:\nArray=${JSON.stringify(arr)}\nItem=${JSON.stringify(item)}`);
+    }
+}
+/**
+ * Assert that an array has a specific length
+ */
+function hasLength(arr, expectedLength, msg) {
+    if (arr.length !== expectedLength) {
+        fail(msg !== null && msg !== void 0 ? msg : `Expected array length ${expectedLength} but got ${arr.length}`);
+    }
+}
+__webpack_require__.g.isTrue = __webpack_exports__.isTrue;
+__webpack_require__.g.isFalse = __webpack_exports__.isFalse;
+__webpack_require__.g.equals = __webpack_exports__.equals;
+__webpack_require__.g.throws = __webpack_exports__.throws;
+__webpack_require__.g.fail = __webpack_exports__.fail;
+__webpack_require__.g.notNull = __webpack_exports__.notNull;
+__webpack_require__.g.strictEquals = __webpack_exports__.strictEquals;
+__webpack_require__.g.contains = __webpack_exports__.contains;
+__webpack_require__.g.hasLength = __webpack_exports__.hasLength;
+;// ./modules/testing/GasReporter.ts
+/**
+ * Testing Module - GAS Reporter
+ */
+/**
+ * Print test results in GAS Logger format
+ */
+function print(results) {
+    const ok = results.filter((r) => r.ok).length;
+    const ng = results.length - ok;
+    // Use Logger if available (GAS environment), otherwise fall back to console
+    const logger = typeof Logger !== 'undefined' ? Logger : console;
+    logger.log(`[TEST] total=${results.length} ok=${ok} ng=${ng}`);
+    // Group results by category for organized output
+    const categories = new Map();
+    results.forEach((r) => {
+        const cat = r.category || 'General';
+        if (!categories.has(cat)) {
+            categories.set(cat, []);
+        }
+        categories.get(cat).push(r);
+    });
+    // Print results by category
+    for (const [category, categoryResults] of categories) {
+        const catOk = categoryResults.filter((r) => r.ok).length;
+        const catNg = categoryResults.length - catOk;
+        logger.log(`\n📂 [${category}] ${categoryResults.length} tests (✅${catOk} ❌${catNg})`);
+        for (const r of categoryResults) {
+            logger.log(`  ${r.ok ? '✅' : '❌'} ${r.name} (${r.ms}ms)${r.error ? ' :: ' + r.error : ''}`);
+        }
+    }
+    if (ng > 0)
+        throw new Error(`There were ${ng} failing tests`);
+}
+/**
+ * Print test results for a specific category
+ */
+function printCategory(results, category) {
+    const ok = results.filter((r) => r.ok).length;
+    const ng = results.length - ok;
+    // Use Logger if available (GAS environment), otherwise fall back to console
+    const logger = typeof Logger !== 'undefined' ? Logger : console;
+    logger.log(`\n📂 [${category}] total=${results.length} ok=${ok} ng=${ng}`);
+    for (const r of results) {
+        logger.log(`  ${r.ok ? '✅' : '❌'} ${r.name} (${r.ms}ms)${r.error ? ' :: ' + r.error : ''}`);
+    }
+    if (ng > 0)
+        throw new Error(`There were ${ng} failing tests in category ${category}`);
+}
+/**
+ * Format test results as HTML for web display
+ */
+function toHtml(results) {
+    const ok = results.filter((r) => r.ok).length;
+    const ng = results.length - ok;
+    let html = `<!DOCTYPE html><html><head><style>
+        body { font-family: sans-serif; margin: 20px; }
+        .summary { padding: 10px; margin-bottom: 20px; border-radius: 5px; }
+        .summary.pass { background: #d4edda; color: #155724; }
+        .summary.fail { background: #f8d7da; color: #721c24; }
+        .category { margin: 20px 0; }
+        .test { padding: 8px; margin: 5px 0; border-radius: 3px; }
+        .test.pass { background: #d4edda; }
+        .test.fail { background: #f8d7da; }
+        .error { color: #721c24; margin-top: 5px; font-size: 0.9em; }
+    </style></head><body>`;
+    html += `<div class="summary ${ng === 0 ? 'pass' : 'fail'}">`;
+    html += `<h2>Test Results</h2>`;
+    html += `<p>Total: ${results.length} | Passed: ${ok} | Failed: ${ng}</p>`;
+    html += `</div>`;
+    // Group by category
+    const categories = new Map();
+    results.forEach((r) => {
+        const cat = r.category || 'General';
+        if (!categories.has(cat)) {
+            categories.set(cat, []);
+        }
+        categories.get(cat).push(r);
+    });
+    for (const [category, categoryResults] of categories) {
+        const catOk = categoryResults.filter((r) => r.ok).length;
+        const _catNg = categoryResults.length - catOk;
+        html += `<div class="category">`;
+        html += `<h3>📂 ${category} (${catOk}/${categoryResults.length} passed)</h3>`;
+        for (const r of categoryResults) {
+            html += `<div class="test ${r.ok ? 'pass' : 'fail'}">`;
+            html += `${r.ok ? '✅' : '❌'} ${r.name} <em>(${r.ms}ms)</em>`;
+            if (r.error) {
+                html += `<div class="error">${r.error}</div>`;
+            }
+            html += `</div>`;
+        }
+        html += `</div>`;
+    }
+    html += `</body></html>`;
+    return html;
+}
+__webpack_require__.g.print = __webpack_exports__.print;
+__webpack_require__.g.printCategory = __webpack_exports__.printCategory;
+__webpack_require__.g.toHtml = __webpack_exports__.toHtml;
+;// ./modules/testing/TestHelpers.ts
+/**
+ * Testing Module - Mock Doubles and Test Helpers
+ */
+/**
+ * Mock Logger for testing
+ */
+class MockLogger {
+    constructor() {
+        this.messages = [];
+    }
+    info(message) {
+        this.messages.push({ level: 'info', message });
+    }
+    error(message) {
+        this.messages.push({ level: 'error', message });
+    }
+    reset() {
+        this.messages = [];
+    }
+    getLastMessage(level) {
+        var _a;
+        const filtered = level ? this.messages.filter((m) => m.level === level) : this.messages;
+        return (_a = filtered[filtered.length - 1]) === null || _a === void 0 ? void 0 : _a.message;
+    }
+    getAllMessages(level) {
+        const filtered = level ? this.messages.filter((m) => m.level === level) : this.messages;
+        return filtered.map((m) => m.message);
+    }
+    contains(substring, level) {
+        return this.getAllMessages(level).some((msg) => msg.includes(substring));
+    }
+}
+/**
+ * Mock Clock for testing time-based logic
+ */
+class MockClock {
+    constructor(initialTime) {
+        this.currentTime = initialTime instanceof Date ? initialTime.getTime() : initialTime || Date.now();
+    }
+    now() {
+        // Handle invalid time edge case
+        if (!Number.isFinite(this.currentTime)) {
+            return new Date(NaN);
+        }
+        return new Date(this.currentTime);
+    }
+    advance(ms) {
+        this.currentTime += ms;
+    }
+    setTime(time) {
+        this.currentTime = time instanceof Date ? time.getTime() : time;
+    }
+    reset() {
+        this.currentTime = Date.now();
+    }
+}
+/**
+ * Assertion helpers for testing
+ */
+var Assertions;
+(function (Assertions) {
+    function assertLoggerContains(logger, substring, level) {
+        if (!logger.contains(substring, level)) {
+            const levelStr = level ? ` (${level})` : '';
+            const messages = logger.getAllMessages(level).join('\n  ');
+            throw new Error(`Expected logger${levelStr} to contain "${substring}".\nActual messages:\n  ${messages || '(none)'}`);
+        }
+    }
+    Assertions.assertLoggerContains = assertLoggerContains;
+    function assertArrayContains(arr, item, message) {
+        if (!arr.includes(item)) {
+            throw new Error(message || `Expected array to contain ${JSON.stringify(item)}`);
+        }
+    }
+    Assertions.assertArrayContains = assertArrayContains;
+    function assertDeepEqual(actual, expected, message) {
+        const actualJson = JSON.stringify(actual);
+        const expectedJson = JSON.stringify(expected);
+        if (actualJson !== expectedJson) {
+            throw new Error(message ||
+                `Deep equality failed.\nExpected: ${expectedJson}\nActual:   ${actualJson}`);
+        }
+    }
+    Assertions.assertDeepEqual = assertDeepEqual;
+    function assertThrows(fn, expectedError) {
+        try {
+            fn();
+            throw new Error('Expected function to throw, but it did not');
+        }
+        catch (err) {
+            if (!expectedError)
+                return; // Just check that it throws
+            const message = (err === null || err === void 0 ? void 0 : err.message) || String(err);
+            if (typeof expectedError === 'string') {
+                if (!message.includes(expectedError)) {
+                    throw new Error(`Expected error to contain "${expectedError}", but got: "${message}"`);
+                }
+            }
+            else {
+                if (!expectedError.test(message)) {
+                    throw new Error(`Expected error to match ${expectedError}, but got: "${message}"`);
+                }
+            }
+        }
+    }
+    Assertions.assertThrows = assertThrows;
+})(Assertions || (Assertions = {}));
+
+;// ./modules/testing/index.ts
+/**
+ * Testing Module - Entry Point
+ */
+
+
+
+
+
+
+;// ./modules/test-runner/Types.ts
+/**
+ * Test Runner Module - Type Definitions
+ */
+
+
+;// ./modules/test-runner/HtmlReporter.ts
+/**
+ * Test Runner Module - HTML Reporter
+ */
+const DEFAULT_CSS = `
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background: #f5f5f5;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    padding: 24px;
+}
+
+.header {
+    border-bottom: 2px solid #e0e0e0;
+    padding-bottom: 16px;
+    margin-bottom: 24px;
+}
+
+.header h1 {
+    margin: 0 0 8px 0;
+    color: #333;
+}
+
+.summary {
+    display: flex;
+    gap: 16px;
+    padding: 16px;
+    border-radius: 6px;
+    margin-bottom: 24px;
+    font-size: 16px;
+}
+
+.summary.pass {
+    background: #d4edda;
+    border: 1px solid #c3e6cb;
+    color: #155724;
+}
+
+.summary.fail {
+    background: #f8d7da;
+    border: 1px solid #f5c6cb;
+    color: #721c24;
+}
+
+.summary-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.summary-item label {
+    font-size: 12px;
+    opacity: 0.8;
+    margin-bottom: 4px;
+}
+
+.summary-item value {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.category {
+    margin-bottom: 24px;
+}
+
+.category-header {
+    background: #f8f9fa;
+    padding: 12px 16px;
+    border-radius: 6px 6px 0 0;
+    border-left: 4px solid #007bff;
+    font-weight: 600;
+    color: #333;
+}
+
+.category-header .badge {
+    float: right;
+    background: #007bff;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+}
+
+.test-list {
+    border: 1px solid #e0e0e0;
+    border-top: none;
+    border-radius: 0 0 6px 6px;
+}
+
+.test {
+    padding: 12px 16px;
+    border-bottom: 1px solid #e0e0e0;
+    display: flex;
+    align-items: center;
+    transition: background 0.2s;
+}
+
+.test:last-child {
+    border-bottom: none;
+}
+
+.test:hover {
+    background: #f8f9fa;
+}
+
+.test.pass {
+    border-left: 3px solid #28a745;
+}
+
+.test.fail {
+    border-left: 3px solid #dc3545;
+    background: #fff5f5;
+}
+
+.test-icon {
+    font-size: 18px;
+    margin-right: 12px;
+}
+
+.test-name {
+    flex: 1;
+    color: #333;
+}
+
+.test-time {
+    color: #666;
+    font-size: 14px;
+    margin-left: 12px;
+}
+
+.test-time.slow {
+    color: #ff9800;
+    font-weight: bold;
+}
+
+.test-error {
+    color: #721c24;
+    margin: 8px 0 0 30px;
+    padding: 8px;
+    background: #f8d7da;
+    border-radius: 4px;
+    font-size: 14px;
+    font-family: 'Courier New', monospace;
+}
+
+.footer {
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top: 1px solid #e0e0e0;
+    text-align: center;
+    color: #666;
+    font-size: 14px;
+}
+
+.no-tests {
+    text-align: center;
+    padding: 48px;
+    color: #666;
+}
+
+@media print {
+    body {
+        background: white;
+    }
+    .container {
+        box-shadow: none;
+    }
+}
+`;
+/**
+ * Generate HTML report from test results
+ */
+function generate(results, options = {}) {
+    const { showDetails = true, groupByCategory = true, includeStyles = true, customCss = '' } = options;
+    const ok = results.filter((r) => r.ok).length;
+    const ng = results.length - ok;
+    const totalMs = results.reduce((sum, r) => sum + r.ms, 0);
+    let html = '<!DOCTYPE html><html lang="ja"><head>';
+    html += '<meta charset="UTF-8">';
+    html += '<meta name="viewport" content="width=device-width, initial-scale=1.0">';
+    html += '<title>Test Results</title>';
+    if (includeStyles) {
+        html += `<style>${DEFAULT_CSS}${customCss}</style>`;
+    }
+    html += '</head><body>';
+    html += '<div class="container">';
+    // Header
+    html += '<div class="header">';
+    html += '<h1>🧪 Test Results</h1>';
+    html += `<p>Executed: ${new Date().toLocaleString('ja-JP')}</p>`;
+    html += '</div>';
+    // Summary
+    const summaryClass = ng === 0 ? 'pass' : 'fail';
+    html += `<div class="summary ${summaryClass}">`;
+    html += '<div class="summary-item">';
+    html += '<label>Total</label>';
+    html += `<value>${results.length}</value>`;
+    html += '</div>';
+    html += '<div class="summary-item">';
+    html += '<label>✅ Passed</label>';
+    html += `<value>${ok}</value>`;
+    html += '</div>';
+    html += '<div class="summary-item">';
+    html += '<label>❌ Failed</label>';
+    html += `<value>${ng}</value>`;
+    html += '</div>';
+    html += '<div class="summary-item">';
+    html += '<label>⏱️ Total Time</label>';
+    html += `<value>${totalMs}ms</value>`;
+    html += '</div>';
+    html += '</div>';
+    if (results.length === 0) {
+        html += '<div class="no-tests">No tests found</div>';
+    }
+    else if (showDetails) {
+        if (groupByCategory) {
+            html += generateCategoryView(results);
+        }
+        else {
+            html += generateFlatView(results);
+        }
+    }
+    // Footer
+    html += '<div class="footer">';
+    html += 'Powered by GAS App Framework Test Runner';
+    html += '</div>';
+    html += '</div></body></html>';
+    return html;
+}
+/**
+ * Generate category-grouped view
+ */
+function generateCategoryView(results) {
+    const categories = new Map();
+    results.forEach((r) => {
+        const cat = r.category || 'Uncategorized';
+        if (!categories.has(cat)) {
+            categories.set(cat, []);
+        }
+        categories.get(cat).push(r);
+    });
+    let html = '';
+    for (const [category, tests] of categories) {
+        const catOk = tests.filter((r) => r.ok).length;
+        const catTotal = tests.length;
+        html += '<div class="category">';
+        html += '<div class="category-header">';
+        html += `📂 ${category}`;
+        html += `<span class="badge">${catOk}/${catTotal}</span>`;
+        html += '</div>';
+        html += '<div class="test-list">';
+        for (const test of tests) {
+            html += formatTestItem(test);
+        }
+        html += '</div>';
+        html += '</div>';
+    }
+    return html;
+}
+/**
+ * Generate flat list view
+ */
+function generateFlatView(results) {
+    let html = '<div class="test-list">';
+    for (const test of results) {
+        html += formatTestItem(test);
+    }
+    html += '</div>';
+    return html;
+}
+/**
+ * Format individual test item
+ */
+function formatTestItem(test) {
+    const status = test.ok ? 'pass' : 'fail';
+    const icon = test.ok ? '✅' : '❌';
+    const timeClass = test.ms > 1000 ? 'slow' : '';
+    let html = `<div class="test ${status}">`;
+    html += `<span class="test-icon">${icon}</span>`;
+    html += `<span class="test-name">${escapeHtml(test.name)}</span>`;
+    html += `<span class="test-time ${timeClass}">${test.ms}ms</span>`;
+    html += '</div>';
+    if (test.error) {
+        html += `<div class="test-error">${escapeHtml(test.error)}</div>`;
+    }
+    return html;
+}
+/**
+ * Escape HTML special characters
+ */
+function escapeHtml(text) {
+    return text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+/**
+ * Generate JSON report
+ */
+function toJson(results) {
+    const ok = results.filter((r) => r.ok).length;
+    const ng = results.length - ok;
+    const report = {
+        timestamp: new Date().toISOString(),
+        summary: {
+            total: results.length,
+            passed: ok,
+            failed: ng
+        },
+        results: results.map((r) => ({
+            name: r.name,
+            category: r.category || 'Uncategorized',
+            ok: r.ok,
+            ms: r.ms,
+            error: r.error || null
+        }))
+    };
+    return JSON.stringify(report, null, 2);
+}
+__webpack_require__.g.generate = __webpack_exports__.generate;
+__webpack_require__.g.toJson = __webpack_exports__.toJson;
+;// ./modules/test-runner/WebTestRunner.ts
+/**
+ * Test Runner Module - Web Test Runner
+ *
+ * Provides a web-based test runner accessible via doGet() in Google Apps Script
+ */
+
+
+
+/**
+ * Main Web Test Runner
+ */
+class WebTestRunner {
+    constructor(config = {}) {
+        this.config = config;
+    }
+    /**
+     * Handle doGet request for test execution
+     */
+    handleRequest(e) {
+        const request = this.parseRequest(e);
+        if (request.list) {
+            return this.renderTestList();
+        }
+        if (request.category) {
+            return this.runCategoryTests(request.category, request.format);
+        }
+        if (request.all !== false) {
+            // Default: run all tests
+            return this.runAllTests(request.format);
+        }
+        return this.renderIndexPage();
+    }
+    /**
+     * Parse URL parameters into TestRequest
+     */
+    parseRequest(e) {
+        const params = e.parameter || {};
+        return {
+            all: params.all !== undefined ? params.all === 'true' : true,
+            category: params.category,
+            list: params.list === 'true',
+            format: params.format || 'html'
+        };
+    }
+    /**
+     * Run all tests and return HTML output
+     */
+    runAllTests(format = 'html') {
+        const results = runAll();
+        if (format === 'json') {
+            const json = toJson(results);
+            return HtmlService.createHtmlOutput(`<pre>${json}</pre>`).setTitle('Test Results (JSON)');
+        }
+        const html = generate(results, {
+            showDetails: true,
+            groupByCategory: true
+        });
+        return HtmlService.createHtmlOutput(html)
+            .setTitle(this.config.title || 'Test Results')
+            .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+    }
+    /**
+     * Run tests for specific category
+     */
+    runCategoryTests(category, format = 'html') {
+        const results = runByCategory(category);
+        if (format === 'json') {
+            const json = toJson(results);
+            return HtmlService.createHtmlOutput(`<pre>${json}</pre>`).setTitle(`${category} - Test Results (JSON)`);
+        }
+        const html = generate(results, {
+            showDetails: true,
+            groupByCategory: false
+        });
+        return HtmlService.createHtmlOutput(html)
+            .setTitle(`${category} - Test Results`)
+            .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+    }
+    /**
+     * Render test category list
+     */
+    renderTestList() {
+        const tests = Test_all();
+        const categories = new Map();
+        tests.forEach((t) => {
+            const cat = t.category || 'Uncategorized';
+            categories.set(cat, (categories.get(cat) || 0) + 1);
+        });
+        let html = '<!DOCTYPE html><html><head>';
+        html += '<meta charset="UTF-8">';
+        html += '<title>Available Tests</title>';
+        html += '<style>';
+        html += 'body { font-family: sans-serif; margin: 20px; }';
+        html += 'h1 { color: #333; }';
+        html += 'ul { list-style: none; padding: 0; }';
+        html += 'li { padding: 8px; margin: 4px 0; background: #f0f0f0; border-radius: 4px; }';
+        html += 'a { color: #007bff; text-decoration: none; }';
+        html += 'a:hover { text-decoration: underline; }';
+        html += '.badge { background: #007bff; color: white; padding: 2px 8px; border-radius: 12px; font-size: 12px; margin-left: 8px; }';
+        html += '</style>';
+        html += '</head><body>';
+        html += '<h1>📋 Available Test Categories</h1>';
+        html += `<p>Total: ${tests.length} tests in ${categories.size} categories</p>`;
+        html += '<ul>';
+        for (const [cat, count] of categories) {
+            const url = this.buildUrl({ category: cat });
+            html += '<li>';
+            html += `<a href="${url}">📂 ${cat}</a>`;
+            html += `<span class="badge">${count}</span>`;
+            html += '</li>';
+        }
+        html += '</ul>';
+        html += '<hr>';
+        html += `<p><a href="${this.buildUrl({ all: 'true' })}">▶️ Run All Tests</a></p>`;
+        html += '</body></html>';
+        return HtmlService.createHtmlOutput(html)
+            .setTitle('Available Tests')
+            .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+    }
+    /**
+     * Render index/help page
+     */
+    renderIndexPage() {
+        const tests = Test_all();
+        const categories = new Set();
+        tests.forEach((t) => categories.add(t.category || 'Uncategorized'));
+        let html = '<!DOCTYPE html><html><head>';
+        html += '<meta charset="UTF-8">';
+        html += '<title>Test Runner</title>';
+        html += '<style>';
+        html += 'body { font-family: sans-serif; margin: 40px; max-width: 800px; }';
+        html += 'h1 { color: #333; }';
+        html += '.btn { display: inline-block; padding: 12px 24px; margin: 8px; background: #007bff; color: white; text-decoration: none; border-radius: 6px; }';
+        html += '.btn:hover { background: #0056b3; }';
+        html += 'code { background: #f4f4f4; padding: 2px 6px; border-radius: 3px; }';
+        html += 'pre { background: #f4f4f4; padding: 12px; border-radius: 6px; overflow-x: auto; }';
+        html += '</style>';
+        html += '</head><body>';
+        html += '<h1>🧪 GAS App Framework Test Runner</h1>';
+        html += `<p>Found ${tests.length} tests in ${categories.size} categories</p>`;
+        html += '<h2>Quick Actions</h2>';
+        html += `<a href="${this.buildUrl({ all: 'true' })}" class="btn">▶️ Run All Tests</a>`;
+        html += `<a href="${this.buildUrl({ list: 'true' })}" class="btn">📋 List Categories</a>`;
+        html += '<h2>URL Parameters</h2>';
+        html += '<ul>';
+        html += '<li><code>?all=true</code> - Run all tests (default)</li>';
+        html += '<li><code>?category=CategoryName</code> - Run specific category</li>';
+        html += '<li><code>?list=true</code> - List all categories</li>';
+        html += '<li><code>?format=json</code> - Output as JSON</li>';
+        html += '</ul>';
+        html += '<h2>Examples</h2>';
+        html += '<pre>';
+        html += `${this.buildUrl({ all: 'true' })}\n`;
+        html += `${this.buildUrl({ category: 'Repository' })}\n`;
+        html += `${this.buildUrl({ list: 'true' })}\n`;
+        html += `${this.buildUrl({ all: 'true', format: 'json' })}`;
+        html += '</pre>';
+        html += '</body></html>';
+        return HtmlService.createHtmlOutput(html)
+            .setTitle('Test Runner')
+            .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+    }
+    /**
+     * Build URL with parameters
+     */
+    buildUrl(params) {
+        const base = this.config.baseUrl || ScriptApp.getService().getUrl();
+        const query = Object.entries(params)
+            .map(([k, v]) => `${k}=${encodeURIComponent(v)}`)
+            .join('&');
+        return `${base}?${query}`;
+    }
+}
+/**
+ * Create a simple doGet handler
+ */
+function createDoGetHandler(config) {
+    const runner = new WebTestRunner(config);
+    return (e) => runner.handleRequest(e);
+}
+__webpack_require__.g.createDoGetHandler = __webpack_exports__.createDoGetHandler;
+;// ./modules/test-runner/index.ts
+/**
+ * Test Runner Module - Entry Point
+ */
+
+
+
+
 ;// ./modules/index.ts
 /**
  * GasAppFramework - ES Modules版エントリーポイント
@@ -2132,6 +3359,10 @@ __webpack_require__.g.executeRoute = __webpack_exports__.executeRoute;
 // String Helper Module
 
 // RestFramework Module
+
+// Testing Module
+
+// Test Runner Module
 
 __webpack_require__.g.Container = __webpack_exports__.Container;
 __webpack_require__.g.Context = __webpack_exports__.Context;

@@ -2,8 +2,8 @@
  * Repository共通テストのNode.js実行ラッパー
  */
 
-import { setupGASMocks } from '../../../src/testing/node/test-utils';
-import { setupTestAdapter, registerCollectedTests } from '../../../src/testing/node/test-adapter';
+import { setupGASMocks } from '../../../modules/testing-utils/test-utils';
+import { setupTestAdapter, registerCollectedTests } from '../../../modules/testing-utils/test-adapter';
 import { registerRepositoryCoreTests } from '../../shared/repository/core.test';
 import { createRepository, MemoryStore, createSimpleCodec } from '../integration/repository-module';
 

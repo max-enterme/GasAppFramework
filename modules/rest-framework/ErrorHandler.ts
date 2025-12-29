@@ -88,7 +88,7 @@ export class ErrorHandler {
             message: error instanceof Error ? error.message : 'Unknown error',
             timestamp: timestamp,
             stack: error instanceof Error ? error.stack : undefined,
-            request: context?.request ? this.sanitizeRequest(context.request) : undefined,
+            request: context?.request ? this.sanitizeRequest(context.request) : undefined
         };
 
         this.logger.error(`Error occurred: ${errorCode}`, errorInfo);
@@ -108,7 +108,7 @@ export class ErrorHandler {
 
         const sanitized: any = {
             method: request.method,
-            path: request.path,
+            path: request.path
         };
 
         // Remove sensitive headers like authorization tokens

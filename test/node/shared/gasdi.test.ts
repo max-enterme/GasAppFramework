@@ -2,8 +2,8 @@
  * GasDI共通テストのNode.js実行ラッパー
  */
 
-import { setupGASMocks } from '../../../src/testing/node/test-utils';
-import { setupTestAdapter, registerCollectedTests } from '../../../src/testing/node/test-adapter';
+import { setupGASMocks } from '../../../modules/testing-utils/test-utils';
+import { setupTestAdapter, registerCollectedTests } from '../../../modules/testing-utils/test-adapter';
 import { registerGasDICoreTests } from '../../shared/gasdi/core.test';
 import { Container } from '../integration/gasdi-module';
 

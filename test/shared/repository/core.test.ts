@@ -3,6 +3,8 @@
  * このファイルは GAS と Node.js 両方で実行される
  */
 
+/// <reference path="../global-test-types.d.ts" />
+
 // 共通テストケースを関数として export
 export function registerRepositoryCoreTests() {
 
@@ -27,21 +29,21 @@ export function registerRepositoryCoreTests() {
     });
 
     const createTestCodec = (): Repository.Ports.KeyCodec<User, Key> => {
-        const c = Repository.Codec.simple<User, Key>(['id', 'org'], ',');
         return {
             stringify(key: Pick<User, Key>): string {
                 return [key.id, key.org].map(v => (v == null ? '' : String(v))).join(',');
             },
             parse(s: string): Pick<User, Key> {
-                return c.parse(s) as Pick<User, Key>;
+                const parts = s.split(',');
+                return { id: parts[0], org: parts[1] } as Pick<User, Key>;
             }
         };
     };
 
-    class Log implements Shared.Types.Logger {
-        info(_: string) { }
+    const createTestLogger = () => ({
+        info(_: string) { },
         error(_: string) { }
-    }
+    });
 
     T.it('upsert: 新規追加', () => {
         const store = new Repository.Adapters.Memory.Store<User>();
@@ -49,7 +51,7 @@ export function registerRepositoryCoreTests() {
             schema: createTestSchema(),
             store,
             keyCodec: createTestCodec(),
-            logger: new Log()
+            logger: createTestLogger()
         });
         repo.load();
 
@@ -64,7 +66,7 @@ export function registerRepositoryCoreTests() {
             schema: createTestSchema(),
             store,
             keyCodec: createTestCodec(),
-            logger: new Log()
+            logger: createTestLogger()
         });
         repo.load();
 
@@ -81,7 +83,7 @@ export function registerRepositoryCoreTests() {
             schema: createTestSchema(),
             store,
             keyCodec: createTestCodec(),
-            logger: new Log()
+            logger: createTestLogger()
         });
         repo.load();
 
@@ -102,7 +104,7 @@ export function registerRepositoryCoreTests() {
             schema: createTestSchema(),
             store,
             keyCodec: createTestCodec(),
-            logger: new Log()
+            logger: createTestLogger()
         });
         repo.load();
 
@@ -118,7 +120,7 @@ export function registerRepositoryCoreTests() {
             schema: createTestSchema(),
             store,
             keyCodec: createTestCodec(),
-            logger: new Log()
+            logger: createTestLogger()
         });
         repo.load();
 
@@ -138,7 +140,7 @@ export function registerRepositoryCoreTests() {
             schema: createTestSchema(),
             store,
             keyCodec: createTestCodec(),
-            logger: new Log()
+            logger: createTestLogger()
         });
         repo.load();
 
@@ -156,7 +158,7 @@ export function registerRepositoryCoreTests() {
             schema: createTestSchema(),
             store,
             keyCodec: createTestCodec(),
-            logger: new Log()
+            logger: createTestLogger()
         });
         repo.load();
 

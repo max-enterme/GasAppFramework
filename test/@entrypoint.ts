@@ -1,3 +1,18 @@
+// Check TestHelpers availability at module load time
+try {
+    if (typeof Logger !== 'undefined') {
+        Logger.log('[TEST ENTRYPOINT] typeof TestHelpers: ' + typeof TestHelpers);
+        Logger.log('[TEST ENTRYPOINT] typeof globalThis.TestHelpers: ' + typeof (globalThis as any).TestHelpers);
+        if (typeof TestHelpers !== 'undefined' && TestHelpers.GAS) {
+            Logger.log('[TEST ENTRYPOINT] TestHelpers.GAS.installAll exists: ' + (typeof TestHelpers.GAS.installAll === 'function'));
+        }
+    }
+} catch (e: any) {
+    if (typeof Logger !== 'undefined') {
+        Logger.log('[TEST ENTRYPOINT] Error checking TestHelpers: ' + e.message);
+    }
+}
+
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function test_RunAll() {
     const results = TRunner.runAll();
@@ -14,13 +29,13 @@ function test_RunByCategory(category: string) {
 function test_ListCategories() {
     const categories = T.categories();
     const logger = (typeof Logger !== 'undefined') ? Logger : console;
-    
+
     logger.log(`\n📋 Available test categories (${categories.length}):`);
     categories.forEach(cat => {
         const count = T.byCategory(cat).length;
         logger.log(`  📂 ${cat} (${count} tests)`);
     });
-    
+
     logger.log(`\n💡 Usage examples:`);
     logger.log(`  test_RunAll()                    // Run all tests with category organization`);
     logger.log(`  test_RunByCategory('EventSystem') // Run EventSystem tests only`);
@@ -31,7 +46,7 @@ function test_ListCategories() {
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function test_ShowModuleHelp() {
     const logger = (typeof Logger !== 'undefined') ? Logger : console;
-    
+
     logger.log('\n🏗️ GAS App Framework - Module Test Organization');
     logger.log('===============================================');
     logger.log('\n🎯 Module-Specific Entry Points:');

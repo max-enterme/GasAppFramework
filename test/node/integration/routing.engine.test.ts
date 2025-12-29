@@ -3,7 +3,7 @@
  * Comprehensive Node.js tests for the Routing module functionality
  */
 
-import { setupGASMocks, createMockLogger } from '../../../src/testing/node/test-utils';
+import { setupGASMocks, createMockLogger } from '../../../modules/testing-utils/test-utils';
 import { createRouter, RouteContext, RouteHandler } from './routing-module';
 
 // Set up GAS environment mocks before tests
@@ -33,7 +33,7 @@ describe('Routing Engine Tests', () => {
 
         test('should handle static routes', () => {
             const router = createRouter();
-            
+
             router.register('/api/status', () => ({ status: 'ok' }));
             router.register('/api/health', () => ({ health: 'good' }));
 
@@ -48,7 +48,7 @@ describe('Routing Engine Tests', () => {
     describe('Route Parameters', () => {
         test('should extract single parameter', () => {
             const router = createRouter();
-            
+
             router.register('/user/:id', (ctx) => `User ID: ${ctx.params.id}`);
 
             const result = router.dispatch('/user/123', { params: {} });
@@ -57,7 +57,7 @@ describe('Routing Engine Tests', () => {
 
         test('should extract multiple parameters', () => {
             const router = createRouter();
-            
+
             router.register('/org/:orgId/user/:userId', (ctx) => ({
                 org: ctx.params.orgId,
                 user: ctx.params.userId
@@ -69,7 +69,7 @@ describe('Routing Engine Tests', () => {
 
         test('should handle URL encoded parameters', () => {
             const router = createRouter();
-            
+
             router.register('/search/:query', (ctx) => `Query: ${ctx.params.query}`);
 
             expect(router.dispatch('/search/hello%20world', { params: {} })).toBe('Query: hello world');
@@ -78,19 +78,19 @@ describe('Routing Engine Tests', () => {
 
         test('should preserve existing context parameters', () => {
             const router = createRouter();
-            
+
             router.register('/api/:version', (ctx) => ({
                 version: ctx.params.version,
                 existing: ctx.params.existing
             }));
 
-            const result = router.dispatch('/api/v1', { 
-                params: { existing: 'value' } 
+            const result = router.dispatch('/api/v1', {
+                params: { existing: 'value' }
             });
-            
-            expect(result).toEqual({ 
-                version: 'v1', 
-                existing: 'value' 
+
+            expect(result).toEqual({
+                version: 'v1',
+                existing: 'value'
             });
         });
     });
@@ -98,7 +98,7 @@ describe('Routing Engine Tests', () => {
     describe('Wildcard Routes', () => {
         test('should handle wildcard routes', () => {
             const router = createRouter();
-            
+
             router.register('/files/*', (ctx) => `File path: ${ctx.params['*']}`);
 
             const result = router.dispatch('/files/docs/readme.txt', { params: {} });
@@ -107,7 +107,7 @@ describe('Routing Engine Tests', () => {
 
         test('should handle wildcard at root', () => {
             const router = createRouter();
-            
+
             router.register('/*', (ctx) => `Catch all: ${ctx.params['*']}`);
 
             const result = router.dispatch('/any/path/here', { params: {} });
@@ -118,7 +118,7 @@ describe('Routing Engine Tests', () => {
     describe('Route Resolution and Specificity', () => {
         test('should resolve routes by specificity order', () => {
             const router = createRouter();
-            
+
             // Register in order of increasing specificity
             router.register('/*', () => 'wildcard');
             router.register('/api/:action', () => 'param');
@@ -126,10 +126,10 @@ describe('Routing Engine Tests', () => {
 
             // Static route should take precedence
             expect(router.dispatch('/api/status', { params: {} })).toBe('static');
-            
+
             // Should use param route for non-status API calls
             expect(router.dispatch('/api/users', { params: {} })).toBe('param');
-            
+
             // Should use wildcard for non-matching paths
             expect(router.dispatch('/other/path', { params: {} })).toBe('wildcard');
         });
@@ -137,7 +137,7 @@ describe('Routing Engine Tests', () => {
         test('should resolve route without dispatching', () => {
             const router = createRouter();
             const handler = (_ctx: RouteContext) => 'handled';
-            
+
             router.register('/test/:id', handler);
 
             const resolved = router.resolve('/test/123');
@@ -148,7 +148,7 @@ describe('Routing Engine Tests', () => {
 
         test('should return null for unmatched routes', () => {
             const router = createRouter();
-            
+
             router.register('/api/users', () => 'users');
 
             const resolved = router.resolve('/api/products');
@@ -159,7 +159,7 @@ describe('Routing Engine Tests', () => {
     describe('Route Registration', () => {
         test('should register multiple routes with registerAll', () => {
             const router = createRouter();
-            
+
             const routes = {
                 '/api/users': () => 'users',
                 '/api/products': () => 'products',
@@ -175,7 +175,7 @@ describe('Routing Engine Tests', () => {
 
         test('should handle path normalization', () => {
             const router = createRouter();
-            
+
             // Register without leading slash
             router.register('api/test', () => 'normalized');
 
@@ -264,7 +264,7 @@ describe('Routing Engine Tests', () => {
     describe('Error Handling', () => {
         test('should throw error for unmatched routes', () => {
             const router = createRouter();
-            
+
             router.register('/api/users', () => 'users');
 
             expect(() => {
@@ -274,7 +274,7 @@ describe('Routing Engine Tests', () => {
 
         test('should propagate handler errors', () => {
             const router = createRouter();
-            
+
             router.register('/error', () => {
                 throw new Error('Handler error');
             });
@@ -288,35 +288,35 @@ describe('Routing Engine Tests', () => {
     describe('Complex Routing Scenarios', () => {
         test('should handle complex REST API routing', () => {
             const router = createRouter();
-            
+
             // Simulate REST API routes
             router.registerAll({
                 '/api/users': () => ({ action: 'list_users' }),
                 '/api/users/:id': (ctx) => ({ action: 'get_user', id: ctx.params.id }),
                 '/api/users/:id/posts': (ctx) => ({ action: 'user_posts', userId: ctx.params.id }),
-                '/api/users/:userId/posts/:postId': (ctx) => ({ 
-                    action: 'get_post', 
-                    userId: ctx.params.userId, 
-                    postId: ctx.params.postId 
+                '/api/users/:userId/posts/:postId': (ctx) => ({
+                    action: 'get_post',
+                    userId: ctx.params.userId,
+                    postId: ctx.params.postId
                 })
             });
 
             expect(router.dispatch('/api/users', { params: {} }))
                 .toEqual({ action: 'list_users' });
-            
+
             expect(router.dispatch('/api/users/123', { params: {} }))
                 .toEqual({ action: 'get_user', id: '123' });
-            
+
             expect(router.dispatch('/api/users/123/posts', { params: {} }))
                 .toEqual({ action: 'user_posts', userId: '123' });
-            
+
             expect(router.dispatch('/api/users/123/posts/456', { params: {} }))
                 .toEqual({ action: 'get_post', userId: '123', postId: '456' });
         });
 
         test('should handle mixed route types effectively', () => {
             const router = createRouter();
-            
+
             // Mix of static, parameterized, and wildcard routes
             router.registerAll({
                 '/': () => 'home',

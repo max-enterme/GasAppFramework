@@ -1,3 +1,5 @@
+/// <reference path="../global-test-types.d.ts" />
+
 /**
  * StringHelper 共通テストケース
  * このファイルは GAS と Node.js 両方で実行される
@@ -5,7 +7,7 @@
 
 // 共通テストケースを関数として export
 export function registerStringHelperCoreTests() {
-  
+
   T.it('formatString: 単一プレースホルダー', () => {
     const result = StringHelper.formatString('Hello {0}!', 'World');
     TAssert.equals(result, 'Hello World!', 'プレースホルダーが置換される');

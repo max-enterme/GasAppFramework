@@ -88,6 +88,6 @@ export function simple<TEntity extends object, Key extends keyof TEntity>(
             }
 
             return result;
-        },
+        }
     };
 }

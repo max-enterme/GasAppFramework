@@ -53,6 +53,6 @@ export function createSchema<TEntity extends object, Key extends keyof TEntity>(
         parameters: getParametersFromEntity(sample),
         keyParameters,
         fromPartial: createFromPartial(sample),
-        instantiate: entityFactory,
+        instantiate: entityFactory
     };
 }

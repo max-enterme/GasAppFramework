@@ -62,7 +62,7 @@ namespace Spec_Locking {
                 })
             };
 
-            const store = new Locking.Adapters.GAS.PropertiesStore('test:');
+            const store = new Locking.PropertiesStore('test:');
 
             // Test: Set and get property
             store.set('resource1', 'lock-data-123');
@@ -104,7 +104,7 @@ namespace Spec_Locking {
                 })
             };
 
-            const store = new Locking.Adapters.GAS.PropertiesStore();
+            const store = new Locking.PropertiesStore();
             const clock = new TestHelpers.Doubles.MockClock();
             const logger = new TestHelpers.Doubles.MockLogger();
 
@@ -193,7 +193,7 @@ namespace Spec_Locking {
                 })
             };
 
-            const store = new Locking.Adapters.GAS.PropertiesStore();
+            const store = new Locking.PropertiesStore();
             const mockClock = new TestHelpers.Doubles.MockClock(new Date(2024, 0, 15, 10, 0, 0));
             const logger = new TestHelpers.Doubles.MockLogger();
 
@@ -250,7 +250,7 @@ namespace Spec_Locking {
                 })
             };
 
-            const store = new Locking.Adapters.GAS.PropertiesStore();
+            const store = new Locking.PropertiesStore();
             const clock = new TestHelpers.Doubles.MockClock();
             const logger = new TestHelpers.Doubles.MockLogger();
 
@@ -300,7 +300,7 @@ namespace Spec_Locking {
                 })
             };
 
-            const store = new Locking.Adapters.GAS.PropertiesStore();
+            const store = new Locking.PropertiesStore();
             const clock = new TestHelpers.Doubles.MockClock();
             const logger = new TestHelpers.Doubles.MockLogger();
 
@@ -350,7 +350,7 @@ namespace Spec_Locking {
                 })
             };
 
-            const store = new Locking.Adapters.GAS.PropertiesStore();
+            const store = new Locking.PropertiesStore();
             const clock = new TestHelpers.Doubles.MockClock();
             const logger = new TestHelpers.Doubles.MockLogger();
 
@@ -407,7 +407,7 @@ namespace Spec_Locking {
                 })
             };
 
-            const distributedStore = new Locking.Adapters.GAS.PropertiesStore('job:');
+            const distributedStore = new Locking.PropertiesStore('job:');
             const clock = new TestHelpers.Doubles.MockClock();
             const logger = new TestHelpers.Doubles.MockLogger();
 

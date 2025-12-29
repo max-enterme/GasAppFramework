@@ -211,7 +211,7 @@ export function create<TEntity extends object, Key extends keyof TEntity>(deps: 
         get entities() {
             ensureLoaded();
             return rows;
-        },
+        }
     };
 
     return result;

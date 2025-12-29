@@ -2,10 +2,10 @@
  * Locking共通テストのNode.js実行ラッパー
  */
 
-import { setupGASMocks } from '../../../src/testing/node/test-utils';
-import { setupTestAdapter, registerCollectedTests } from '../../../src/testing/node/test-adapter';
+import { setupGASMocks } from '../../../modules/testing-utils/test-utils';
+import { setupTestAdapter, registerCollectedTests } from '../../../modules/testing-utils/test-adapter';
 import { registerLockingCoreTests } from '../../shared/locking/core.test';
-import * as LockingModule from '../integration/locking-module';
+import * as LockingModule from '../../../modules/locking';
 
 // テストアダプターをセットアップ
 setupTestAdapter();

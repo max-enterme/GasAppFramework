@@ -8,10 +8,18 @@ module.exports = {
     ],
     moduleFileExtensions: ['ts', 'js'],
     transform: {
-        '^.+\\.tsx?$': ['ts-jest', { tsconfig: { target: 'ES2020', module: 'commonjs' } }],
+        '^.+\\.tsx?$': ['ts-jest', {
+            tsconfig: {
+                target: 'ES2020',
+                module: 'commonjs',
+                types: ['jest', 'node'],
+                typeRoots: ['./node_modules/@types', './test/shared']
+            }
+        }],
     },
     collectCoverageFrom: [
-        'src/**/*.ts',
-        '!src/**/*.d.ts',
+        'modules/**/*.ts',
+        '!modules/**/*.d.ts',
+        '!modules/**/index.ts',
     ],
 };

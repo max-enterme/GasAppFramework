@@ -12,4 +12,6 @@ export * as Repository from './repository';
 export * as Routing from './routing';
 export * as StringHelper from './string-helper';
 export * as RestFramework from './rest-framework';
+export * as Testing from './testing';
+export * as TestRunner from './test-runner';
 //# sourceMappingURL=index.d.ts.map

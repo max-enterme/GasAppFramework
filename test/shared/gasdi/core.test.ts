@@ -3,9 +3,11 @@
  * このファイルは GAS と Node.js 両方で実行される
  */
 
+/// <reference path="../global-test-types.d.ts" />
+
 // 共通テストケースを関数として export
 export function registerGasDICoreTests() {
-  
+
   T.it('値の登録と解決', () => {
     const c = new GasDI.Container();
     c.registerValue('pi', 3.14);
@@ -61,7 +63,7 @@ export function registerGasDICoreTests() {
     c.registerValue('name', 'Test');
     c.registerValue('version', 1);
     c.registerFactory('service', () => ({ initialized: true }), 'singleton');
-    
+
     TAssert.equals(c.resolve<string>('name'), 'Test', 'name解決');
     TAssert.equals(c.resolve<number>('version'), 1, 'version解決');
     TAssert.equals(c.resolve<any>('service').initialized, true, 'service解決');
@@ -82,7 +84,7 @@ export function registerGasDICoreTests() {
       const cfg = c.resolve<any>('config');
       return { endpoint: cfg.url };
     }, 'singleton');
-    
+
     const client = c.resolve<any>('client');
     TAssert.equals(client.endpoint, 'https://api.example.com', 'ファクトリ内で依存解決');
   }, 'GasDI');
@@ -90,10 +92,10 @@ export function registerGasDICoreTests() {
   T.it('スコープのチェーン解決', () => {
     const root = new GasDI.Container();
     root.registerValue('global', 'global-value');
-    
+
     const scope1 = root.createScope('scope1');
     const scope2 = scope1.createScope('scope2');
-    
+
     const value = scope2.resolve<string>('global');
     TAssert.equals(value, 'global-value', '孫スコープから親の値を解決');
   }, 'GasDI');

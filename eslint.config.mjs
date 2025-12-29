@@ -46,7 +46,7 @@ export default tseslint.config(
             // Check for unused variables (allow specific names and those starting with "_")
             '@typescript-eslint/no-unused-vars': ['warn', {
                 'argsIgnorePattern': '^_',
-                'varsIgnorePattern': '^(Shared|GasDI|Repository|Routing|EventSystem|StringHelper|RestFramework|Spec_.*|TestHelpers|T|TAssert|TRunner|TGasReporter|_)$'
+                'varsIgnorePattern': '^(Shared|GasDI|Repository|Routing|EventSystem|StringHelper|RestFramework|Spec_.*|TestHelpers|T|TAssert|TRunner|TGasReporter|_.*)'
             }],
 
             // Code formatting and consistency rules

@@ -8,14 +8,19 @@ const GasPlugin = require('gas-webpack-plugin');
 module.exports = {
     mode: 'none',
     context: __dirname,
-    entry: './modules/index.ts',
+    entry: {
+        // Only build main.js - includes everything
+        // Use "0_" prefix to ensure it loads first (before test/@entrypoint.ts)
+        '0_main': './gas-main.ts'
+    },
     output: {
-        filename: 'bundle.js',
+        filename: '[name].js',
         path: path.resolve(__dirname, 'build'),
         library: {
             name: 'GasAppFramework',
             type: 'var'
-        }
+        },
+        globalObject: 'this'
     },
     resolve: {
         extensions: ['.ts', '.js']
@@ -36,8 +41,7 @@ module.exports = {
     },
     plugins: [
         new GasPlugin({
-            comments: true,
-            autoGlobalExportsFiles: ['**/*.ts']
+            comments: true
         })
     ],
     optimization: {

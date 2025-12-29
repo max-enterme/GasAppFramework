@@ -2,7 +2,9 @@
   "compilerOptions": {
     "target": "ES2019",
     "module": "ES2020",
-    "lib": ["ES2019"],
+    "lib": [
+      "ES2019"
+    ],
     "moduleResolution": "node",
     "esModuleInterop": true,
     "skipLibCheck": true,
@@ -14,12 +16,22 @@
     "declarationMap": true,
     "sourceMap": true,
     "outDir": "./build",
-    "rootDir": "./modules",
+    "rootDir": ".",
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./modules/*"]
+      "@/*": [
+        "./modules/*"
+      ]
     }
   },
-  "include": ["modules/**/*"],
-  "exclude": ["node_modules", "build", "src"]
+  "include": [
+    "modules/**/*",
+    "gas-main.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "build",
+    "src",
+    "test"
+  ]
 }

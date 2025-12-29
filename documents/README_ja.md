@@ -1,60 +1,63 @@
 # GAS App Framework
 
-Google Apps Script (GAS) アプリケーション用の包括的な TypeScript フレームワークです。モジュラーアーキテクチャ、依存性注入、イベントシステム、および堅牢なテストインフラストラクチャを提供します。
+Google Apps Script (GAS) アプリケーション用の包括的な TypeScript フレームワークです。モジュラーアーキテクチャ、依存性注入、REST APIフレームワーク、および堅牢なテストインフラストラクチャを提供します。
 
 ## 🏗️ アーキテクチャ概要
 
 ```
 GasAppFramework/
-├── src/
-│   ├── core/                    # フレームワークコア (☆ GASにプッシュ)
-│   │   ├── modules/             # コア機能モジュール
-│   │   │   ├── GasDI/          # 依存性注入コンテナ
-│   │   │   ├── Locking/        # 分散ロック機構
-│   │   │   ├── Repository/     # データ永続化抽象化
-│   │   │   ├── Routing/        # URLルーティングとリクエスト処理
-│   │   │   └── StringHelper/   # 文字列テンプレートとユーティリティ
-│   │   ├── restframework/       # REST APIフレームワーク
-│   │   ├── shared/              # 共通タイプ、エラー、ユーティリティ
-│   │   │   ├── CommonTypes.d.ts    # 共有インターフェース (Logger, Clock等)
-│   │   │   ├── ErrorTypes.d.ts     # エラータイプ定義
-│   │   │   ├── Errors.ts           # ベースエラークラス
-│   │   │   └── Time.ts             # 時間ユーティリティ
-│   │   └── index.ts             # コアモジュールエクスポート
-│   └── testing/                 # テストフレームワークモジュール
-│       ├── common/              # 共通テストフレームワーク (☆ GASにプッシュ)
-│       │   ├── Assert.ts           # アサーションユーティリティ
-│       │   ├── Test.ts             # テスト定義ユーティリティ
-│       │   ├── Runner.ts           # テスト実行エンジン
-│       │   └── index.ts            # 共通テストエクスポート
-│       ├── gas/                 # GAS固有のテストサポート (☆ GASにプッシュ)
-│       │   ├── GasReporter.ts      # GAS用テスト結果レポート
-│       │   ├── TestHelpers.ts      # テストダブル、GASモック、ユーティリティ
-│       │   └── index.ts            # GASテストエクスポート
-│       └── node/                # Node.js固有のテストサポート (ローカルのみ)
-│           ├── test-utils.ts       # Jestテストユーティリティ
-│           └── index.ts            # Node.jsテストエクスポート
-├── test/                        # GasAppFramework自体のGASテスト
-│   ├── @entrypoint.ts              # メインテストランナー (GASでtest_RunAll()を呼び出す)
-│   └── Modules/                    # モジュール固有のGAS統合テスト
-│       ├── GAS/                    # 高度なGASランタイム機能テスト
-│       ├── GasDI/                  # GAS環境での依存性注入
-│       ├── Locking/                # LockServiceとPropertiesServiceテスト
-│       ├── Repository/             # SpreadsheetApp統合テスト
-│       ├── Routing/                # URLルーティングテスト
-│       └── StringHelper/           # 文字列ユーティリティテスト
-└── test_node/                   # GasAppFramework自体のNode.jsテスト (ローカルのみ)
+├── modules/                     # ES Modules ソースコード
+│   ├── di/                      # 依存性注入コンテナ
+│   ├── locking/                 # 分散ロック機構
+│   ├── repository/              # データ永続化抽象化
+│   ├── routing/                 # URLルーティングとリクエスト処理
+│   ├── rest-framework/          # REST APIフレームワーク
+│   ├── string-helper/           # 文字列テンプレートとユーティリティ
+│   ├── testing/                 # テストフレームワークモジュール
+│   │   ├── Assert.ts                # アサーションユーティリティ
+│   │   ├── Test.ts                  # テスト定義ユーティリティ
+│   │   ├── Runner.ts                # テスト実行エンジン
+│   │   └── index.ts                 # テストエクスポート
+│   ├── test-runner/             # Webベーステストランナー (doGetハンドラ)
+│   ├── shared/                  # 共通タイプ、エラー、ユーティリティ
+│   │   ├── Errors.ts                # ベースエラークラス
+│   │   └── Time.ts                  # 時間ユーティリティ
+│   └── index.ts                 # フレームワークエントリーポイント
+├── build/                       # ビルド成果物（GASにプッシュ）
+│   ├── main.js (110 KiB)            # doGetハンドラを含むWebpackバンドル
+│   └── *.d.ts                       # TypeScript型定義
+├── test/                        # フレームワーク自体のテスト
+│   ├── Modules/                 # GAS統合テスト
+│   │   ├── GAS/                     # 高度なGASランタイム機能テスト
+│   │   ├── GasDI/                   # GAS環境での依存性注入
+│   │   ├── Locking/                 # LockServiceとPropertiesServiceテスト
+│   │   ├── Repository/              # SpreadsheetApp統合テスト
+│   │   ├── Routing/                 # URLルーティングテスト
+│   │   └── StringHelper/            # 文字列ユーティリティテスト
+│   ├── node/                    # Node.jsテストスイート（ローカルのみ）
+│   │   ├── shared/                  # 共有テスト用Jestラッパー
+│   │   └── integration/             # 統合テスト
+│   └── shared/                  # 共有テスト（GASとNode.js両方で実行）
+│       ├── gasdi/                   # GasDI共有テスト
+│       ├── locking/                 # Locking共有テスト
+│       ├── repository/              # Repository共有テスト
+│       ├── routing/                 # Routing共有テスト
+│       └── stringhelper/            # StringHelper共有テスト
+├── gas-main.ts                  # GASエントリーポイント（doGetハンドラ）
+├── scripts/                     # ビルドとデプロイスクリプト
+│   └── run-gas-tests.js             # リモートテスト実行用CLIツール
+└── documents/                   # ドキュメント
 ```
 
 **凡例:**
-- ☆ = GASプロジェクトにプッシュされる（`clasp push`に含まれる）
-- (ローカルのみ) = 開発のみ、GASデプロイから除外
+- `build/` 内のファイルがGASプロジェクトにプッシュされます（`clasp push`に含まれる）
+- `test/node/` は開発のみ、GASデプロイから除外
 
 ## 🚀 クイックスタート
 
 ### 前提条件
 
-- 開発ツール用のNode.js 16+
+- 開発ツール用のNode.js 18+
 - デプロイ用のGoogle Apps Scriptプロジェクト
 - GASデプロイ用の`clasp` CLIツール
 
@@ -78,16 +81,11 @@ GasAppFramework/
    clasp create --type standalone
    ```
 
-4. **基本設定例:**
-   ```typescript
-   // main.ts - GASプロジェクトのエントリーポイント
-   function doGet(e: GoogleAppsScript.Events.DoGet) {
-       return Routing.Engine.handleGet(e)
-   }
-   
-   function doPost(e: GoogleAppsScript.Events.DoPost) {
-       return Routing.Engine.handlePost(e)
-   }
+4. **ビルドとデプロイ:**
+   ```bash
+   npm run build      # main.jsバンドルをビルド
+   npm run gas:push   # GASにプッシュ
+   npm run gas:deploy # Webアプリとしてデプロイ
    ```
 
 ## 🧪 テスト
@@ -97,40 +95,70 @@ GasAppFramework/
 ### Node.jsテスト
 
 ```bash
-# コアビジネスロジック用のJestテストを実行
+# すべてのテストを実行
 npm run test:node
+
+# 特定のテストスイートを実行
+npm run test:node:shared       # 共有テスト（Jestラッパー）
+npm run test:node:integration  # 統合テスト
 
 # カバレッジ付きで実行
 npm run test:node -- --coverage
 ```
 
-### GASテスト
+**現在のカバレッジ:**
+- Node.js環境で **184テスト合格**
+- コアビジネスロジック用の **54共有テスト**（StringHelper、Routing、Repository、Locking、GasDI）
+- 複雑なシナリオ用の **130統合テスト**
 
-1. テストフレームワークをGASプロジェクトにデプロイ:
+### GASテスト（Webテストランナー）
+
+フレームワークには、doGetハンドラ経由でアクセス可能な組み込みWebテストランナーが含まれています：
+
+**テストの実行:**
+
+1. ビルドとデプロイ：
    ```bash
-   clasp push
+   npm run build       # main.jsをビルド
+   npm run gas:push    # GASにプッシュ
+   npm run gas:deploy  # Webアプリとしてデプロイ
    ```
 
-2. GASエディターでテストエントリーポイントを実行:
-   ```javascript
-   // GASエディターでこの関数を呼び出す
-   test_RunAll()
+2. CLIからテスト実行：
+   ```bash
+   npm run gas:test                        # すべてのテストを実行
+   npm run gas:test -- --category=Routing  # 特定カテゴリを実行
+   npm run gas:test -- --list              # テストカテゴリ一覧
    ```
 
-3. GASロガーまたは実行トランスクリプトで結果を確認。
+3. または、WebのURLに直接アクセス：
+   ```
+   https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec?all=true
+   https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec?category=StringHelper
+   https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec?list=true
+   ```
+
+**テストカバレッジ:**
+- GAS環境で **55テスト**（9合格、46はTestHelpers.installAll()が必要）
+- **Repository**: SpreadsheetApp統合、データ永続化
+- **Locking**: LockService統合、PropertiesService分散ロック
+- **GasDI**: GASサービスとの依存性注入
+- **Routing**: URLルーティングとリクエスト処理
+- **StringHelper**: 文字列テンプレートとフォーマットユーティリティ
+
+**詳細なテスト手順については以下を参照:**
+- [test/README.md](../test/README.md) - 包括的なテスト構成ガイド
+- [GAS_TESTING_GUIDE.md](./GAS_TESTING_GUIDE.md) - GAS固有のテストパターン
 
 ## 📚 ライブラリとして使用する
 
-GasAppFrameworkは外部プロジェクトでライブラリとして使用できます。フレームワークは異なる用途に応じて選択的インポートを提供します:
+GasAppFrameworkは外部GASプロジェクトでライブラリとして使用できます。
 
-### コアフレームワークのみ
+### GASプロジェクトでの使用
 
-GASプロジェクトでフレームワークモジュールのみを使用:
+GASプロジェクトへのデプロイ後、すべてのモジュールがグローバルで利用可能です：
 
 ```typescript
-// 名前空間からインポート（GASスタイル）
-// デプロイ後、フレームワークモジュールはグローバルで利用可能
-
 // Repositoryモジュールを使用
 const repo = Repository.Engine.create({
     schema: mySchema,
@@ -140,229 +168,163 @@ const repo = Repository.Engine.create({
 
 // StringHelperを使用
 const formatted = StringHelper.formatString('Hello {0}!', 'World');
-```
 
-### GASプロジェクトでのテストフレームワーク
-
-共通テストフレームワークとGAS固有のテストユーティリティを含める:
-
-```typescript
-// 共通テストフレームワークを使用してテストを定義
-T.it('正しく動作すること', () => {
-    const result = myFunction();
-    TAssert.equals(result, expectedValue);
-}, 'MyModule');
-
-// GASでテストを実行
-function test_RunAll() {
-    const results = TRunner.runAll();
-    TGasReporter.print(results);
-}
-
-// テストヘルパーを使用
-const mockLogger = new TestHelpers.Doubles.MockLogger();
-TestHelpers.GAS.installAll(); // GAS環境モックをインストール
-```
-
-### Node.jsプロジェクトでのテストフレームワーク
-
-GAS互換性を持つNode.js/Jestテスト用:
-
-```typescript
-import { setupGASMocks, createMockLogger } from 'gas-app-framework/testing/node';
-
-// GAS環境モックをセットアップ
-beforeAll(() => {
-    setupGASMocks();
-});
-
-// テストデータを作成
-const logger = createMockLogger();
+// Testingフレームワークを使用
+T.it('my test', () => {
+  TAssert.equals(myFunction(), expected);
+}, 'MyCategory');
 ```
 
 ### デプロイ設定
 
-GASにデプロイする際、`.claspignore`ファイルが必要なモジュールのみがプッシュされることを保証します:
+GASにデプロイする際、`.claspignore`ファイルが必要なファイルのみがプッシュされることを保証します：
 
-**GASにプッシュされる (☆):**
-- `src/core/` - フレームワークコアモジュール
-- `src/testing/common/` - 共通テストフレームワーク（GAS + Node.js互換）
-- `src/testing/gas/` - GAS固有のテストユーティリティ
-- `test/` - あなたのGASテストファイル
+**GASにプッシュされる:**
+- `build/main.js` - すべてのモジュールとdoGetハンドラを含むWebpackバンドル
+- `build/**/*.d.ts` - TypeScript型定義
+- `test/Modules/` - GAS統合テスト
+- `test/shared/` - 共有テスト（両環境で実行）
+- `appsscript.json` - GAS設定
 
-**GASにプッシュされない (ローカルのみ):**
-- `src/testing/node/` - Node.js固有のテストユーティリティ
-- `test_node/` - Node.jsテストファイル
+**GASにプッシュされない（ローカルのみ）:**
+- `modules/` - ソースコード（ビルド成果物のみプッシュ）
+- `gas-main.ts` - エントリーポイントソース（main.jsのみプッシュ）
+- `test/node/` - Node.jsテストファイル
 - `node_modules/` - 依存関係
-- `*.test.ts`, `*.spec.ts` - テストファイル
+- 開発設定ファイル（webpack.config.js、tsconfig.jsonなど）
 
-## 📦 モジュールダウンロード & デプロイ
+## 📦 モジュール使用法
 
-### 個別モジュールダウンロード
+### 利用可能なモジュール
 
-各モジュールは独立してダウンロード・使用できます:
+GASへのデプロイ後、これらのモジュールがグローバルで利用可能です：
 
-```bash
-# Repository モジュールのみダウンロード
-curl -O https://github.com/max-enterme/GasAppFramework/raw/main/src/core/modules/Repository/
-```
+1. **Repository** - Google Sheetsによるデータ永続化
+2. **GasDI** - 依存性注入コンテナ
+3. **Routing** - WebアプリリクエストルーティNG
+4. **Locking** - 分散ロック
+5. **StringHelper** - テンプレート文字列処理
+6. **RestFramework** - REST APIフレームワーク
+7. **Testing** - テストフレームワーク（T、TAssert、TRunner）
+8. **TestRunner** - Webベーステストランナー
 
 ### デプロイ方法
 
-#### オプション1: フルフレームワーク
-
+#### 標準デプロイ（推奨）
+フレームワーク全体をデプロイ：
 ```bash
-# 全モジュールをデプロイ
-clasp push
+npm run build      # すべてのモジュールをmain.jsにバンドル
+npm run gas:push   # build/ をGASにプッシュ
+npm run gas:deploy # Webアプリとしてデプロイ
 ```
 
-#### オプション2: 選択的モジュール
-
-必要なモジュールのみをプロジェクトにコピー:
-
+#### 手動デプロイ
 ```bash
-# 特定のモジュールをコピー
-cp -r src/core/modules/Repository/* your-project/src/
-cp -r src/core/shared/* your-project/src/
-
-# オプションでテストフレームワークを含める
-cp -r src/testing/common/* your-project/test/framework/
-cp -r src/testing/gas/* your-project/test/framework/
+clasp push   # GASにファイルをプッシュ
+clasp deploy # 新しいデプロイを作成
 ```
 
-#### オプション3: 生成バンドル
-
-```bash
-# カスタムバンドルを作成
-npm run build:bundle -- --modules=Repository,GasDI
-```
 
 ## 🔧 設定
 
-### ESLint設定
-フレームワークにはGAS最適化されたESLintルールが含まれています:
-- GAS互換性のためのnamespaceを許可
-- タイプ宣言用のtriple-slash参照を許可
-- TypeScript namespaceパターン用に設定
+### Webpack設定
+- 単一エントリーポイント: `gas-main.ts`
+- 出力: `build/main.js` (110 KiB)
+- ターゲット: ES2020（GAS V8ランタイム）
+- フォーマット: IIFE（即時実行関数式）
 
 ### TypeScript設定
-GASデプロイとNode.js開発の両方に最適化:
 - モダンGASランタイム用のES2020ターゲット
 - 厳密なタイプチェックが有効
 - 宣言ファイル生成
 - デバッグ用ソースマップ
 
+### ESLint設定
+- GAS最適化ルール
+- TypeScriptサポート
+- Node.jsとJest環境
+
 ## 🏛️ フレームワークモジュール
 
-フレームワークには以下のモジュールが含まれており、それぞれに包括的なドキュメントが用意されています:
+各モジュールは特定の機能を提供します：
 
-- **[GasDI](../src/core/modules/GasDI/README_ja.md)** - 依存性注入コンテナ
-- **[Locking](../src/core/modules/Locking/README_ja.md)** - 分散ロックと並行制御
-- **[Repository](../src/core/modules/Repository/README_ja.md)** - Google Sheetsを使った型安全データ永続化
-- **[Routing](../src/core/modules/Routing/README_ja.md)** - Webアプリケーションリクエストルーティング
-- **[StringHelper](../src/core/modules/StringHelper/README_ja.md)** - 文字列テンプレートとフォーマットユーティリティ
-
-各モジュールディレクトリには、API文書、使用例、テスト戦略を含む詳細なREADMEファイルが含まれています。
+- **GasDI** - 依存性注入コンテナ
+- **Locking** - 分散ロックと並行制御
+- **Repository** - Google Sheetsを使った型安全データ永続化
+- **Routing** - Webアプリケーションリクエストルーティング
+- **StringHelper** - 文字列テンプレートとフォーマットユーティリティ
+- **RestFramework** - REST APIコントローラーとルーティング
+- **Testing** - テスト定義とアサーションフレームワーク
+- **TestRunner** - Webベーステスト実行
 
 ## 🎯 ベストプラクティス
 
 ### エラーハンドリング
-```typescript
-// 構造化エラーハンドリングを使用
-try {
-    const result = riskyOperation()
-} catch (error) {
-    if (error instanceof Shared.Errors.ValidationError) {
-        // 検証エラーを処理
-    } else if (error instanceof Shared.Errors.NetworkError) {
-        // ネットワークエラーを処理
-    }
-}
-```
+- 型付けされたエラーコードを使用
+- ドメイン固有のエラーにはベースエラークラスを拡張
+- 構造化コンテキストでエラーをログ
 
 ### テスト
-```typescript
-// TestHelpersを活用してモックを作成
-const mockLogger = TestHelpers.createLogger()
-const mockStore = TestHelpers.createMemoryStore()
-```
+- GAS統合には `test/Modules/` にテストを記述
+- Node.js単体/統合テストには `test/node/` にテストを記述
+- クロス環境テストには `test/shared/` の共有テストを使用
+- CLIでテスト: `npm run gas:test`
 
 ### タイプセーフティ
-```typescript
-// 強いタイピングで型システムを活用
-interface UserSchema extends Repository.Ports.Schema<User, 'id'> {
-    parameters: ['id', 'name', 'email']
-    keyParameters: ['id']
-}
-```
+- すべてのモジュールは完全に型付け
+- 開発にはTypeScriptを使用
+- 生成された.d.tsファイルでIDEオートコンプリートを活用
 
 ### パフォーマンス
 - 大きなデータセットには遅延読み込みを使用
-- GAS実行時間制限内に収まるよう操作をバッチ化
-- プロパティサービスで設定をキャッシュ
+- 適切なキャッシング戦略を実装
+- 操作をバッチ化（特にSpreadsheetApp）
 
-## 🏗️ GAS用Namespaceアーキテクチャ
+## 🏗️ アーキテクチャ
 
-フレームワークはGoogle Apps Script用に最適化された階層namespace設計を使用します:
+フレームワークは開発ではES Modulesを使用し、GASデプロイにはWebpackバンドリングを使用します：
 
 ```typescript
-// Namespaceはモジュラー構造を提供します
-namespace Repository.Engine { 
-    export function create() { /*...*/ }
-}
+// 開発時（modules/）
+import { Container } from './di/Container';
+import { Engine } from './repository/Engine';
 
-// GAS環境でのアクセスパターン
-const repo = Repository.Engine.create({ schema, store, keyCodec })
-const codec = Repository.Codec.simple('|')
+// GASへのデプロイ後（グローバルアクセス）
+const container = GasDI.Container.create();
+const repo = Repository.Engine.create({ schema, store, keyCodec });
 ```
 
-**GAS用Namespaceを使う理由:**
-- Google Apps ScriptはESモジュール（import/export）をサポートしていません
-- NamespaceはGAS制約内でモジュラー組織を提供します
-- デプロイにビルドステップが不要
-- 優れたIDE統合でフルTypeScriptサポート
-
-## GAS互換性注意事項
-
-### ランタイム制限
-- **実行時間**: 最大6分（シンプルトリガー）、最大30分（インストール可能トリガー）
-- **メモリ**: 制限された実行環境
-- **並行実行**: シングルスレッド環境
-
-### API制限
-- **外部API**: URLFetchを使用してHTTPリクエスト
-- **ファイルアクセス**: DriveApp、SpreadsheetApp経由
-- **データベース**: Spreadsheetを主データストアとして使用
-
-### 開発とデプロイ
-- **ローカル開発**: TypeScriptで開発してコンパイル
-- **テスト**: Node.jsで単体テスト、GASで統合テスト
-- **デプロイ**: `clasp`を使用してGASプロジェクトにプッシュ
+**GASにWebpackを使う理由:**
+- GASはES modulesをネイティブサポートしていません
+- Webpackがすべてのモジュールを単一のIIFEにバンドル
+- グローバルエクスポートでGASでモジュールにアクセス可能
+- 型定義でIDEサポートを有効化
+- doGetハンドラをバンドルに統合
 
 ## 🤝 貢献
 
-1. 確立されたnamespaceパターンに従ってください
-2. 新機能に包括的なテストを追加してください
-3. 別の`.d.ts`ファイルでタイプ定義を更新してください
-4. JSDocコメントでパブリックAPIを文書化してください
-5. Node.jsとGASの両方の互換性を確保してください
+1. `modules/` でES Modulesパターンに従う
+2. 新機能に包括的なテストを追加
+3. 型定義を更新
+4. 公開APIをJSDocコメントで文書化
+5. ビルド成功を確認: `npm run build`
 
 ## 📄 ライセンス
 
-[ライセンス情報をここに追加]
+未定
 
 ## 🆘 サポート
 
-問題、質問、または貢献については:
+問題、質問、または貢献については：
 1. 既存のドキュメントとテストを確認
-2. **`src/core/modules/`ディレクトリ内のモジュール固有のREADMEファイル**を確認
-3. 使用例についてテストケースを調査
-4. バグや機能リクエストはissueを開いてください
+2. テスト構成については [test/README.md](../test/README.md) を確認
+3. 使用例についてはテストケースを確認
+4. デプロイガイドについては [QUICKSTART_GAS.md](../QUICKSTART_GAS.md) と [GAS_DEPLOYMENT.md](../GAS_DEPLOYMENT.md) を参照
 
 ---
 
 **フレームワークバージョン:** 1.0.0  
-**最終更新日:** 2025-12-27  
+**ビルド成果物:** main.js (110 KiB)  
 **GASランタイム:** V8 (ES2020)  
 **TypeScript:** 5.x  
-**Node.js:** 16+
+**Node.js:** 18+

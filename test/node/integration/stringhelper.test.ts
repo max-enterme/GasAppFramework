@@ -3,7 +3,7 @@
  * Comprehensive Node.js tests for the StringHelper module functionality
  */
 
-import { setupGASMocks } from '../../../src/testing/node/test-utils';
+import { setupGASMocks } from '../../../modules/testing-utils/test-utils';
 import { formatString, formatDate, resolveString, get } from './stringhelper-module';
 
 // Set up GAS environment mocks before tests
@@ -51,7 +51,7 @@ describe('StringHelper Tests', () => {
         test('should handle large number of placeholders', () => {
             const template = Array.from({ length: 20 }, (_, i) => `{${i}}`).join(' ');
             const args = Array.from({ length: 20 }, (_, i) => `arg${i}`);
-            
+
             const result = formatString(template, ...args);
             expect(result).toBe(args.join(' '));
         });
@@ -112,8 +112,8 @@ describe('StringHelper Tests', () => {
             const result = formatDate(testDate, 'yyyy-MM-dd', 'America/Los_Angeles');
 
             expect(mockUtilities.formatDate).toHaveBeenCalledWith(
-                testDate, 
-                'America/Los_Angeles', 
+                testDate,
+                'America/Los_Angeles',
                 'yyyy-MM-dd'
             );
             expect(result).toBe('2024-03-15 (GAS formatted)');
@@ -134,8 +134,8 @@ describe('StringHelper Tests', () => {
 
             expect(mockSession.getScriptTimeZone).toHaveBeenCalled();
             expect(mockUtilities.formatDate).toHaveBeenCalledWith(
-                testDate, 
-                'America/New_York', 
+                testDate,
+                'America/New_York',
                 'yyyy-MM-dd'
             );
         });

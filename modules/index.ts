@@ -14,9 +14,11 @@ export { ensureTimeZone, format as formatDate } from './shared/Time';
 
 // Locking Module
 export * as Locking from './locking';
+export { PropertiesStore, SystemClock, GasLogger } from './locking';
 
 // Repository Module
 export * as Repository from './repository';
+export { MemoryStore, SpreadsheetStore, RepositoryError as RepoError } from './repository';
 
 // Routing Module
 export * as Routing from './routing';
@@ -26,3 +28,9 @@ export * as StringHelper from './string-helper';
 
 // RestFramework Module
 export * as RestFramework from './rest-framework';
+
+// Testing Module
+export * as Testing from './testing';
+
+// Test Runner Module
+export * as TestRunner from './test-runner';

@@ -16,7 +16,7 @@ export class ApiResponseFormatter {
         return {
             success: true,
             data,
-            timestamp: new Date().toISOString(),
+            timestamp: new Date().toISOString()
         };
     }
 
@@ -33,9 +33,9 @@ export class ApiResponseFormatter {
             error: {
                 code,
                 message,
-                details,
+                details
             },
-            timestamp: new Date().toISOString(),
+            timestamp: new Date().toISOString()
         };
     }
 

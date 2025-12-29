@@ -157,7 +157,7 @@ export function create<Ctx = any, Res = any>(
         // Merge params into context
         const contextWithParams = {
             ...ctx,
-            params: { ...(ctx as any).params, ...resolved.params },
+            params: { ...(ctx as any).params, ...resolved.params }
         };
 
         log.info(`[Router] dispatching to route: ${path}`);
@@ -170,7 +170,7 @@ export function create<Ctx = any, Res = any>(
         registerAll,
         mount,
         resolve,
-        dispatch,
+        dispatch
     };
     return api;
 }

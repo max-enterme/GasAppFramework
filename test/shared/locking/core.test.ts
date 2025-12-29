@@ -1,3 +1,5 @@
+/// <reference path="../global-test-types.d.ts" />
+
 /**
  * Locking 共通テストケース
  * このファイルは GAS と Node.js 両方で実行される
@@ -5,7 +7,7 @@
 
 // 共通テストケースを関数として export
 export function registerLockingCoreTests() {
-  
+
   class MemStore implements Locking.Ports.Store {
     private m = new Map<string, string>();
     get(k: string) { return this.m.get(k) ?? null; }
@@ -24,10 +26,10 @@ export function registerLockingCoreTests() {
   }
 
   const createEngine = () => {
-    return Locking.Engine.create({ 
-      store: new MemStore(), 
-      clock: new FixedClock(Date.now()), 
-      rand: new Rand() 
+    return Locking.Engine.create({
+      store: new MemStore(),
+      clock: new FixedClock(Date.now()),
+      rand: new Rand()
     });
   };
 
@@ -68,8 +70,8 @@ export function registerLockingCoreTests() {
     const eng = createEngine();
     const w = eng.acquire('docB', 'w', 10000, 'u9');
     if (!w.ok) TAssert.fail('writerは取得できるはず');
-    
-    const ex = eng.extend('docB', w.token, 20000);
+
+    const ex = eng.extend('docB', (w as Locking.AcquireOk).token, 20000);
     TAssert.isTrue(ex.ok === true, 'extendが成功');
   }, 'Locking');
 
@@ -77,8 +79,8 @@ export function registerLockingCoreTests() {
     const eng = createEngine();
     const w = eng.acquire('docB', 'w', 10000, 'u9');
     if (!w.ok) TAssert.fail('writerは取得できるはず');
-    
-    const rl = eng.release('docB', w.token);
+
+    const rl = eng.release('docB', (w as Locking.AcquireOk).token);
     TAssert.isTrue(rl.ok === true, 'releaseが成功');
   }, 'Locking');
 
@@ -86,9 +88,9 @@ export function registerLockingCoreTests() {
     const eng = createEngine();
     const w1 = eng.acquire('docC', 'w', 10000, 'u1');
     if (!w1.ok) TAssert.fail('writer1は取得できるはず');
-    
-    eng.release('docC', w1.token);
-    
+
+    eng.release('docC', (w1 as Locking.AcquireOk).token);
+
     const w2 = eng.acquire('docC', 'w', 10000, 'u2');
     TAssert.isTrue(w2.ok === true, 'release後は別のwriterが取得できる');
   }, 'Locking');

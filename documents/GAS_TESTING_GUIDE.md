@@ -6,98 +6,119 @@ This document provides comprehensive instructions for running and developing Goo
 
 The framework provides two types of testing:
 
-1. **Node.js Tests** (`test_node/`) - For business logic and unit testing
-2. **GAS Tests** (`test/`) - For integration testing with GAS services and APIs
+1. **Node.js Tests** (`test/node/`) - For business logic and unit testing
+2. **GAS Tests** (`test/Modules/`) - For integration testing with GAS services and APIs
 
 ## GAS Test Structure
 
 ```
 test/
-├── @entrypoint.ts              # Main test runner entry point
-├── _framework/                 # GAS testing framework
-│   ├── Assert.ts               # Assertion utilities
-│   ├── GasReporter.ts          # Test result reporting
-│   ├── Runner.ts               # Test execution engine
-│   ├── Test.ts                 # Test definition utilities
-│   └── TestHelpers.ts          # Mocks and test utilities
-└── Modules/                    # Module-specific tests
-    ├── GAS/
-    │   └── gas_advanced_spec.ts       # Advanced GAS runtime features
-    ├── GasDI/
-    │   ├── gas_di_spec.ts             # GAS-specific DI container tests
-    │   └── gasdi_spec.ts              # Core DI tests
-    ├── Locking/
-    │   ├── gas_locking_spec.ts        # GAS LockService integration tests
-    │   └── locking_spec.ts            # Core locking tests
-    ├── Repository/
-    │   ├── gas_spreadsheet_spec.ts    # SpreadsheetApp integration tests
-    │   └── repo_memory_spec.ts        # Memory store tests
-    ├── Routing/
-    │   └── routing_spec.ts            # URL routing tests
-    └── StringHelper/
-        └── stringhelper_spec.ts       # String utilities tests
+├── Modules/                    # Module-specific GAS tests
+│   ├── GAS/
+│   │   └── gas_advanced_spec.ts       # Advanced GAS runtime features
+│   ├── GasDI/
+│   │   └── gas_di_spec.ts             # GAS-specific DI container tests
+│   ├── Locking/
+│   │   └── locking_spec.ts            # LockService integration tests
+│   ├── Repository/
+│   │   └── gas_spreadsheet_spec.ts    # SpreadsheetApp integration tests
+│   ├── Routing/
+│   │   └── routing_spec.ts            # URL routing tests
+│   └── StringHelper/
+│       └── stringhelper_spec.ts       # String utilities tests
+├── shared/                     # Shared tests (both GAS and Node.js)
+│   ├── stringhelper/
+│   ├── routing/
+│   ├── repository/
+│   ├── locking/
+│   └── gasdi/
+└── node/                       # Node.js specific tests
+    ├── shared/                 # Jest wrappers for shared tests
+    └── integration/            # Complex integration tests
 ```
+
 
 ## Running GAS Tests
 
-### Method 1: GAS IDE (Recommended for development)
+### Method 1: CLI Test Runner (Recommended)
 
-1. **Deploy to GAS Project**:
+The framework includes a web-based test runner integrated into the doGet handler.
+
+1. **Build and Deploy**:
    ```bash
-   # Ensure you have clasp installed and configured
-   npm install -g @google/clasp
-   clasp login
+   # Build the webpack bundle
+   npm run build
    
-   # Push the framework to your GAS project
-   clasp push
+   # Push to GAS
+   npm run gas:push
+   
+   # Deploy as web app
+   npm run gas:deploy
    ```
 
-2. **Run Tests in GAS Editor**:
-   - Open your GAS project in the Apps Script editor
-   - Find the `test_RunAll` function in the script editor
-   - Click "Run" or use `Ctrl+R` to execute
-   - View results in the execution transcript
+2. **Run Tests via CLI**:
+   ```bash
+   # Run all tests
+   npm run gas:test
+   
+   # Run specific category
+   npm run gas:test -- --category=Repository
+   
+   # List test categories
+   npm run gas:test -- --list
+   ```
 
 3. **View Test Results**:
    ```
-   [TEST] total=45 ok=43 ng=2
-   ✅ GAS GlobalInvoker calls global functions correctly (12ms)
-   ✅ GAS SpreadsheetJobStore loads jobs from spreadsheet correctly (8ms)
-   ❌ GAS error handling in distributed environment (15ms) :: Expected behavior not met
+   🧪 Running GAS Tests...
+   📊 Test Results:
+
+   Category: StringHelper
+     ✅ formatString should format string with placeholders
+     ✅ extractBetween should extract text between markers
+     ✅ toHalfWidth should convert full-width to half-width
+     ✅ slugify should create URL-friendly slugs
+
+   Summary: 55 total, 9 passed, 46 failed
    ```
 
-### Method 2: clasp Command Line
+### Method 2: Web Browser
 
-1. **Run via clasp**:
+1. **Access the deployed web app URL**:
+   ```
+   https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec
+   ```
+
+2. **Use query parameters**:
+   - `?all=true` - Run all tests
+   - `?category=StringHelper` - Run specific category
+   - `?list=true` - List all test categories
+   - `?format=json` - Get JSON format (for CLI)
+
+### Method 3: GAS IDE (Manual)
+
+For debugging individual tests:
+
+1. **Open GAS Editor**:
    ```bash
-   # Push latest changes
-   clasp push
-   
-   # Execute the test function
-   clasp run test_RunAll
+   npm run gas:open
    ```
 
-2. **Run specific test modules** (if needed):
-   ```bash
-   # You can create specific test runners for modules
-   clasp run test_Routing_Only  # If implemented
-   ```
+2. **Run test functions manually** in the script editor
+   - Individual test files can be executed directly
+   - Use Logger.log() to debug
 
-### Method 3: Automated Testing via GitHub Actions
+### Method 4: clasp Command Line
 
-The framework can be integrated with CI/CD pipelines:
+For advanced users:
 
-```yaml
-# .github/workflows/gas-tests.yml
-name: GAS Integration Tests
-on: [push, pull_request]
+```bash
+# Push latest changes
+clasp push
 
-jobs:
-  gas-tests:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+# Run specific functions (if implemented)
+clasp run <function_name>
+```
         with:
           node-version: '16'
       - run: npm install

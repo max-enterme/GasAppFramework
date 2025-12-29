@@ -42,8 +42,8 @@ function parse(json: string | null): State {
                 token: String(e.token),
                 owner: e.owner == null ? null : String(e.owner),
                 mode: e.mode === 'w' ? 'w' : 'r',
-                expireMs: Number(e.expireMs) || 0,
-            })),
+                expireMs: Number(e.expireMs) || 0
+            }))
         };
     } catch {
         return { version: 1, entries: [] };

@@ -36,7 +36,7 @@ namespace Spec_Repo {
 
     T.it('upsert adds and updates, then find/findAll work', () => {
         // Test Case: Normal operation - add new records and update existing ones
-        const store = new Repository.Adapters.Memory.Store<User>();
+        const store = new Repository.MemoryStore<User>();
         const repo = Repository.Engine.create<User, Key>({ schema, store, keyCodec: codec, logger: new Log() });
         repo.load();
 
@@ -64,7 +64,7 @@ namespace Spec_Repo {
 
     T.it('delete removes rows by key', () => {
         // Test Case: Record deletion functionality
-        const store = new Repository.Adapters.Memory.Store<User>();
+        const store = new Repository.MemoryStore<User>();
         const repo = Repository.Engine.create<User, Key>({ schema, store, keyCodec: codec });
         repo.load();
 
@@ -85,7 +85,7 @@ namespace Spec_Repo {
 
     T.it('invalid key throws RepositoryError', () => {
         // Test Case: Error handling for invalid/missing key values
-        const store = new Repository.Adapters.Memory.Store<User>();
+        const store = new Repository.MemoryStore<User>();
         const repo = Repository.Engine.create<User, Key>({ schema, store, keyCodec: codec });
         repo.load();
 
@@ -95,7 +95,7 @@ namespace Spec_Repo {
 
     T.it('schema hooks onBeforeSave/afterLoad are applied', () => {
         // Test Case: Schema transformation hooks work correctly
-        const store = new Repository.Adapters.Memory.Store<User>();
+        const store = new Repository.MemoryStore<User>();
         const repo = Repository.Engine.create<User, Key>({ schema, store, keyCodec: codec });
         repo.load();
 
@@ -107,7 +107,7 @@ namespace Spec_Repo {
 
     T.it('edge case: null and undefined handling', () => {
         // Test Case: Edge cases with null/undefined values
-        const store = new Repository.Adapters.Memory.Store<User>();
+        const store = new Repository.MemoryStore<User>();
         const repo = Repository.Engine.create<User, Key>({ schema, store, keyCodec: codec });
         repo.load();
 
@@ -124,7 +124,7 @@ namespace Spec_Repo {
 
     T.it('edge case: find non-existent record returns null', () => {
         // Test Case: Query for records that don't exist
-        const store = new Repository.Adapters.Memory.Store<User>();
+        const store = new Repository.MemoryStore<User>();
         const repo = Repository.Engine.create<User, Key>({ schema, store, keyCodec: codec });
         repo.load();
 

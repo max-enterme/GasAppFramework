@@ -1,7 +1,7 @@
 /**
  * Schedule Engine Tests
  * Comprehensive Node.js tests for the EventSystem.Schedule module
- * 
+ *
  * NOTE: This test file contains a local implementation of the Schedule Engine
  * that mirrors the actual implementation in Schedule.Engine.ts. This approach
  * is used because the actual implementation uses TypeScript namespaces which
@@ -9,7 +9,9 @@
  * behavior patterns that the actual implementation should follow.
  */
 
-import { setupGASMocks, createMockLogger } from '../../../src/testing/node/test-utils';
+/// <reference path="../../../types/gas-globals.d.ts" />
+
+import { setupGASMocks, createMockLogger } from '../../../modules/testing-utils/test-utils';
 
 // Expected timezone from test-utils.ts mock
 const MOCK_TIMEZONE = 'America/New_York';

@@ -52,7 +52,7 @@ export class ApiController<TRequest = any, TResponse = any> {
             // Pass request context to error handler for better logging
             return this._errorHandler.handle(error, {
                 request: rawRequest,
-                timestamp: timestamp,
+                timestamp: timestamp
             });
         }
     }

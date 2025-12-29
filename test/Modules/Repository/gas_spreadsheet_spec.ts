@@ -63,7 +63,7 @@ namespace Spec_Repository_GAS {
             mockApp.setupSpreadsheet(sheetId, { 'Entities': entityData });
 
             // Test: Create and load from SpreadsheetStore
-            const store = new Repository.Adapters.GAS.SpreadsheetStore(
+            const store = new Repository.SpreadsheetStore(
                 sheetId, 'Entities', schema
             );
 
@@ -100,7 +100,7 @@ namespace Spec_Repository_GAS {
                 'Empty': [['id', 'name', 'value', 'active']]
             });
 
-            const emptyStore = new Repository.Adapters.GAS.SpreadsheetStore(
+            const emptyStore = new Repository.SpreadsheetStore(
                 emptySheetId, 'Empty', schema
             );
             const emptyResult = emptyStore.load();
@@ -109,7 +109,7 @@ namespace Spec_Repository_GAS {
             // Edge Case 2: Non-existent sheet should throw RepositoryError
             TAssert.throws(
                 () => {
-                    const badStore = new Repository.Adapters.GAS.SpreadsheetStore(
+                    const badStore = new Repository.SpreadsheetStore(
                         emptySheetId, 'NonExistent', schema
                     );
                     badStore.load();
@@ -142,7 +142,7 @@ namespace Spec_Repository_GAS {
             mockApp.setupSpreadsheet(sheetId, { 'CustomHeader': dataWithCustomHeader });
 
             // Test: Create store with custom header row
-            const store = new Repository.Adapters.GAS.SpreadsheetStore(
+            const store = new Repository.SpreadsheetStore(
                 sheetId, 'CustomHeader', schema, { headerRow: 3 }
             );
 
@@ -176,7 +176,7 @@ namespace Spec_Repository_GAS {
             mockApp.setupSpreadsheet(sheetId, { 'SoftDelete': dataWithSoftDelete });
 
             // Test: Create store with soft delete configuration
-            const store = new Repository.Adapters.GAS.SpreadsheetStore(
+            const store = new Repository.SpreadsheetStore(
                 sheetId, 'SoftDelete', schema, {
                 softDelete: { enabled: true, flagField: 'deleted', trueValue: 'true' }
             }
@@ -211,7 +211,7 @@ namespace Spec_Repository_GAS {
                 'SaveTest': [['id', 'name', 'value', 'active']]
             });
 
-            const store = new Repository.Adapters.GAS.SpreadsheetStore(
+            const store = new Repository.SpreadsheetStore(
                 sheetId, 'SaveTest', schema
             );
 
@@ -254,7 +254,7 @@ namespace Spec_Repository_GAS {
 
             mockApp.setupSpreadsheet(sheetId, { 'UpdateTest': existingData });
 
-            const store = new Repository.Adapters.GAS.SpreadsheetStore(
+            const store = new Repository.SpreadsheetStore(
                 sheetId, 'UpdateTest', schema
             );
 
@@ -304,7 +304,7 @@ namespace Spec_Repository_GAS {
 
             mockApp.setupSpreadsheet(sheetId, { 'TypeTest': mixedTypeData });
 
-            const store = new Repository.Adapters.GAS.SpreadsheetStore(
+            const store = new Repository.SpreadsheetStore(
                 sheetId, 'TypeTest', schema
             );
 
@@ -356,7 +356,7 @@ namespace Spec_Repository_GAS {
 
             mockApp.setupSpreadsheet(sheetId, { 'RangeTest': largeData });
 
-            const store = new Repository.Adapters.GAS.SpreadsheetStore(
+            const store = new Repository.SpreadsheetStore(
                 sheetId, 'RangeTest', schema
             );
 
@@ -382,7 +382,7 @@ namespace Spec_Repository_GAS {
             // Edge Case 1: Invalid spreadsheet ID should throw RepositoryError
             TAssert.throws(
                 () => {
-                    const store = new Repository.Adapters.GAS.SpreadsheetStore(
+                    const store = new Repository.SpreadsheetStore(
                         'invalid-sheet-id', 'TestSheet', schema
                     );
                     store.load();
@@ -396,7 +396,7 @@ namespace Spec_Repository_GAS {
 
             TAssert.throws(
                 () => {
-                    const store = new Repository.Adapters.GAS.SpreadsheetStore(
+                    const store = new Repository.SpreadsheetStore(
                         'valid-sheet', 'InvalidSheetName', schema
                     );
                     store.load();
@@ -423,7 +423,7 @@ namespace Spec_Repository_GAS {
             });
 
             // Create complete repository with GAS store
-            const store = new Repository.Adapters.GAS.SpreadsheetStore(
+            const store = new Repository.SpreadsheetStore(
                 sheetId, 'Workflow', schema
             );
 

@@ -153,7 +153,7 @@ export function executeRoute(
                 logger.error('Error during route execution', error);
                 return errorHandler.handle(error, {
                     request: normalizedRequest,
-                    timestamp: new Date().toISOString(),
+                    timestamp: new Date().toISOString()
                 });
             }
         });

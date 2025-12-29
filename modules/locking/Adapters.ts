@@ -2,6 +2,8 @@
  * Locking Module - GAS Adapters
  */
 
+/// <reference path="../../types/gas-globals.d.ts" />
+
 import type * as LockingTypes from './Types';
 import type { Clock, Logger as ILogger } from '../shared/index';
 
