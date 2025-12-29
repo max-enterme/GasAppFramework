@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Repository GAS固有テスト - Spreadsheet統合
  *

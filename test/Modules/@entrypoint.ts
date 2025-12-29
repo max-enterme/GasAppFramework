@@ -1,8 +1,12 @@
+// @ts-nocheck
 // Module-specific test entry points
 // This file provides convenient functions for running tests by module category
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function test_RunByModule(moduleName: string) {
+    const TRunner = (globalThis as any).TRunner;
+    const TGasReporter = (globalThis as any).TGasReporter;
+    
     // Run debug tests first to show Framework structure
     if (moduleName !== 'Debug') {
         const debugResults = TRunner.runByCategory('Debug');

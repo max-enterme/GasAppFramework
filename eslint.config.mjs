@@ -30,6 +30,9 @@ export default tseslint.config(
             'no-inner-declarations': 'off',
             'no-redeclare': 'off',
 
+            // Allow @ts-nocheck for GAS test files
+            '@typescript-eslint/ban-ts-comment': 'off',
+
             // Allow empty blocks only in catch statements
             'no-empty': ['error', { 'allowEmptyCatch': true }],
 

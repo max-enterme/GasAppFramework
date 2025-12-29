@@ -124,12 +124,9 @@ function initializeGasAppFramework() {
 
     // DIInject and DIResolve with post-build fallback
     // CRITICAL: Webpack getters don't work for Inject/Resolve, ALWAYS use post-build globals
-    let DIInject: any;
-    let DIResolve: any;
-
     // ONLY use post-build globals - webpack getters are broken
-    DIInject = (globalThis as any).__GasAppFramework_Inject;
-    DIResolve = (globalThis as any).__GasAppFramework_Resolve;
+    const DIInject = (globalThis as any).__GasAppFramework_Inject;
+    const DIResolve = (globalThis as any).__GasAppFramework_Resolve;
 
     if (DIInject) {
         logger.log('[INIT] Using post-build Inject');

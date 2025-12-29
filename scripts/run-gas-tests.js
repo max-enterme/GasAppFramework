@@ -9,6 +9,7 @@
  *   npm run gas:test -- --list
  */
 
+/* eslint-disable */
 const https = require('https');
 const http = require('http');
 

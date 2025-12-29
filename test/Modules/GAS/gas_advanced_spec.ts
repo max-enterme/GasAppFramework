@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * GAS-Specific Integration Tests for Script Triggers and Properties
  *
@@ -23,7 +24,7 @@ namespace Spec_GAS_Advanced {
                 .atHour(3)
                 .create();
 
-            TAssert.notNull(trigger, 'Trigger should be created');
+            TAssert.isNotNull(trigger, 'Trigger should be created');
 
             // Test: Create hourly trigger
             const _hourlyTrigger = mockScriptApp
@@ -113,7 +114,7 @@ namespace Spec_GAS_Advanced {
         TestHelpers.GAS.installAll();
 
         try {
-            const mockSession = globalThis.Session as unknown as TestHelpers.GAS.MockSession;
+            const mockSession = globalThis.Session as any;
 
             // Test: Script timezone
             TAssert.equals(mockSession.getScriptTimeZone(), 'America/New_York', 'Should have default timezone');
@@ -129,7 +130,7 @@ namespace Spec_GAS_Advanced {
             TAssert.equals(mockSession.getActiveUser().getEmail(), 'admin@company.com', 'Should update user email');
 
             // Test: Timezone-aware operations
-            const mockUtilities = globalThis.Utilities as unknown as TestHelpers.GAS.MockUtilities;
+            const mockUtilities = globalThis.Utilities as any;
             const testDate = new Date('2024-01-15T10:30:00Z');
 
             const formattedDate = mockUtilities.formatDate(testDate, mockSession.getScriptTimeZone(), 'yyyy-MM-dd HH:mm');

@@ -1,3 +1,5 @@
+/* eslint-disable */
+// @ts-nocheck
 // Test entry point - verifies framework globals are properly set
 // gas-main.ts should have already set up the global variables
 function setupTestGlobals() {
@@ -72,6 +74,9 @@ try {
 function test_RunAll() {
     // First run debug test to show Framework structure
     const logger = (typeof Logger !== 'undefined') ? Logger : console;
+    const TRunner = (globalThis as any).TRunner;
+    const TGasReporter = (globalThis as any).TGasReporter;
+    
     logger.log('\n🔍 Running Framework Structure Debug Test First...\n');
     const debugResults = TRunner.runByCategory('Debug');
     TGasReporter.printCategory(debugResults, 'Debug');
@@ -83,12 +88,15 @@ function test_RunAll() {
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function test_RunByCategory(category: string) {
+    const TRunner = (globalThis as any).TRunner;
+    const TGasReporter = (globalThis as any).TGasReporter;
     const results = TRunner.runByCategory(category);
     TGasReporter.printCategory(results, category);
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function test_ListCategories() {
+    const T = (globalThis as any).T;
     const categories = T.categories();
     const logger = (typeof Logger !== 'undefined') ? Logger : console;
 

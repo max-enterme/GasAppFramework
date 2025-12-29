@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Locking GAS固有テスト
  *

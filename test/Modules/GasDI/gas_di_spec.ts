@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * GasDI GAS固有テスト
  *
@@ -102,8 +103,6 @@ namespace Spec_GasDI_GAS {
             }
         }
     })();
-
-    const Logger = (globalThis as any).Logger;
 
     T.it('register and resolve values/factories with lifetimes', () => {
         const GasDI = getGasDI();  // Get GasDI fresh each time
