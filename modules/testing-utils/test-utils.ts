@@ -3,6 +3,9 @@
  * This module provides utilities and mocks for testing the GAS App Framework in Node.js
  */
 
+// Re-export TestHelpers for Node.js environment
+export { MockLogger, MockClock, Assertions, GAS } from '../testing/TestHelpers';
+
 /**
  * Mock GAS environment globals for testing
  */
