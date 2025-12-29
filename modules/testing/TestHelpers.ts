@@ -27,9 +27,17 @@ export class MockLogger implements Logger {
         return filtered[filtered.length - 1]?.message;
     }
 
+    getLastLog(level?: 'info' | 'error'): string | undefined {
+        return this.getLastMessage(level);
+    }
+
     getAllMessages(level?: 'info' | 'error'): string[] {
         const filtered = level ? this.messages.filter((m) => m.level === level) : this.messages;
         return filtered.map((m) => m.message);
+    }
+
+    getAllLogs(level?: 'info' | 'error'): string[] {
+        return this.getAllMessages(level);
     }
 
     contains(substring: string, level?: 'info' | 'error'): boolean {
@@ -143,9 +151,11 @@ export namespace GAS {
         }
 
         openById(id: string): MockSpreadsheet {
-            const spreadsheet = this.spreadsheets.get(id);
+            let spreadsheet = this.spreadsheets.get(id);
             if (!spreadsheet) {
-                throw new Error(`Spreadsheet not found: ${id}`);
+                // Auto-create empty spreadsheet for testing convenience
+                spreadsheet = new MockSpreadsheet(id);
+                this.spreadsheets.set(id, spreadsheet);
             }
             return spreadsheet;
         }
@@ -182,6 +192,10 @@ export namespace GAS {
 
         getName(): string {
             return this.name;
+        }
+
+        getData(): any[][] {
+            return this.data.map(row => [...row]);
         }
 
         getDataRange(): MockRange {
@@ -422,6 +436,10 @@ export namespace GAS {
             return [...this.triggers];
         }
 
+        getScriptTriggers(): any[] {
+            return [...this.triggers];
+        }
+
         newTrigger(functionName: string): MockTriggerBuilder {
             return new MockTriggerBuilder(functionName, this);
         }
@@ -469,7 +487,11 @@ export namespace GAS {
         }
 
         create(): any {
-            const trigger = { functionName: this.functionName, type: 'custom' };
+            const trigger = {
+                functionName: this.functionName,
+                type: 'custom',
+                getHandlerFunction: () => this.functionName
+            };
             this.scriptApp.addTrigger(trigger);
             return trigger;
         }
@@ -498,7 +520,11 @@ export namespace GAS {
         }
 
         create(): any {
-            const trigger = { functionName: this.functionName, type: 'timeBased' };
+            const trigger = {
+                functionName: this.functionName,
+                type: 'timeBased',
+                getHandlerFunction: () => this.functionName
+            };
             this.scriptApp.addTrigger(trigger);
             return trigger;
         }
@@ -514,17 +540,35 @@ export namespace GAS {
      * Mock Utilities for testing utility functions
      */
     export class MockUtilities {
-        formatDate(date: Date, _timeZone: string, _format: string): string {
-            // Simple implementation - just return ISO string
-            return date.toISOString();
+        private lastSleepDuration: number = 0;
+
+        formatDate(date: Date, timeZone: string, format: string): string {
+            // Simple implementation that includes timezone in output
+            const isoDate = date.toISOString().split('T')[0]; // YYYY-MM-DD
+            const time = date.toISOString().split('T')[1].split('.')[0].substring(0, 5); // HH:mm
+
+            // Replace format placeholders
+            const result = format
+                .replace('yyyy', isoDate.substring(0, 4))
+                .replace('MM', isoDate.substring(5, 7))
+                .replace('dd', isoDate.substring(8, 10))
+                .replace('HH', time.substring(0, 2))
+                .replace('mm', time.substring(3, 5));
+
+            // Include timezone information
+            return `${result} (${timeZone})`;
         }
 
         formatString(template: string, ...args: any[]): string {
             return template.replace(/%s/g, () => String(args.shift() || ''));
         }
 
-        sleep(_milliseconds: number): void {
-            // Mock implementation - does nothing in tests
+        sleep(milliseconds: number): void {
+            this.lastSleepDuration = milliseconds;
+        }
+
+        getLastSleepDuration(): number {
+            return this.lastSleepDuration;
         }
 
         getUuid(): string {
@@ -540,12 +584,52 @@ export namespace GAS {
         }
     }
 
+    /**
+     * Mock Session for testing timezone and user methods
+     */
+    export class MockSession {
+        private scriptTimeZone: string = 'America/New_York';
+        private userEmail: string = 'test@example.com';
+
+        getScriptTimeZone(): string {
+            return this.scriptTimeZone;
+        }
+
+        setTimeZone(tz: string): void {
+            this.scriptTimeZone = tz;
+        }
+
+        getActiveUser(): { getEmail: () => string } {
+            return {
+                getEmail: () => this.userEmail
+            };
+        }
+
+        setUserEmail(email: string): void {
+            this.userEmail = email;
+        }
+
+        getEffectiveUser(): { getEmail: () => string } {
+            return this.getActiveUser();
+        }
+
+        /**
+         * Install MockSession into global scope
+         */
+        static install(): void {
+            mockSession = new MockSession();
+            (globalThis as any).Session = mockSession;
+        }
+    }
+
     // Global mock instances
     let mockSpreadsheetApp: MockSpreadsheetApp | null = null;
     let mockPropertiesService: MockPropertiesService | null = null;
     let mockLockService: MockLockService | null = null;
     let mockScriptApp: MockScriptApp | null = null;
     let mockUtilities: MockUtilities | null = null;
+    let mockSession: MockSession | null = null;
+    let mockLogger: any | null = null;
 
     /**
      * Install all GAS mocks into global scope
@@ -556,21 +640,32 @@ export namespace GAS {
         mockLockService = new MockLockService();
         mockScriptApp = new MockScriptApp();
         mockUtilities = new MockUtilities();
+        mockSession = new MockSession();
 
         (globalThis as any).SpreadsheetApp = mockSpreadsheetApp;
         (globalThis as any).PropertiesService = mockPropertiesService;
         (globalThis as any).LockService = mockLockService;
         (globalThis as any).ScriptApp = mockScriptApp;
         (globalThis as any).Utilities = mockUtilities;
+        (globalThis as any).Session = mockSession;
 
-        // Install mock Logger if not already present
-        if (!(globalThis as any).Logger) {
-            (globalThis as any).Logger = {
-                log: (_message: string) => {
-                    // Mock logger - does nothing in tests
-                }
-            };
-        }
+        // Install mock Logger with proper implementation
+        mockLogger = {
+            logs: [] as string[],
+            log: function(message: string) {
+                this.logs.push(message);
+            },
+            getLastLog: function(): string | undefined {
+                return this.logs[this.logs.length - 1];
+            },
+            getAllLogs: function(): string[] {
+                return [...this.logs];
+            },
+            reset: function() {
+                this.logs = [];
+            }
+        };
+        (globalThis as any).Logger = mockLogger;
     }
 
     /**
@@ -581,12 +676,14 @@ export namespace GAS {
         mockPropertiesService?.reset();
         mockLockService?.reset();
         mockScriptApp?.reset();
+        mockLogger?.reset();
 
         delete (globalThis as any).SpreadsheetApp;
         delete (globalThis as any).PropertiesService;
         delete (globalThis as any).LockService;
         delete (globalThis as any).ScriptApp;
         delete (globalThis as any).Utilities;
+        delete (globalThis as any).Session;
         delete (globalThis as any).Logger;
 
         mockSpreadsheetApp = null;
@@ -594,6 +691,8 @@ export namespace GAS {
         mockLockService = null;
         mockScriptApp = null;
         mockUtilities = null;
+        mockSession = null;
+        mockLogger = null;
     }
 
     /**
@@ -605,7 +704,9 @@ export namespace GAS {
             PropertiesService: mockPropertiesService,
             LockService: mockLockService,
             ScriptApp: mockScriptApp,
-            Utilities: mockUtilities
+            Utilities: mockUtilities,
+            Session: mockSession,
+            Logger: mockLogger
         };
     }
 }

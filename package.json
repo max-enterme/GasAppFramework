@@ -13,9 +13,10 @@
     "lint": "eslint modules/ test/",
     "lint:fix": "eslint modules/ test/ --fix",
     "type-check": "tsc --noEmit",
+    "deploy": "node scripts/deploy.js",
     "gas:push": "npm run build && clasp push",
     "gas:deploy": "npm run gas:push && clasp deploy",
-    "gas:test": "node scripts/run-gas-tests.js",
+    "gas:test": "npm run gas:push && node scripts/run-gas-tests.js",
     "gas:open": "clasp open"
   },
   "keywords": [

@@ -9,3 +9,6 @@ export * as SchemaFactory from './SchemaFactory';
 export { MemoryStore } from './MemoryAdapter';
 export { SpreadsheetStore } from './SpreadsheetAdapter';
 export { RepositoryError } from './Errors';
+
+// Adapter namespaces for backward compatibility
+export * as Adapters from './adapters-export';

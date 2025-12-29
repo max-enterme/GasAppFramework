@@ -3,6 +3,12 @@
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function test_RunByModule(moduleName: string) {
+    // Run debug tests first to show Framework structure
+    if (moduleName !== 'Debug') {
+        const debugResults = TRunner.runByCategory('Debug');
+        TGasReporter.printCategory(debugResults, 'Debug');
+    }
+
     const results = TRunner.runByCategory(moduleName);
     TGasReporter.printCategory(results, moduleName);
 }
@@ -10,10 +16,10 @@ function test_RunByModule(moduleName: string) {
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function test_ShowAvailableModules() {
     const logger = (typeof Logger !== 'undefined') ? Logger : console;
-    
+
     logger.log('\n🏗️ GAS App Framework - Module Test Entry Points');
     logger.log('================================================');
-    
+
     const modules = [
         { name: 'EventSystem', description: 'Cron jobs, triggers, and workflows', tests: 'Trigger management, job scheduling, timezone handling' },
         { name: 'Repository', description: 'Data persistence with Google Sheets', tests: 'SpreadsheetApp integration, CRUD operations' },
@@ -23,7 +29,7 @@ function test_ShowAvailableModules() {
         { name: 'Routing', description: 'URL routing and request handling', tests: 'Route matching, middleware, dispatching' },
         { name: 'StringHelper', description: 'String templating and utilities', tests: 'Template formatting, string manipulation' }
     ];
-    
+
     logger.log('\n📋 Available Modules:');
     modules.forEach(module => {
         logger.log(`  📂 ${module.name}`);
@@ -31,14 +37,14 @@ function test_ShowAvailableModules() {
         logger.log(`     🧪 Tests: ${module.tests}`);
         logger.log('');
     });
-    
+
     logger.log('💡 Usage Examples:');
     logger.log('  test_RunAll()                    // Run all tests with category grouping');
     logger.log('  test_RunByModule("EventSystem")  // Run only EventSystem tests');
     logger.log('  test_RunByModule("Repository")   // Run only Repository tests');
     logger.log('  test_ListCategories()            // List all available categories');
     logger.log('  test_ShowAvailableModules()      // Show this help');
-    
+
     logger.log('\n🎯 Module-Specific Entry Points:');
     logger.log('  Available in each module folder:');
     logger.log('  📁 test/Modules/EventSystem/@entrypoint.ts  → test_RunEventSystem()');

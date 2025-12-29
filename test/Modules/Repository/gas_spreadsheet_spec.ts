@@ -1,12 +1,17 @@
 /**
  * GAS-Specific Integration Tests for Repository Spreadsheet Module
- * 
+ *
  * These tests cover Repository functionality that relies on Google Apps Script
  * SpreadsheetApp service, including data persistence, range operations, and
  * error handling specific to Google Sheets integration.
  */
 
 namespace Spec_Repository_GAS {
+    // Import global Repository into namespace scope
+    const Repository = (globalThis as any).Repository;
+    const TestHelpers = (globalThis as any).TestHelpers;
+    const MockLogger = (globalThis as any).MockLogger;
+
     // Test entity type for repository operations
     type TestEntity = { id: string; name: string; value: number; active: boolean };
     type EntityKey = 'id';
@@ -427,7 +432,7 @@ namespace Spec_Repository_GAS {
                 sheetId, 'Workflow', schema
             );
 
-            const mockLogger = new TestHelpers.Doubles.MockLogger();
+            const mockLogger = new MockLogger();
 
             const repository = Repository.Engine.create({
                 schema,

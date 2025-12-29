@@ -1,3 +1,58 @@
+// Test entry point - verifies framework globals are properly set
+// gas-main.ts should have already set up the global variables
+function setupTestGlobals() {
+    const Framework = (globalThis as any).GasAppFramework;
+    if (!Framework) {
+        throw new Error('GasAppFramework not found - gas-main.ts may not have loaded');
+    }
+
+    //  Repository and Locking globals are already set by gas-main.ts
+    // Just verify they exist
+    const Repository = (globalThis as any).Repository;
+    const Locking = (globalThis as any).Locking;
+
+    if (!Repository) {
+        throw new Error('Repository global not found');
+    }
+    if (!Locking) {
+        throw new Error('Locking global not found');
+    }
+
+    // Log for debugging (will appear in GAS logs)
+    const logger = (typeof Logger !== 'undefined') ? Logger : console;
+    logger.log('[TEST-ENTRY] Repository.Adapters: ' + typeof Repository.Adapters);
+    if (Repository.Adapters) {
+        logger.log('[TEST-ENTRY] Repository.Adapters.Memory: ' + typeof Repository.Adapters.Memory);
+        if (Repository.Adapters.Memory) {
+            logger.log('[TEST-ENTRY] Repository.Adapters.Memory.Store: ' + typeof Repository.Adapters.Memory.Store);
+        }
+    }
+    logger.log('[TEST-ENTRY] Locking.PropertiesStore: ' + typeof Locking.PropertiesStore);
+
+    // Set up additional globals if needed
+    (globalThis as any).Shared = Framework.Shared;
+
+    (globalThis as any).GasDI = {
+        Container: Framework.Container,
+        Inject: Framework.Inject,
+        Resolve: Framework.Resolve
+    };
+
+    // Log setup completion
+    logger.log('[TEST GLOBALS] Setup complete');
+    logger.log('[TEST GLOBALS] Repository.MemoryStore: ' + typeof (globalThis as any).Repository.MemoryStore);
+    logger.log('[TEST GLOBALS] Locking.PropertiesStore: ' + typeof (globalThis as any).Locking.PropertiesStore);
+    logger.log('[TEST GLOBALS] TestHelpers.GAS: ' + typeof (globalThis as any).TestHelpers?.GAS);
+}
+
+// Run setup
+try {
+    setupTestGlobals();
+} catch (e: any) {
+    const logger = (typeof Logger !== 'undefined') ? Logger : console;
+    logger.log('[TEST GLOBALS ERROR] ' + e.message);
+}
+
 // Check TestHelpers availability at module load time
 try {
     if (typeof Logger !== 'undefined') {
@@ -15,6 +70,13 @@ try {
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function test_RunAll() {
+    // First run debug test to show Framework structure
+    const logger = (typeof Logger !== 'undefined') ? Logger : console;
+    logger.log('\n🔍 Running Framework Structure Debug Test First...\n');
+    const debugResults = TRunner.runByCategory('Debug');
+    TGasReporter.printCategory(debugResults, 'Debug');
+
+    logger.log('\n\n📋 Running All Tests...\n');
     const results = TRunner.runAll();
     TGasReporter.print(results);
 }

@@ -6,6 +6,8 @@
  */
 
 namespace Spec_GAS_Advanced {
+    // Import globals into namespace scope
+    const TestHelpers = (globalThis as any).TestHelpers;
 
     T.it('GAS ScriptApp trigger management', () => {
         // Test Case: ScriptApp should manage time-based and event-based triggers

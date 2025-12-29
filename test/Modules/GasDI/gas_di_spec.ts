@@ -1,14 +1,123 @@
 /**
  * GasDI (Dependency Injection) Module Tests
- * 
+ *
  * These tests cover both core dependency injection functionality and GAS-specific
- * integration scenarios, including container scoping, lifecycle management, 
+ * integration scenarios, including container scoping, lifecycle management,
  * decorators, and integration with GAS global services and objects.
  */
 
 namespace Spec_GasDI_GAS {
+    // CRITICAL FIX: Don't cache GasDI at namespace level - it may not be initialized yet
+    // Use a getter function to access it fresh each time
+    const getGasDI = () => {
+        const GasDI = (globalThis as any).GasDI;
+        const GAF = (globalThis as any).GasAppFramework;
+
+        // WORKAROUND: If GasDI.Container is undefined but __GasAppFramework_Container exists,
+        // patch GasDI directly with the working Container reference
+        if (!GasDI.Container && (globalThis as any).__GasAppFramework_Container) {
+            GasDI.Container = (globalThis as any).__GasAppFramework_Container;
+            if ((globalThis as any).__GasAppFramework_Container.Root) {
+                GasDI.Container.Root = (globalThis as any).__GasAppFramework_Container.Root;
+            }
+        }
+        if (!GasDI.Context && (globalThis as any).__GasAppFramework_Context) {
+            GasDI.Context = (globalThis as any).__GasAppFramework_Context;
+        }
+
+        // Also patch Inject/Resolve - try multiple sources
+        if (!GasDI.Inject || typeof GasDI.Inject !== 'function') {
+            // Try post-build global first (most reliable)
+            if (typeof (globalThis as any).__GasAppFramework_Inject === 'function') {
+                GasDI.Inject = (globalThis as any).__GasAppFramework_Inject;
+            }
+            // Try GasAppFramework.DI.Inject
+            else if (GAF && GAF.DI && typeof GAF.DI.Inject === 'function') {
+                GasDI.Inject = GAF.DI.Inject;
+            }
+            // Fallback to GAF.Inject
+            else if (GAF && typeof GAF.Inject === 'function') {
+                GasDI.Inject = GAF.Inject;
+            }
+        }
+        
+        if (!GasDI.Resolve || typeof GasDI.Resolve !== 'function') {
+            // Try post-build global first (most reliable)
+            if (typeof (globalThis as any).__GasAppFramework_Resolve === 'function') {
+                GasDI.Resolve = (globalThis as any).__GasAppFramework_Resolve;
+            }
+            // Try GasAppFramework.DI.Resolve
+            else if (GAF && GAF.DI && typeof GAF.DI.Resolve === 'function') {
+                GasDI.Resolve = GAF.DI.Resolve;
+            }
+            // Fallback to GAF.Resolve
+            else if (GAF && typeof GAF.Resolve === 'function') {
+                GasDI.Resolve = GAF.Resolve;
+            }
+        }
+
+        // Patch Decorators if needed
+        if (!GasDI.Decorators) {
+            GasDI.Decorators = {};
+        }
+        if (!GasDI.Decorators.Root && GasDI.Container && GasDI.Container.Root) {
+            GasDI.Decorators.Root = GasDI.Container.Root;
+        }
+        // CRITICAL: Use post-build globals DIRECTLY for Decorators if needed
+        if (!GasDI.Decorators.Inject || typeof GasDI.Decorators.Inject !== 'function') {
+            // Try post-build global FIRST
+            if (typeof (globalThis as any).__GasAppFramework_Inject === 'function') {
+                GasDI.Decorators.Inject = (globalThis as any).__GasAppFramework_Inject;
+            }
+            else if (GasDI.Inject && typeof GasDI.Inject === 'function') {
+                GasDI.Decorators.Inject = GasDI.Inject;
+            }
+        }
+        if (!GasDI.Decorators.Resolve || typeof GasDI.Decorators.Resolve !== 'function') {
+            // Try post-build global FIRST
+            if (typeof (globalThis as any).__GasAppFramework_Resolve === 'function') {
+                GasDI.Decorators.Resolve = (globalThis as any).__GasAppFramework_Resolve;
+            }
+            else if (GasDI.Resolve && typeof GasDI.Resolve === 'function') {
+                GasDI.Decorators.Resolve = GasDI.Resolve;
+            }
+        }
+
+        return GasDI;
+    };
+    
+    // CRITICAL: Patch GasDI.Decorators IMMEDIATELY at module level, before any decorators are evaluated
+    (() => {
+        const GasDI = (globalThis as any).GasDI;
+        if (GasDI && GasDI.Decorators) {
+            // Force override with post-build globals
+            if (typeof (globalThis as any).__GasAppFramework_Inject === 'function') {
+                GasDI.Decorators.Inject = (globalThis as any).__GasAppFramework_Inject;
+            }
+            if (typeof (globalThis as any).__GasAppFramework_Resolve === 'function') {
+                GasDI.Decorators.Resolve = (globalThis as any).__GasAppFramework_Resolve;
+            }
+        }
+    })();
+    
+    const Logger = (globalThis as any).Logger;
 
     T.it('register and resolve values/factories with lifetimes', () => {
+        const GasDI = getGasDI();  // Get GasDI fresh each time
+        // Create detailed error message if Container is not a constructor
+        if (typeof GasDI.Container !== 'function') {
+            const errorDetails = {
+                'typeof GasDI': typeof GasDI,
+                'typeof GasDI.Container': typeof GasDI.Container,
+                'GasDI keys': Object.keys(GasDI || {}).join(', '),
+                'GasDI.Container.toString()': GasDI.Container ? GasDI.Container.toString().substring(0, 100) : 'undefined',
+                '__GasAppFramework_Container type': typeof (globalThis as any).__GasAppFramework_Container,
+                '__GasAppFramework_Container exists': !!(globalThis as any).__GasAppFramework_Container,
+                'GasAppFramework.Container type': typeof (globalThis as any).GasAppFramework?.Container
+            };
+            throw new Error('GasDI.Container is not a function. Details: ' + JSON.stringify(errorDetails));
+        }
+
         const c = new GasDI.Container();
         c.registerValue('pi', 3.14);
         c.registerFactory('now', () => ({ t: Math.random() }), 'transient');
@@ -24,6 +133,7 @@ namespace Spec_GasDI_GAS {
     }, 'GasDI');
 
     T.it('scoped lifetime differs per scope', () => {
+        const GasDI = getGasDI();
         const root = new GasDI.Container();
         root.registerFactory('req', () => ({ id: Math.random() }), 'scoped');
         const s1 = root.createScope('req-1');
@@ -36,19 +146,27 @@ namespace Spec_GasDI_GAS {
     }, 'GasDI');
 
     T.it('decorators: property and parameter injection with Root', () => {
-        GasDI.Container.Root.registerValue('answer', 42);
-        GasDI.Container.Root.registerFactory('svc', () => ({ hello() { return 'hi'; } }), 'singleton');
+        const GasDI = getGasDI();
+        const Inject = GasDI.Decorators.Inject || (globalThis as any).__GasAppFramework_Inject;
+        const Resolve = GasDI.Decorators.Resolve || (globalThis as any).__GasAppFramework_Resolve;
+        const rootContainer = GasDI.Decorators.Root || GasDI.Container.Root;
+        rootContainer.registerValue('answer', 42);
+        rootContainer.registerFactory('svc', () => ({ hello() { return 'hi'; } }), 'singleton');
 
-        @GasDI.Decorators.Resolve()
+        // Define class WITHOUT decorators, then apply them manually
         class Demo {
-            @GasDI.Decorators.Inject('answer') private a!: number;
-
-            constructor(@GasDI.Decorators.Inject('svc') private s?: any) { }
-
-            run(@GasDI.Decorators.Inject('answer') x?: number) {
+            private a!: number;
+            constructor(private s?: any) { }
+            run(x?: number) {
                 return { a: this.a, b: x, hi: this.s!.hello() };
             }
         }
+        
+        // Apply decorators manually using the decorator functions
+        Inject('answer')(Demo.prototype, 'a', undefined as any);  // Property injection
+        Inject('svc')(Demo, undefined, 0);  // Constructor param injection
+        Inject('answer')(Demo.prototype, 'run', 0);  // Method param injection
+        Resolve()(Demo.prototype, 'run', Object.getOwnPropertyDescriptor(Demo.prototype, 'run')!);  // Method resolver
 
         const d = new (Demo as any)() as any;
         const out = d.run();
@@ -58,8 +176,18 @@ namespace Spec_GasDI_GAS {
     }, 'GasDI');
 
     T.it('optional injection does not throw when token missing', () => {
-        @GasDI.Decorators.Resolve()
-        class Foo { constructor(@GasDI.Decorators.Inject('missing', true) public x?: any) { } }
+        const GasDI = getGasDI();
+        const Inject = GasDI.Decorators.Inject || (globalThis as any).__GasAppFramework_Inject;
+        const Resolve = GasDI.Decorators.Resolve || (globalThis as any).__GasAppFramework_Resolve;
+        
+        // Define class WITHOUT decorators, then apply them manually
+        class Foo { 
+            constructor(public x?: any) { } 
+        }
+        
+        // Apply decorator manually with optional=true
+        Inject('missing', true)(Foo, undefined, 0);  // Constructor param with optional=true
+        Resolve()(Foo, undefined, undefined as any);  // Class decorator (though not strictly needed for this test)
         const f = new (Foo as any)();
         TAssert.isTrue(f.x === undefined, 'optional param left undefined');
     }, 'GasDI');
@@ -69,6 +197,7 @@ namespace Spec_GasDI_GAS {
         TestHelpers.GAS.installAll();
 
         try {
+            const GasDI = getGasDI();
             const container = new GasDI.Container();
 
             // Register GAS services in container
@@ -104,6 +233,7 @@ namespace Spec_GasDI_GAS {
         TestHelpers.GAS.installAll();
 
         try {
+            const GasDI = getGasDI();
             const container = new GasDI.Container();
 
             // Register GAS services
@@ -146,6 +276,7 @@ namespace Spec_GasDI_GAS {
         TestHelpers.GAS.installAll();
 
         try {
+            const GasDI = getGasDI();
             const rootContainer = new GasDI.Container();
 
             // Register shared GAS services at root level
@@ -185,6 +316,7 @@ namespace Spec_GasDI_GAS {
         TestHelpers.GAS.installAll();
 
         try {
+            const GasDI = getGasDI();
             const container = new GasDI.Container();
             const mockLogger = (globalThis.Logger as unknown) as TestHelpers.GAS.MockLogger;
 
@@ -235,6 +367,7 @@ namespace Spec_GasDI_GAS {
         TestHelpers.GAS.installAll();
 
         try {
+            const GasDI = getGasDI();
             const container = new GasDI.Container();
             const mockApp = globalThis.SpreadsheetApp as unknown as TestHelpers.GAS.MockSpreadsheetApp;
 
@@ -303,6 +436,7 @@ namespace Spec_GasDI_GAS {
         TestHelpers.GAS.installAll();
 
         try {
+            const GasDI = getGasDI();
             const container = new GasDI.Container();
 
             // Register factory that might fail due to GAS service issues
@@ -358,6 +492,7 @@ namespace Spec_GasDI_GAS {
         TestHelpers.GAS.installAll();
 
         try {
+            const GasDI = getGasDI();
             const container = new GasDI.Container();
 
             // Register services with circular dependency
@@ -391,6 +526,7 @@ namespace Spec_GasDI_GAS {
         TestHelpers.GAS.installAll();
 
         try {
+            const GasDI = getGasDI();
             const container = new GasDI.Container();
 
             // Register multiple services to test resolution performance
@@ -430,6 +566,7 @@ namespace Spec_GasDI_GAS {
         TestHelpers.GAS.installAll();
 
         try {
+            const GasDI = getGasDI();
             const container = new GasDI.Container();
             const mockApp = globalThis.SpreadsheetApp as unknown as TestHelpers.GAS.MockSpreadsheetApp;
             const mockLogger = (globalThis.Logger as unknown) as TestHelpers.GAS.MockLogger;

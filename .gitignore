@@ -58,6 +58,7 @@ src/@const.ts
 
 # Temporary files
 deploy_output.txt
+gas-test-result*.txt
 
 # Clasp
 /.clasprc.json

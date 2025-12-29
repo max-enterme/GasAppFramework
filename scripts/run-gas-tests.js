@@ -129,12 +129,15 @@ function makeRequest(requestUrl, redirectCount = 0) {
                     }
                 }
 
+                const totalMs = result.results.reduce((sum, t) => sum + (t.ms || 0), 0);
+                const summary = result.summary || {};
                 console.log('───────────────────────────────────────────────────────');
-                console.log(`Total: ${result.passed}/${result.total} passed in ${result.totalMs}ms`);
+                console.log(`Total: ${summary.passed}/${summary.total} passed in ${totalMs}ms`);
+                console.log(`Executed: ${result.timestamp || new Date().toISOString()}`);
                 console.log('═══════════════════════════════════════════════════════');
 
                 // Exit with error code if tests failed
-                if (result.passed < result.total) {
+                if (summary.failed > 0) {
                     process.exit(1);
                 }
             } else {

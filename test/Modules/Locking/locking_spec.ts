@@ -1,12 +1,18 @@
 /**
  * Locking Module Tests
- * 
+ *
  * These tests cover both core locking functionality and GAS-specific integration
  * scenarios, including distributed locking with PropertiesService, LockService
  * integration, and script-level locking operations.
  */
 
 namespace Spec_Locking {
+    // Import global Locking into namespace scope
+    const Locking = (globalThis as any).Locking;
+    const TestHelpers = (globalThis as any).TestHelpers;
+    const MockClock = (globalThis as any).MockClock;
+    const MockLogger = (globalThis as any).MockLogger;
+
     class MemStore implements Locking.Ports.Store {
         private m = new Map<string, string>();
         get(k: string) { return this.m.get(k) ?? null; }
@@ -105,8 +111,8 @@ namespace Spec_Locking {
             };
 
             const store = new Locking.PropertiesStore();
-            const clock = new TestHelpers.Doubles.MockClock();
-            const logger = new TestHelpers.Doubles.MockLogger();
+            const clock = new MockClock();
+            const logger = new MockLogger();
 
             const lockEngine = Locking.Engine.create({
                 store,
@@ -194,8 +200,8 @@ namespace Spec_Locking {
             };
 
             const store = new Locking.PropertiesStore();
-            const mockClock = new TestHelpers.Doubles.MockClock(new Date(2024, 0, 15, 10, 0, 0));
-            const logger = new TestHelpers.Doubles.MockLogger();
+            const mockClock = new MockClock(new Date(2024, 0, 15, 10, 0, 0));
+            const logger = new MockLogger();
 
             const lockEngine = Locking.Engine.create({
                 store,
@@ -251,8 +257,8 @@ namespace Spec_Locking {
             };
 
             const store = new Locking.PropertiesStore();
-            const clock = new TestHelpers.Doubles.MockClock();
-            const logger = new TestHelpers.Doubles.MockLogger();
+            const clock = new MockClock();
+            const logger = new MockLogger();
 
             const lockEngine = Locking.Engine.create({
                 store,
@@ -275,8 +281,8 @@ namespace Spec_Locking {
             // Verify error was logged
             TestHelpers.Assertions.assertLoggerContains(
                 logger,
-                'error',
-                'Properties service error'
+                'Properties service error',
+                'error'
             );
 
         } finally {
@@ -301,8 +307,8 @@ namespace Spec_Locking {
             };
 
             const store = new Locking.PropertiesStore();
-            const clock = new TestHelpers.Doubles.MockClock();
-            const logger = new TestHelpers.Doubles.MockLogger();
+            const clock = new MockClock();
+            const logger = new MockLogger();
 
             // Create multiple lock engines (simulating different script executions)
             const lockEngine1 = Locking.Engine.create({ store, clock, logger });
@@ -351,8 +357,8 @@ namespace Spec_Locking {
             };
 
             const store = new Locking.PropertiesStore();
-            const clock = new TestHelpers.Doubles.MockClock();
-            const logger = new TestHelpers.Doubles.MockLogger();
+            const clock = new MockClock();
+            const logger = new MockLogger();
 
             const lockEngine = Locking.Engine.create({ store, clock, logger });
             const resourceId = 'rw-test-resource';
@@ -408,8 +414,8 @@ namespace Spec_Locking {
             };
 
             const distributedStore = new Locking.PropertiesStore('job:');
-            const clock = new TestHelpers.Doubles.MockClock();
-            const logger = new TestHelpers.Doubles.MockLogger();
+            const clock = new MockClock();
+            const logger = new MockLogger();
 
             const distributedLocking = Locking.Engine.create({
                 store: distributedStore,
@@ -455,7 +461,7 @@ namespace Spec_Locking {
             TAssert.isTrue(newJobExecution.ok, 'New job execution should succeed after previous completion');
 
             // Verify logging
-            TestHelpers.Assertions.assertLoggerContains(logger, 'info', 'acquired');
+            TestHelpers.Assertions.assertLoggerContains(logger, 'acquired', 'info');
 
         } finally {
             delete (globalThis as any).PropertiesService;

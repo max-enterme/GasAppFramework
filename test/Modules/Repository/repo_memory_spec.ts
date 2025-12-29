@@ -1,4 +1,8 @@
 namespace Spec_Repo {
+    // Import global Repository into namespace scope
+    const Repository = (globalThis as any).Repository;
+    const Shared = (globalThis as any).Shared;
+
     type User = { id: string; org: string; name: string; age: number | null }
     type Key = 'id' | 'org'
 
