@@ -32,7 +32,7 @@ export interface TestRunContext {
 }
 
 // Global test run context
-let globalTestRunContext: TestRunContext = {};
+const globalTestRunContext: TestRunContext = {};
 
 /**
  * Set custom output generator
