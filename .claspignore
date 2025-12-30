@@ -10,6 +10,7 @@ documents/**
 gas-main.ts
 gas-main.d.ts
 gas-main.d.ts.map
+packages/**
 
 # Build outputs and dependencies
 node_modules/**

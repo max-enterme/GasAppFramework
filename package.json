@@ -4,6 +4,9 @@
   "description": "GAS App Framework - ES Modules Edition",
   "main": "build/bundle.js",
   "types": "build/index.d.ts",
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
     "build": "webpack --config webpack.config.js && node scripts/post-build.js",
     "watch": "webpack --watch --config webpack.config.js",
@@ -13,6 +16,8 @@
     "lint": "eslint modules/ test/",
     "lint:fix": "eslint modules/ test/ --fix",
     "type-check": "tsc --noEmit",
+    "build:modules": "npm --prefix packages/modules run build",
+    "pack:modules": "npm -w packages/modules pack --pack-destination packages/modules",
     "check": "npm run lint && npm run type-check && npm test",
     "gas:push": "npm run build && node scripts/inject-version.js && clasp push",
     "gas:deploy": "node scripts/deploy.js",

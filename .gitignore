@@ -60,6 +60,9 @@ src/@const.ts
 deploy_output.txt
 gas-test-result*.txt
 
+# npm pack artifacts
+*.tgz
+
 # Clasp
 /.clasprc.json
 .clasp.json
