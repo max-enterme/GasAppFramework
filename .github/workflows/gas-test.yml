@@ -6,12 +6,12 @@ on:
   workflow_dispatch:
     inputs:
       deploy:
-        description: 'clasp push を実行する'
+        description: 'デプロイを実行する'
         required: false
         default: true
         type: boolean
       test:
-        description: 'GASテストを実行する'
+        description: 'テストを実行する'
         required: false
         default: true
         type: boolean
@@ -70,14 +70,14 @@ jobs:
         env:
           CLASPRC_JSON: ${{ secrets.CLASPRC_JSON }}
         run: |
-          npm run gas:push
+          npm run gas:deploy
 
       - name: Run GAS tests
         if: inputs.test == true
         id: gas_test
         continue-on-error: true
         run: |
-          npm run gas:test 2>&1 | tee gas-test-output.txt
+          npm run gas:test -- --target 2>&1 | tee gas-test-output.txt
           echo "gas_test_exit_code=${PIPESTATUS[0]}" >> $GITHUB_OUTPUT
 
       - name: Display test results
