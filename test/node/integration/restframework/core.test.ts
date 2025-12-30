@@ -2,7 +2,7 @@
  * RestFramework Core Components Tests
  */
 
-import { RestFrameworkLogger, ApiResponseFormatter, ErrorHandler } from './restframework-module';
+import { Logger, ApiResponseFormatter, ErrorHandler } from '../../../../modules/rest-framework';
 
 describe('RestFramework Core Components', () => {
     describe('Logger', () => {
@@ -17,18 +17,18 @@ describe('RestFramework Core Components', () => {
         });
 
         it('should create logger with default prefix', () => {
-            const logger = new RestFrameworkLogger();
+            const logger = new Logger();
             logger.info('test message');
-            
+
             expect(consoleSpy).toHaveBeenCalledWith(
                 expect.stringMatching(/\[API\] \d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z INFO: test message/)
             );
         });
 
         it('should create logger with custom prefix', () => {
-            const logger = RestFrameworkLogger.create('[TEST]');
+            const logger = Logger.create('[TEST]');
             logger.info('test message');
-            
+
             expect(consoleSpy).toHaveBeenCalledWith(
                 expect.stringMatching(/\[TEST\] \d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z INFO: test message/)
             );
@@ -96,19 +96,25 @@ describe('RestFramework Core Components', () => {
         it('should handle Error instances', () => {
             const errorHandler = new ErrorHandler(mockLogger);
             const error = new Error('Validation failed');
-            
+
             const response = errorHandler.handle(error);
 
             expect(response.success).toBe(false);
             expect(response.error?.code).toBe('ValidationError');
             expect(response.error?.message).toBe('Validation failed');
-            expect(mockLogger.error).toHaveBeenCalledWith('Handling error', error);
+            expect(mockLogger.error).toHaveBeenCalledWith(
+                'Error occurred: ValidationError',
+                expect.objectContaining({
+                    code: 'ValidationError',
+                    message: 'Validation failed'
+                })
+            );
         });
 
         it('should handle unknown errors', () => {
             const errorHandler = new ErrorHandler(mockLogger);
             const error = { unknown: 'object' };
-            
+
             const response = errorHandler.handle(error);
 
             expect(response.success).toBe(false);
@@ -118,7 +124,7 @@ describe('RestFramework Core Components', () => {
 
         it('should map error messages to correct codes', () => {
             const errorHandler = new ErrorHandler(mockLogger);
-            
+
             const authError = new Error('Unauthorized access');
             const authResponse = errorHandler.handle(authError);
             expect(authResponse.error?.code).toBe('AuthenticationError');

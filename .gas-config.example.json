@@ -1,4 +1,11 @@
 {
-    "deploymentUrl": "https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec",
-    "scriptId": "YOUR_SCRIPT_ID"
+    "_comment": "GAS deployment configuration",
+    "clasprcPath": null,
+    "_clasprcPath_comment": "Path to clasp authentication file. null = use default (~/.clasprc.json)",
+    "deployments": {
+        "headDeployId": "YOUR_HEAD_DEPLOY_ID",
+        "_headDeployId_comment": "HEAD deployment ID for development (auto-updates with clasp push)",
+        "targetDeployId": "YOUR_TARGET_DEPLOY_ID",
+        "_targetDeployId_comment": "Target deployment ID for production/testing"
+    }
 }

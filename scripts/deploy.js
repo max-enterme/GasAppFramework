@@ -44,14 +44,12 @@ function getDeploymentId() {
         const configPath = path.join(__dirname, '../.gas-config.json');
         const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
 
-        // Extract deployment ID from URL
-        const url = config.deploymentUrl;
-        const match = url.match(/\/s\/([^\/]+)\//);
-        if (match) {
-            return match[1];
+        // Use targetDeployId from config
+        if (config.deployments && config.deployments.targetDeployId) {
+            return config.deployments.targetDeployId;
         }
 
-        log('⚠️  Could not extract deployment ID from URL, will create new deployment', 'yellow');
+        log('⚠️  targetDeployId not found in .gas-config.json, will create new deployment', 'yellow');
         return null;
     } catch (e) {
         log('⚠️  .gas-config.json not found, will create new deployment', 'yellow');
@@ -64,16 +62,10 @@ async function main() {
     log('='.repeat(60), 'blue');
 
     try {
-        // Step 1: Build
-        exec('npm run build', 'Build project');
+        // Step 1: Build, inject version, and push
+        exec('npm run gas:push', 'Build and push to Google Apps Script');
 
-        // Step 2: Inject version
-        exec('node scripts/inject-version.js', 'Inject version information');
-
-        // Step 3: Push to GAS
-        exec('clasp push', 'Push files to Google Apps Script');
-
-        // Step 4: Deploy
+        // Step 2: Deploy
         const deploymentId = getDeploymentId();
         if (deploymentId) {
             log(`\n📌 Using deployment ID: ${deploymentId}`, 'blue');

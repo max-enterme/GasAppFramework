@@ -1,0 +1,5 @@
+{
+  "testUrl": "https://script.google.com/macros/s/YOUR_SCRIPT_ID/dev",
+  "deploymentUrl": "https://script.google.com/macros/s/YOUR_SCRIPT_ID/dev",
+  "_comment": "ヘッドデプロイ（@HEAD）推奨: /dev = 常に最新コード、clasp push後すぐ反映。本番用は /exec を使用。"
+}

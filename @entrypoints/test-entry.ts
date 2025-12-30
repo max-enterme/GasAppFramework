@@ -7,11 +7,12 @@
  * このファイルはwebpackでバンドルされず、そのままGASにアップロードされます。
  */
 
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 /**
  * すべてのテストを実行
  * GASエディタから実行: test_RunAll()
  */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function test_RunAll() {
     const tests = (globalThis as any).GasAppFrameworkTests;
     if (!tests) {
@@ -26,11 +27,23 @@ function test_RunAll() {
     tests.GasReporter.print(results);
 }
 
+function test_RunGASAdvanced() {
+    test_RunByCategory('GAS');
+}
+
+function test_RunGasDI() {
+    test_RunByCategory('GasDI');
+}
+
+function test_RunLocking() {
+    test_RunByCategory('Locking');
+}
+
 /**
  * カテゴリー別にテストを実行
  * GASエディタから実行: test_RunByCategory('GasDI')
  */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+
 function test_RunByCategory(category: string) {
     const tests = (globalThis as any).GasAppFrameworkTests;
     if (!tests) {
@@ -46,7 +59,7 @@ function test_RunByCategory(category: string) {
  * 利用可能なテストカテゴリーを一覧表示
  * GASエディタから実行: test_ListCategories()
  */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+
 function test_ListCategories() {
     const tests = (globalThis as any).GasAppFrameworkTests;
     if (!tests) {
@@ -73,7 +86,7 @@ function test_ListCategories() {
  * フレームワークのバージョン情報を表示
  * GASエディタから実行: test_ShowVersion()
  */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+
 function test_ShowVersion() {
     const versionInfo = (globalThis as any).__GAS_APP_VERSION__;
     if (!versionInfo) {

@@ -2,7 +2,7 @@
  * RouteExecutor Tests
  */
 
-import { RestFrameworkLogger, ErrorHandler } from './restframework-module';
+import { Logger, ErrorHandler } from '../../../../modules/rest-framework';
 
 // Mock GasDI Container
 class MockContainer {
@@ -50,15 +50,15 @@ describe('RouteExecutor', () => {
 
     beforeEach(() => {
         mockContainer = new MockContainer('test-route');
-        
+
         mockApi = {
             execute: jest.fn().mockReturnValue({ success: true, data: 'test-data' })
         };
-        
+
         mockRequestMapper = {
             map: jest.fn().mockReturnValue({ mapped: 'request' })
         };
-        
+
         mockResponseMapper = {
             map: jest.fn().mockReturnValue({ mapped: 'response' })
         };
@@ -68,7 +68,7 @@ describe('RouteExecutor', () => {
         it('should validate non-empty string tokens', () => {
             // This test validates the validateToken function logic
             const invalidTokens = ['', '   ', null, undefined];
-            
+
             invalidTokens.forEach(token => {
                 expect(() => {
                     if (!token || typeof token !== 'string' || token.trim().length === 0) {
@@ -89,11 +89,11 @@ describe('RouteExecutor', () => {
     });
 
     describe('Logging Helper', () => {
-        let logger: RestFrameworkLogger;
+        let logger: Logger;
         let consoleSpy: jest.SpyInstance;
 
         beforeEach(() => {
-            logger = new RestFrameworkLogger('[Test]');
+            logger = new Logger('[Test]');
             consoleSpy = jest.spyOn(console, 'log').mockImplementation();
         });
 
@@ -105,9 +105,9 @@ describe('RouteExecutor', () => {
             const stage = 'Api.execute';
             // Helper function mimics logExecutionStage behavior
             const prefix = 'Start';
-            
+
             logger.info(`${prefix} ${stage}`);
-            
+
             expect(consoleSpy).toHaveBeenCalledWith(
                 expect.stringMatching(/\[Test\].*INFO: Start Api\.execute/)
             );
@@ -117,9 +117,9 @@ describe('RouteExecutor', () => {
             const stage = 'Api.execute';
             // Helper function mimics logExecutionStage behavior
             const prefix = 'Finished';
-            
+
             logger.info(`${prefix} ${stage}`);
-            
+
             expect(consoleSpy).toHaveBeenCalledWith(
                 expect.stringMatching(/\[Test\].*INFO: Finished Api\.execute/)
             );
@@ -130,11 +130,11 @@ describe('RouteExecutor', () => {
         it('should dispose container resources', () => {
             const container = new MockContainer('test-scope');
             container.set('test-token', { data: 'test' });
-            
+
             expect(() => container.resolve('test-token')).not.toThrow();
-            
+
             container.dispose();
-            
+
             expect(() => container.resolve('test-token')).toThrow('DI token not found');
         });
     });
@@ -169,7 +169,7 @@ describe('RouteExecutor', () => {
                 request: { path: '/api/test', method: 'POST' },
                 timestamp: '2024-01-01T00:00:00.000Z'
             };
-            
+
             const response = errorHandler.handle(error, context);
 
             expect(response.success).toBe(false);
@@ -180,9 +180,9 @@ describe('RouteExecutor', () => {
     describe('Safe Resolution', () => {
         it('should resolve valid tokens successfully', () => {
             mockContainer.set('valid-token', { test: 'value' });
-            
+
             const resolved = mockContainer.resolve('valid-token');
-            
+
             expect(resolved).toEqual({ test: 'value' });
         });
 
@@ -192,45 +192,45 @@ describe('RouteExecutor', () => {
         });
 
         it('should log resolution attempts', () => {
-            const logger = new RestFrameworkLogger('[SafeResolve]');
+            const logger = new Logger('[SafeResolve]');
             const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
-            
+
             mockContainer.set('test-token', { data: 'test' });
             logger.info('Resolving ApiLogic with token: test-token');
-            
+
             expect(consoleSpy).toHaveBeenCalledWith(
                 expect.stringMatching(/Resolving ApiLogic with token: test-token/)
             );
-            
+
             consoleSpy.mockRestore();
         });
     });
 
     describe('Pipeline Execution', () => {
         it('should execute the full pipeline in correct order', () => {
-            const logger = new RestFrameworkLogger('[Pipeline]');
+            const logger = new Logger('[Pipeline]');
             const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
-            
+
             // Simulate pipeline execution
             const normalizedRequest = { param: 'value' };
-            
+
             logger.info('Start RequestMapper.map');
             const mappedRequest = mockRequestMapper.map(normalizedRequest);
             logger.info('Finished RequestMapper.map');
-            
+
             logger.info('Start Api.execute');
             const response = mockApi.execute(mappedRequest);
             logger.info('Finished Api.execute');
-            
+
             logger.info('Start ResponseMapper.map');
             const mappedResponse = mockResponseMapper.map(response);
             logger.info('Finished ResponseMapper.map');
-            
+
             expect(mockRequestMapper.map).toHaveBeenCalledWith(normalizedRequest);
             expect(mockApi.execute).toHaveBeenCalledWith(mappedRequest);
             expect(mockResponseMapper.map).toHaveBeenCalledWith(response);
             expect(mappedResponse).toEqual({ mapped: 'response' });
-            
+
             consoleSpy.mockRestore();
         });
     });
@@ -239,9 +239,9 @@ describe('RouteExecutor', () => {
         it('should execute synchronously for GAS compatibility', () => {
             // GAS does not support native Promises in synchronous contexts
             // This test ensures the pipeline remains synchronous
-            
+
             const result = mockApi.execute({ test: 'data' });
-            
+
             // Result should be immediately available (not a Promise)
             expect(result).toBeDefined();
             expect(result).not.toBeInstanceOf(Promise);
@@ -297,17 +297,17 @@ describe('RouteExecutor', () => {
             });
 
             it('should resolve logger from DI container when loggerToken is provided', () => {
-                const customLogger = new RestFrameworkLogger('[CustomLogger]');
+                const customLogger = new Logger('[CustomLogger]');
                 mockContainer.set('custom-logger-token', customLogger);
 
                 const resolvedLogger = mockContainer.resolve('custom-logger-token');
-                
+
                 expect(resolvedLogger).toBe(customLogger);
             });
 
             it('should validate loggerToken before resolution', () => {
                 const invalidTokens = ['', '   '];
-                
+
                 invalidTokens.forEach(token => {
                     expect(() => {
                         if (!token || typeof token !== 'string' || token.trim().length === 0) {
@@ -332,18 +332,18 @@ describe('RouteExecutor', () => {
             });
 
             it('should resolve errorHandler from DI container when errorHandlerToken is provided', () => {
-                const mockLogger = new RestFrameworkLogger('[Test]');
+                const mockLogger = new Logger('[Test]');
                 const customErrorHandler = new ErrorHandler(mockLogger);
                 mockContainer.set('custom-error-handler-token', customErrorHandler);
 
                 const resolvedErrorHandler = mockContainer.resolve('custom-error-handler-token');
-                
+
                 expect(resolvedErrorHandler).toBe(customErrorHandler);
             });
 
             it('should validate errorHandlerToken before resolution', () => {
                 const invalidTokens = ['', '   '];
-                
+
                 invalidTokens.forEach(token => {
                     expect(() => {
                         if (!token || typeof token !== 'string' || token.trim().length === 0) {
@@ -370,15 +370,15 @@ describe('RouteExecutor', () => {
             });
 
             it('should resolve both logger and errorHandler from DI container', () => {
-                const customLogger = new RestFrameworkLogger('[CustomLogger]');
+                const customLogger = new Logger('[CustomLogger]');
                 const customErrorHandler = new ErrorHandler(customLogger);
-                
+
                 mockContainer.set('custom-logger-token', customLogger);
                 mockContainer.set('custom-error-handler-token', customErrorHandler);
 
                 const resolvedLogger = mockContainer.resolve('custom-logger-token');
                 const resolvedErrorHandler = mockContainer.resolve('custom-error-handler-token');
-                
+
                 expect(resolvedLogger).toBe(customLogger);
                 expect(resolvedErrorHandler).toBe(customErrorHandler);
             });
@@ -394,7 +394,7 @@ describe('RouteExecutor', () => {
                     loggerToken?: string;
                     errorHandlerToken?: string;
                 };
-                
+
                 const route: TestRoute = {
                     endPoint: '/test',
                     apiToken: 'api-token',
@@ -417,7 +417,7 @@ describe('RouteExecutor', () => {
                     loggerToken?: string;
                     errorHandlerToken?: string;
                 };
-                
+
                 const route: TestRoute = {
                     endPoint: '/test',
                     apiToken: 'api-token',

@@ -10,7 +10,15 @@ export interface TestCase {
     category?: string;
 }
 
-const cases: TestCase[] = [];
+// Use globalThis to share test registry across webpack bundles
+const getTestRegistry = (): TestCase[] => {
+    if (!(globalThis as any).__GAS_TEST_REGISTRY__) {
+        (globalThis as any).__GAS_TEST_REGISTRY__ = [];
+    }
+    return (globalThis as any).__GAS_TEST_REGISTRY__;
+};
+
+const cases = getTestRegistry();
 
 /**
  * Register a test case

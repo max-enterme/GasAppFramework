@@ -47,6 +47,6 @@ module.exports = {
     ],
     optimization: {
         minimize: true,  // Minification有効化
-        concatenateModules: true
+        concatenateModules: false  // テスト登録のためモジュール結合を無効化
     }
 };

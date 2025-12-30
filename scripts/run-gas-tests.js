@@ -4,7 +4,9 @@
  * CLI script to run GAS tests via deployed web app
  *
  * Usage:
- *   npm run gas:test
+ *   npm run gas:test                          # Use HEAD deployment (default)
+ *   npm run gas:test -- --target              # Use target deployment
+ *   npm run gas:test -- --head                # Use HEAD deployment (explicit)
  *   npm run gas:test -- --category=Repository
  *   npm run gas:test -- --list
  */
@@ -12,27 +14,63 @@
 /* eslint-disable */
 const https = require('https');
 const http = require('http');
+const fs = require('fs');
+const path = require('path');
+const os = require('os');
 
-// Get deployment URL from environment or config
-const DEPLOYMENT_URL = process.env.GAS_DEPLOYMENT_URL || getDeploymentUrl();
-
-function getDeploymentUrl() {
+// Load configuration
+function loadConfig() {
     try {
-        const fs = require('fs');
-        const config = JSON.parse(fs.readFileSync('.gas-config.json', 'utf8'));
-        return config.deploymentUrl;
+        const configPath = path.join(__dirname, '../.gas-config.json');
+        const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+        return config;
     } catch (e) {
-        console.error('❌ Error: GAS_DEPLOYMENT_URL not set and .gas-config.json not found');
+        console.error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        console.error('❌ GAS設定未設定エラー');
+        console.error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         console.error('');
-        console.error('Please either:');
-        console.error('  1. Set GAS_DEPLOYMENT_URL environment variable');
-        console.error('  2. Create .gas-config.json with {"deploymentUrl": "your-url"}');
+        console.error('.gas-config.json ファイルを作成してください:');
         console.error('');
-        console.error('To get your deployment URL:');
-        console.error('  1. Run: npm run gas:deploy');
-        console.error('  2. Copy the Web app URL from the output');
+        console.error('  1. .gas-config.json.example をコピー:');
+        console.error('     cp .gas-config.json.example .gas-config.json');
+        console.error('');
+        console.error('  2. Web Appとしてデプロイ:');
+        console.error('     - Apps Scriptエディタを開く');
+        console.error('     - 右上の「デプロイ」→「新しいデプロイ」');
+        console.error('     - 種類: ウェブアプリ');
+        console.error('     - 実行ユーザー: 自分');
+        console.error('     - アクセス: 全員');
+        console.error('');
+        console.error('  3. デプロイIDを.gas-config.jsonに記入:');
+        console.error('     {');
+        console.error('       "clasprcPath": null,  // または clasp認証ファイルのパス');
+        console.error('       "deployments": {');
+        console.error('         "headDeployId": "YOUR_HEAD_DEPLOY_ID",');
+        console.error('         "targetDeployId": "YOUR_TARGET_DEPLOY_ID"');
+        console.error('       }');
+        console.error('     }');
+        console.error('');
+        console.error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         process.exit(1);
     }
+}
+
+// Get authentication token from clasp config
+function getAuthToken(config) {
+    try {
+        const clasprcPath = config.clasprcPath || path.join(os.homedir(), '.clasprc.json');
+        const clasprc = JSON.parse(fs.readFileSync(clasprcPath, 'utf8'));
+        return clasprc.token;
+    } catch (e) {
+        console.warn('⚠️  Warning: Could not read clasp authentication token');
+        console.warn('   HEAD deployment access may require authentication');
+        return null;
+    }
+}
+
+// Build URL from deployment ID
+function buildUrl(deploymentId) {
+    return `https://script.google.com/macros/s/${deploymentId}/dev`;
 }
 
 // Parse command line arguments
@@ -41,7 +79,8 @@ const options = {
     category: null,
     list: false,
     format: 'json',
-    raw: false
+    raw: false,
+    deployment: 'head' // Default to HEAD deployment (more intuitive for development)
 };
 
 args.forEach(arg => {
@@ -53,11 +92,32 @@ args.forEach(arg => {
         options.format = arg.split('=')[1];
     } else if (arg === '--raw') {
         options.raw = true;
+    } else if (arg === '--head') {
+        options.deployment = 'head';
+    } else if (arg === '--target') {
+        options.deployment = 'target';
     }
 });
 
+// Load configuration and setup
+const config = loadConfig();
+const AUTH_TOKEN = getAuthToken(config);
+
+// Determine which deployment to use
+const deploymentId = options.deployment === 'target'
+    ? config.deployments.targetDeployId
+    : config.deployments.headDeployId;
+
+if (!deploymentId) {
+    console.error(`❌ Deployment ID not configured for: ${options.deployment}`);
+    console.error(`   Please set deployments.${options.deployment}DeployId in .gas-config.json`);
+    process.exit(1);
+}
+
+const TEST_URL = process.env.GAS_TEST_URL || buildUrl(deploymentId);
+
 // Build URL
-let url = DEPLOYMENT_URL;
+let url = TEST_URL;
 const params = new URLSearchParams();
 if (options.category) params.append('category', options.category);
 if (options.list) params.append('list', 'true');
@@ -69,6 +129,7 @@ if (params.toString()) {
 
 if (!options.raw) {
     console.log(`🚀 Running GAS tests...`);
+    console.log(`📍 Deployment: ${options.deployment.toUpperCase()}`);
     console.log(`📍 URL: ${url}`);
     console.log('');
 }
@@ -81,8 +142,20 @@ function makeRequest(requestUrl, redirectCount = 0) {
     }
 
     const protocol = requestUrl.startsWith('https') ? https : http;
+    const urlObj = new URL(requestUrl);
 
-    protocol.get(requestUrl, (res) => {
+    const requestOptions = {
+        hostname: urlObj.hostname,
+        path: urlObj.pathname + urlObj.search,
+        headers: {}
+    };
+
+    // Add authentication header if available
+    if (AUTH_TOKEN && AUTH_TOKEN.access_token) {
+        requestOptions.headers['Authorization'] = `Bearer ${AUTH_TOKEN.access_token}`;
+    }
+
+    protocol.get(requestOptions, (res) => {
         // Handle redirects
         if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
             if (!options.raw) {

@@ -8,10 +8,10 @@
 import * as Framework from '../modules/index';
 
 // Import test spec files (import/exportスタイル)
-import './Modules/GasDI/gas_di_spec_new';
-import './Modules/Locking/locking_spec';
-import './Modules/Repository/gas_spreadsheet_spec';
-import './Modules/GAS/gas_advanced_spec';
+import './gas/di_spec';
+import './gas/locking_spec';
+import './gas/spreadsheet_spec';
+import './gas/gas_advanced_spec';
 
 // Import shared test cases (直接テスト登録される)
 import './shared/gasdi/core.test';
@@ -29,4 +29,4 @@ import './shared/stringhelper/core.test';
 };
 
 // Export for webpack
-export {};
+export { };

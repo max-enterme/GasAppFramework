@@ -9,10 +9,10 @@
  * 共通ロジックテスト（両環境で実行）: test/shared/gasdi/core.test.ts
  */
 
-import * as Test from '../../../modules/testing/Test';
-import * as Assert from '../../../modules/testing/Assert';
-import * as TestHelpersModule from '../../../modules/testing/TestHelpers';
-import * as Framework from '../../../modules/index';
+import * as Test from '../../modules/testing/Test';
+import * as Assert from '../../modules/testing/Assert';
+import * as TestHelpersModule from '../../modules/testing/TestHelpers';
+import * as Framework from '../../modules/index';
 
 // Get Container from Framework
 const Container = Framework.Container;
@@ -76,4 +76,4 @@ Test.it('GasDI Container works with GAS global services', () => {
 }, 'GasDI');
 
 // エクスポート（webpackバンドル用）
-export {};
+export { };

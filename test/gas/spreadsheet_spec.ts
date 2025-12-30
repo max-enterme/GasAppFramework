@@ -17,10 +17,10 @@
  * error handling specific to Google Sheets integration.
  */
 
-import * as Test from '../../../modules/testing/Test';
-import * as Assert from '../../../modules/testing/Assert';
-import * as TestHelpers from '../../../modules/testing/TestHelpers';
-import * as Repository from '../../../modules/repository';
+import * as Test from '../../modules/testing/Test';
+import * as Assert from '../../modules/testing/Assert';
+import * as TestHelpers from '../../modules/testing/TestHelpers';
+import * as Repository from '../../modules/repository';
 
 // Test entity type for repository operations
 type TestEntity = { id: string; name: string; value: number; active: boolean };
