@@ -65,6 +65,11 @@ jobs:
           echo "$GAS_CONFIG_JSON" > .gas-config.json
           echo "✅ GAS設定ファイルを作成しました"
 
+      - name: List files in workspace
+        run: |
+          echo "Workspace: $GITHUB_WORKSPACE"
+          ls -al $GITHUB_WORKSPACE
+
       - name: Deploy to GAS
         if: inputs.deploy == true && env.CLASPRC_JSON != ''
         env:
