@@ -408,7 +408,6 @@ export namespace GAS {
 
     class MockLock {
         private acquired: boolean = false;
-        private acquiredAt: number = 0;
 
         constructor(private id: string) {}
 
@@ -417,7 +416,6 @@ export namespace GAS {
                 return false;
             }
             this.acquired = true;
-            this.acquiredAt = Date.now();
             return true;
         }
 
@@ -433,7 +431,6 @@ export namespace GAS {
 
         releaseLock(): void {
             this.acquired = false;
-            this.acquiredAt = 0;
         }
     }
 

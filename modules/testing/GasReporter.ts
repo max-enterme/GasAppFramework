@@ -98,7 +98,6 @@ export function toHtml(results: TestResult[]): string {
 
     for (const [category, categoryResults] of categories) {
         const catOk = categoryResults.filter((r) => r.ok).length;
-        const _catNg = categoryResults.length - catOk;
 
         html += `<div class="category">`;
         html += `<h3>📂 ${category} (${catOk}/${categoryResults.length} passed)</h3>`;
