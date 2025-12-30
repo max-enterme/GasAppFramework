@@ -1,0 +1,222 @@
+name: PR Quality Check with AI Suggestions
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run lint
+        id: lint
+        continue-on-error: true
+        run: |
+          npm run lint 2>&1 | tee lint-output.txt
+          echo "lint_exit_code=${PIPESTATUS[0]}" >> $GITHUB_OUTPUT
+
+      - name: Run type check
+        id: typecheck
+        continue-on-error: true
+        run: |
+          npm run type-check 2>&1 | tee typecheck-output.txt
+          echo "typecheck_exit_code=${PIPESTATUS[0]}" >> $GITHUB_OUTPUT
+
+      - name: Run tests
+        id: test
+        continue-on-error: true
+        run: |
+          npm test 2>&1 | tee test-output.txt
+          echo "test_exit_code=${PIPESTATUS[0]}" >> $GITHUB_OUTPUT
+
+      - name: Generate AI fix suggestions
+        if: steps.lint.outputs.lint_exit_code != '0' || steps.typecheck.outputs.typecheck_exit_code != '0' || steps.test.outputs.test_exit_code != '0'
+        id: ai_suggestions
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          node scripts/ai-fix-suggester.js \
+            --lint-output lint-output.txt \
+            --typecheck-output typecheck-output.txt \
+            --test-output test-output.txt \
+            --output suggestions.md
+
+      - name: Post AI suggestions as comment
+        if: steps.lint.outputs.lint_exit_code != '0' || steps.typecheck.outputs.typecheck_exit_code != '0' || steps.test.outputs.test_exit_code != '0'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            let suggestions = '';
+
+            try {
+              suggestions = fs.readFileSync('suggestions.md', 'utf8');
+            } catch (error) {
+              suggestions = '⚠️ AI修正候補の生成に失敗しました。ログを確認してください。';
+            }
+
+            const comment = `## 🔍 自動チェック結果\n\n${suggestions}`;
+
+            // 既存のボットコメントを検索
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            const botComment = comments.find(comment =>
+              comment.user.type === 'Bot' &&
+              comment.body.includes('🔍 自動チェック結果')
+            );
+
+            if (botComment) {
+              // 既存のコメントを更新
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: comment
+              });
+            } else {
+              // 新規コメントを作成
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: comment
+              });
+            }
+
+      - name: Fail if checks failed
+        if: steps.lint.outputs.lint_exit_code != '0' || steps.typecheck.outputs.typecheck_exit_code != '0' || steps.test.outputs.test_exit_code != '0'
+        run: exit 1
+
+      - name: Success message
+        if: steps.lint.outputs.lint_exit_code == '0' && steps.typecheck.outputs.typecheck_exit_code == '0' && steps.test.outputs.test_exit_code == '0'
+        run: echo "✅ All checks passed!"
+
+  gas-test:
+    runs-on: ubuntu-latest
+    if: ${{ vars.ENABLE_GAS_TEST == 'true' }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Setup clasp authentication
+        env:
+          CLASPRC_JSON: ${{ secrets.CLASPRC_JSON }}
+        run: |
+          if [ -z "$CLASPRC_JSON" ]; then
+            echo "⚠️ CLASPRC_JSON シークレットが設定されていません"
+            echo "GASテストをスキップします"
+            exit 0
+          fi
+          mkdir -p ~/.config
+          echo "$CLASPRC_JSON" > ~/.clasprc.json
+
+      - name: Setup GAS config
+        env:
+          GAS_CONFIG_JSON: ${{ secrets.GAS_CONFIG_JSON }}
+        run: |
+          if [ -z "$GAS_CONFIG_JSON" ]; then
+            echo "⚠️ GAS_CONFIG_JSON シークレットが設定されていません"
+            exit 0
+          fi
+          echo "$GAS_CONFIG_JSON" > .gas-config.json
+
+      - name: Build and deploy to GAS
+        env:
+          CLASPRC_JSON: ${{ secrets.CLASPRC_JSON }}
+        run: |
+          if [ -z "$CLASPRC_JSON" ]; then
+            echo "⚠️ 認証情報がないためデプロイをスキップ"
+            exit 0
+          fi
+          npm run gas:push
+
+      - name: Run GAS tests
+        id: gas_test
+        continue-on-error: true
+        run: |
+          npm run gas:test 2>&1 | tee gas-test-output.txt
+          echo "gas_test_exit_code=${PIPESTATUS[0]}" >> $GITHUB_OUTPUT
+
+      - name: Post GAS test results
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            let testOutput = '';
+
+            try {
+              testOutput = fs.readFileSync('gas-test-output.txt', 'utf8');
+            } catch (error) {
+              testOutput = '⚠️ テスト結果の読み込みに失敗しました';
+            }
+
+            const exitCode = '${{ steps.gas_test.outputs.gas_test_exit_code }}';
+            const status = exitCode === '0' ? '✅ 成功' : '❌ 失敗';
+
+            const comment = `## 🧪 GASテスト結果: ${status}\n\n<details>\n<summary>テストログ</summary>\n\n\`\`\`\n${testOutput}\n\`\`\`\n\n</details>`;
+
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            const botComment = comments.find(comment =>
+              comment.user.type === 'Bot' &&
+              comment.body.includes('🧪 GASテスト結果')
+            );
+
+            if (botComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: comment
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: comment
+              });
+            }
+
+      - name: Fail if GAS tests failed
+        if: steps.gas_test.outputs.gas_test_exit_code != '0'
+        run: |
+          echo "❌ GASテストが失敗しました"
+          exit 1

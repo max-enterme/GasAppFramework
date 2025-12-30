@@ -1,0 +1,105 @@
+name: GAS Deploy and Test
+
+# GASへのデプロイとテストの実行
+# 必要なSecrets: CLASPRC_JSON, GAS_CONFIG_JSON
+on:
+  workflow_dispatch:
+    inputs:
+      deploy:
+        description: 'clasp push を実行する'
+        required: false
+        default: true
+        type: boolean
+      test:
+        description: 'GASテストを実行する'
+        required: false
+        default: true
+        type: boolean
+
+jobs:
+  gas-deploy-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Setup clasp authentication
+        if: inputs.deploy == true
+        env:
+          CLASPRC_JSON: ${{ secrets.CLASPRC_JSON }}
+        run: |
+          if [ -z "$CLASPRC_JSON" ]; then
+            echo "⚠️ CLASPRC_JSON シークレットが設定されていません"
+            echo "デプロイをスキップします"
+            exit 0
+          fi
+          mkdir -p ~/.config
+          echo "$CLASPRC_JSON" > ~/.clasprc.json
+          echo "✅ clasp認証情報を設定しました"
+
+      - name: Setup GAS config
+        env:
+          GAS_CONFIG_JSON: ${{ secrets.GAS_CONFIG_JSON }}
+        run: |
+          if [ -z "$GAS_CONFIG_JSON" ]; then
+            echo "⚠️ GAS_CONFIG_JSON シークレットが設定されていません"
+            echo "テストをスキップする可能性があります"
+            exit 0
+          fi
+          echo "$GAS_CONFIG_JSON" > .gas-config.json
+          echo "✅ GAS設定ファイルを作成しました"
+
+      - name: Build project
+        if: inputs.deploy == true
+        run: npm run build
+
+      - name: Deploy to GAS
+        if: inputs.deploy == true && env.CLASPRC_JSON != ''
+        env:
+          CLASPRC_JSON: ${{ secrets.CLASPRC_JSON }}
+        run: |
+          if [ -z "$CLASPRC_JSON" ]; then
+            echo "⚠️ CLASPRCが設定されていないためデプロイをスキップ"
+            exit 0
+          fi
+          npm run gas:push
+
+      - name: Run GAS tests
+        if: inputs.test == true
+        id: gas_test
+        continue-on-error: true
+        run: |
+          npm run gas:test 2>&1 | tee gas-test-output.txt
+          echo "gas_test_exit_code=${PIPESTATUS[0]}" >> $GITHUB_OUTPUT
+
+      - name: Display test results
+        if: inputs.test == true
+        run: |
+          echo "═══════════════════════════════════════════════════════"
+          echo "📊 GASテスト結果"
+          echo "═══════════════════════════════════════════════════════"
+          cat gas-test-output.txt
+          echo "═══════════════════════════════════════════════════════"
+
+      - name: Upload test results
+        if: inputs.test == true
+        uses: actions/upload-artifact@v4
+        with:
+          name: gas-test-results
+          path: gas-test-output.txt
+
+      - name: Fail if tests failed
+        if: inputs.test == true && steps.gas_test.outputs.gas_test_exit_code != '0'
+        run: |
+          echo "❌ GASテストが失敗しました"
+          exit 1
