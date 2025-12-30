@@ -69,7 +69,7 @@ function generateClaspJson(scriptId) {
         rootDir: './build'
     };
 
-    const claspJsonPath = path.join(__dirname, '../.clasp. json');
+    const claspJsonPath = path.join(__dirname, '../.clasp.json');
     fs.writeFileSync(claspJsonPath, JSON.stringify(claspConfig, null, 2) + '\n', 'utf8');
 
     log('\n✅ .clasp.json が生成されました', 'green');
@@ -127,7 +127,7 @@ async function main() {
     log(`\n📌 使用する scriptId: ${scriptId}`, 'blue');
     generateClaspJson(scriptId);
 
-    log('\n='. repeat(60), 'green');
+    log('\n' + '='.repeat(60), 'green');
     log('✅ 完了しました! ', 'green');
     log('='.repeat(60), 'green');
     log('\n次のステップ:', 'blue');

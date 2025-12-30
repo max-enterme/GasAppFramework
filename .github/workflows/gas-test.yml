@@ -65,10 +65,6 @@ jobs:
           echo "$GAS_CONFIG_JSON" > .gas-config.json
           echo "✅ GAS設定ファイルを作成しました"
 
-      - name: Build project
-        if: inputs.deploy == true
-        run: npm run build
-
       - name: Deploy to GAS
         if: inputs.deploy == true && env.CLASPRC_JSON != ''
         env:
