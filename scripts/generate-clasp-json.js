@@ -65,8 +65,7 @@ function getScriptIdFromClasp() {
 // Generate .clasp. json
 function generateClaspJson(scriptId) {
     const claspConfig = {
-        scriptId: scriptId,
-        rootDir: './build'
+        scriptId: scriptId
     };
 
     const claspJsonPath = path.join(__dirname, '../.clasp.json');
