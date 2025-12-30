@@ -16,7 +16,8 @@ let branch = 'unknown';
 
 try {
     commitHash = execSync('git rev-parse HEAD').toString().trim();
-    commitDate = execSync('git log -1 --format=%cd --date=iso').toString().trim();
+    const gitCommitDate = execSync('git log -1 --format=%cd --date=iso').toString().trim();
+    commitDate = new Date(gitCommitDate).toISOString();
     branch = execSync('git rev-parse --abbrev-ref HEAD').toString().trim();
     console.log('✅ Git info retrieved:');
     console.log('   Commit: ' + commitHash.substring(0, 8));

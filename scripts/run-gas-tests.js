@@ -222,15 +222,24 @@ function makeRequest(requestUrl, redirectCount = 0) {
                 console.log('───────────────────────────────────────────────────────');
                 console.log(`Total: ${summary.passed}/${summary.total} passed in ${totalMs}ms`);
                 console.log(`Executed: ${result.timestamp || new Date().toISOString()}`);
+
+                // Display custom output (version info, logs, etc.)
+                if (result.customOutput) {
+                    console.log('');
+                    console.log('───────────────────────────────────────────────────────');
+                    console.log(result.customOutput.title);
+                    console.log('───────────────────────────────────────────────────────');
+                    console.log(result.customOutput.content);
+                }
+
                 console.log('═══════════════════════════════════════════════════════');
 
                 // Exit with error code if tests failed
-                if (summary.failed > 0) {
-                    process.exit(1);
-                }
+                process.exit(summary.failed > 0 ? 1 : 0);
             } else {
                 // HTML output
                 console.log(data);
+                process.exit(0);
             }
         } catch (e) {
             console.error('❌ Error parsing response:', e.message);

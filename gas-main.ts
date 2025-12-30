@@ -5,6 +5,8 @@
 
 import * as Framework from './modules/index';
 
+const FRAMEWORK_VERSION = '1.0.0';
+
 // Logger utility
 const getLogger = () => (typeof Logger !== 'undefined') ? Logger : console;
 
@@ -12,17 +14,8 @@ const getLogger = () => (typeof Logger !== 'undefined') ? Logger : console;
  * Setup framework globals for test compatibility
  */
 function setupFrameworkGlobals(): void {
-    const logger = getLogger();
-
-    logger.log('[INIT] Framework.Testing.TestHelpers type: ' + typeof Framework.Testing.TestHelpers);
-
     (globalThis as any).GasAppFramework = Framework;
-    (globalThis as any).T = Framework.Testing.Test;
-    (globalThis as any).TRunner = Framework.Testing.Runner;
-    (globalThis as any).TAssert = Framework.Testing.Assert;
-    (globalThis as any).TGasReporter = Framework.Testing.GasReporter;
     (globalThis as any).testLog = Framework.Testing.LogCapture.testLog;
-    (globalThis as any).TestHelpers = Framework.Testing.TestHelpers;
 }
 
 /**
@@ -203,25 +196,47 @@ function getFrameworkDebugInfo(): Record<string, string> {
 function createCustomOutputGenerator(): Framework.Testing.Runner.CustomOutputGenerator {
     return (results) => {
         const lines: string[] = [];
-        
+
         // Version information
         lines.push('=== バージョン情報 ===');
         lines.push('');
-        
+
         // Try to get version from package.json (injected by scripts/inject-version.js)
-        const version = (globalThis as any).__FRAMEWORK_VERSION__ || '1.0.0';
-        const buildDate = (globalThis as any).__BUILD_DATE__ || new Date().toISOString();
-        
-        lines.push(`フレームワークバージョン: ${version}`);
-        lines.push(`ビルド日時: ${buildDate}`);
+        const gasAppVersion = (globalThis as any).__GAS_APP_VERSION__;
+        const branch = gasAppVersion?.branch ?? 'undefined';
+        const commitHash = gasAppVersion?.commitHash ?? 'undefined';
+        const commitDate = gasAppVersion?.commitDate;
+        const buildDate = gasAppVersion?.buildDate;
+
+        // Format dates using GAS timezone (fallback to ISO if not available)
+        const formatDate = (isoDateString: string | undefined): string => {
+            if (!isoDateString || isoDateString === 'unknown') return 'undefined';
+            try {
+                // Use GAS timezone if available
+                if (typeof Session !== 'undefined' && typeof Utilities !== 'undefined') {
+                    const timezone = Session.getScriptTimeZone();
+                    return Utilities.formatDate(new Date(isoDateString), timezone, 'yyyy-MM-dd HH:mm:ss');
+                }
+                // Fallback to ISO format
+                return isoDateString;
+            } catch {
+                return isoDateString;
+            }
+        };
+
+        lines.push(`フレームワークバージョン: ${FRAMEWORK_VERSION}`);
+        lines.push(`ビルドブランチ: ${branch}`);
+        lines.push(`コミットハッシュ: ${commitHash}`);
+        lines.push(`コミット日時: ${formatDate(commitDate)}`);
+        lines.push(`ビルド日時: ${formatDate(buildDate)}`);
         lines.push('');
-        
+
         // Test execution logs
         lines.push('=== テスト実行ログ ===');
         lines.push('');
-        
+
         // Collect all logs from test results
-        const allLogs: Array<{testName: string; log: Framework.Testing.LogCapture.LogEntry}> = [];
+        const allLogs: Array<{ testName: string; log: Framework.Testing.LogCapture.LogEntry }> = [];
         for (const result of results) {
             if (result.logs && result.logs.length > 0) {
                 for (const log of result.logs) {
@@ -232,19 +247,29 @@ function createCustomOutputGenerator(): Framework.Testing.Runner.CustomOutputGen
                 }
             }
         }
-        
+
         if (allLogs.length > 0) {
             // Sort by timestamp
             allLogs.sort((a, b) => a.log.timestamp - b.log.timestamp);
-            
-            for (const {testName, log} of allLogs) {
-                const time = new Date(log.timestamp).toLocaleTimeString('ja-JP');
+
+            for (const { testName, log } of allLogs) {
+                let time: string;
+                try {
+                    if (typeof Session !== 'undefined' && typeof Utilities !== 'undefined') {
+                        const timezone = Session.getScriptTimeZone();
+                        time = Utilities.formatDate(new Date(log.timestamp), timezone, 'HH:mm:ss.SSS');
+                    } else {
+                        time = new Date(log.timestamp).toISOString().substring(11, 23);
+                    }
+                } catch {
+                    time = new Date(log.timestamp).toISOString().substring(11, 23);
+                }
                 lines.push(`[${time}] [${testName}] ${log.message}`);
             }
         } else {
             lines.push('(ログなし)');
         }
-        
+
         return {
             title: '📊 実行情報',
             content: lines.join('\n'),

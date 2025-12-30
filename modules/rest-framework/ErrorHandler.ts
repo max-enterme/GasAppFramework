@@ -13,8 +13,16 @@ import { ApiResponseFormatter } from './ApiResponseFormatter';
  */
 export class ErrorHandler {
     private errorCount: Map<string, number> = new Map();
+    private enableConsoleLogging: boolean;
 
-    constructor(private logger: ILogger = new Logger('[ErrorHandler]')) {}
+    constructor(
+        private logger: ILogger = new Logger('[ErrorHandler]'),
+        options?: { enableConsoleLogging?: boolean }
+    ) {
+        // Disable console logging in test environments by default
+        const isTestEnvironment = typeof jest !== 'undefined' || typeof global !== 'undefined' && (global as any).__TEST__;
+        this.enableConsoleLogging = options?.enableConsoleLogging ?? !isTestEnvironment;
+    }
 
     /**
      * Handles errors and converts them to API responses
@@ -94,9 +102,11 @@ export class ErrorHandler {
         this.logger.error(`Error occurred: ${errorCode}`, errorInfo);
 
         // Log to console for GAS execution transcript visibility
-        console.error(`[${timestamp}] ErrorHandler: ${errorCode} - ${errorInfo.message}`);
-        if (error instanceof Error && error.stack) {
-            console.error(`Stack trace: ${error.stack}`);
+        if (this.enableConsoleLogging) {
+            console.error(`[${timestamp}] ErrorHandler: ${errorCode} - ${errorInfo.message}`);
+            if (error instanceof Error && error.stack) {
+                console.error(`Stack trace: ${error.stack}`);
+            }
         }
     }
 
@@ -145,9 +155,11 @@ export class ErrorHandler {
                 `High-frequency error detected: ${errorKey} (${newCount} occurrences)`,
                 { errorKey, count: newCount }
             );
-            console.warn(
-                `[MONITORING] High-frequency error: ${errorKey} occurred ${newCount} times`
-            );
+            if (this.enableConsoleLogging) {
+                console.warn(
+                    `[MONITORING] High-frequency error: ${errorKey} occurred ${newCount} times`
+                );
+            }
         } else if (newCount > 5 && newCount % 10 === 0) {
             // Log every 10th occurrence after threshold
             this.logger.error(
@@ -179,9 +191,12 @@ export class ErrorHandler {
     }
 
     /**
-     * Creates an ErrorHandler with optional logger
+     * Creates an ErrorHandler with optional logger and configuration
      */
-    static create(logger?: ILogger): ErrorHandler {
-        return new ErrorHandler(logger);
+    static create(
+        logger?: ILogger,
+        options?: { enableConsoleLogging?: boolean }
+    ): ErrorHandler {
+        return new ErrorHandler(logger, options);
     }
 }

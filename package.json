@@ -17,7 +17,8 @@
     "gas:push": "npm run build && node scripts/inject-version.js && clasp push",
     "gas:deploy": "node scripts/deploy.js",
     "gas:test": "node scripts/run-gas-tests.js",
-    "gas:open": "clasp open"
+    "gas:open": "clasp open",
+    "validate-all": "npm run check && npm run gas:push && npm run gas:test"
   },
   "keywords": [
     "gas",

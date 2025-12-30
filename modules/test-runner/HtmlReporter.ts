@@ -366,7 +366,7 @@ function generateCategoryView(results: TestResult[]): string {
 function generateCustomOutputSection(customOutput: CustomOutput): string {
     let html = '<div class="custom-output">';
     html += `<h3>${escapeHtml(customOutput.title)}</h3>`;
-    
+
     if (customOutput.type === 'html') {
         html += customOutput.content; // Assume content is safe HTML
     } else if (customOutput.type === 'json') {
@@ -375,7 +375,7 @@ function generateCustomOutputSection(customOutput: CustomOutput): string {
         // Default: text
         html += '<pre>' + escapeHtml(customOutput.content) + '</pre>';
     }
-    
+
     html += '</div>';
     return html;
 }
@@ -443,6 +443,10 @@ export function toJson(results: TestResult[]): string {
     const ok = results.filter((r) => r.ok).length;
     const ng = results.length - ok;
 
+    // Get custom output if available
+    const customOutputGenerator = getCustomOutputGenerator();
+    const customOutput = customOutputGenerator ? customOutputGenerator(results) : null;
+
     const report = {
         timestamp: new Date().toISOString(),
         summary: {
@@ -461,7 +465,12 @@ export function toJson(results: TestResult[]): string {
                 message: log.message
             })) : undefined,
             metadata: r.metadata || undefined
-        }))
+        })),
+        customOutput: customOutput ? {
+            title: customOutput.title,
+            content: customOutput.content,
+            type: customOutput.type || 'text'
+        } : undefined
     };
 
     return JSON.stringify(report, null, 2);
