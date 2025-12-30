@@ -22,7 +22,13 @@
     "gas:push": "npm run build && node scripts/inject-version.js && clasp push",
     "gas:deploy": "node scripts/deploy.js",
     "gas:test": "node scripts/run-gas-tests.js",
-    "gas:open": "clasp open"
+    "gas:open": "clasp open",
+    "gas:url:project": "node scripts/gas-url.js project",
+    "gas:url:dev": "node scripts/gas-url.js dev",
+    "gas:url:exec": "node scripts/gas-url.js exec",
+    "gas:open:project": "node scripts/gas-url.js project open",
+    "gas:open:dev": "node scripts/gas-url.js dev open",
+    "gas:open:exec": "node scripts/gas-url.js exec open"
   },
   "keywords": [
     "gas",
