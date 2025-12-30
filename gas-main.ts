@@ -3,8 +3,6 @@
  * This file provides the doGet handler for web-based test execution
  */
 
-/// <reference path="./types/gas-globals.d.ts" />
-
 import * as Framework from './modules/index';
 
 // Initialize function - MUST be called before using the framework

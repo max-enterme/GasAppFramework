@@ -3,24 +3,22 @@
  */
 
 import { setupGASMocks } from '../../../modules/testing-utils/test-utils';
-import { setupTestAdapter, registerCollectedTests } from '../../../modules/testing-utils/test-adapter';
-import { registerGasDICoreTests } from '../../shared/gasdi/core.test';
-import { Container } from '../integration/gasdi-module';
-
-// テストアダプターをセットアップ
-setupTestAdapter();
+import * as GasDI from '../../../modules/di';
 
 // GasDIモジュールをグローバルに注入
-(globalThis as any).GasDI = {
-    Container: Container
-};
+(globalThis as any).GasDI = GasDI;
 
 // GASモックをセットアップ
 beforeAll(() => {
     setupGASMocks();
 });
 
+// 共通テストをimport（自動的にテストが登録される）
+import '../../shared/gasdi/core.test';
+
 describe('GasDI Core Tests (Shared)', () => {
-    registerGasDICoreTests();
-    registerCollectedTests();
+    // テストは既にimportによって登録されています
+    it('should run shared tests', () => {
+        expect(true).toBe(true);
+    });
 });

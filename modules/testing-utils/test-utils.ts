@@ -33,28 +33,3 @@ export function createMockLogger() {
         error: jest.fn()
     };
 }
-
-/**
- * Create test data for user entities
- */
-export function createTestUser(overrides: Partial<{ id: string; name: string; email: string; org: string }> = {}) {
-    return {
-        id: 'test-user-1',
-        name: 'Test User',
-        email: 'test@example.com',
-        org: 'test-org',
-        ...overrides
-    };
-}
-
-/**
- * Create test data for multiple users
- */
-export function createTestUsers(count: number = 3) {
-    return Array.from({ length: count }, (_, i) => createTestUser({
-        id: `user-${i + 1}`,
-        name: `Test User ${i + 1}`,
-        email: `user${i + 1}@example.com`,
-        org: `org-${i + 1}`
-    }));
-}

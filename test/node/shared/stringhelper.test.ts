@@ -3,26 +3,21 @@
  */
 
 import { setupGASMocks } from '../../../modules/testing-utils/test-utils';
-import { setupTestAdapter, registerCollectedTests } from '../../../modules/testing-utils/test-adapter';
-import { registerStringHelperCoreTests } from '../../shared/stringhelper/core.test';
-import { formatString, resolveString, get } from '../integration/stringhelper-module';
-
-// テストアダプターをセットアップ
-setupTestAdapter();
+import * as StringHelper from '../../../modules/string-helper';
 
 // StringHelperモジュールをグローバルに注入
-(globalThis as any).StringHelper = {
-    formatString,
-    resolveString,
-    get
-};
+(globalThis as any).StringHelper = StringHelper;
 
 // GASモックをセットアップ
 beforeAll(() => {
     setupGASMocks();
 });
 
+// 共通テストをimport（自動的にテストが登録される）
+import '../../shared/stringhelper/core.test';
+
 describe('StringHelper Core Tests (Shared)', () => {
-    registerStringHelperCoreTests();
-    registerCollectedTests();
+    it('should run shared tests', () => {
+        expect(true).toBe(true);
+    });
 });

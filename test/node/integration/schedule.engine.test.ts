@@ -9,7 +9,10 @@
  * behavior patterns that the actual implementation should follow.
  */
 
-/// <reference path="../../../types/gas-globals.d.ts" />
+/// <reference types="google-apps-script" />
+
+// GAS global types
+declare const Session: GoogleAppsScript.Base.Session;
 
 import { setupGASMocks, createMockLogger } from '../../../modules/testing-utils/test-utils';
 

@@ -48,9 +48,25 @@ if (typeof globalThis !== 'undefined') {
 
 `;
 
-// Find a good injection point (after webpack bootstrap but before main code)
-const insertPoint = content.indexOf('var __webpack_exports__ = {};');
-if (insertPoint > 0) {
+// Find a good injection point - try multiple patterns
+let insertPoint = content.indexOf('var __webpack_exports__ = {};');
+
+// If webpack_exports pattern not found, try minified patterns
+if (insertPoint < 0) {
+    // Pattern for minified webpack output
+    insertPoint = content.indexOf('"use strict";');
+    if (insertPoint > 0) {
+        // Insert after "use strict"; line
+        insertPoint = content.indexOf(';', insertPoint) + 1;
+    }
+}
+
+// Fallback: insert at the very beginning
+if (insertPoint < 0) {
+    insertPoint = 0;
+}
+
+if (insertPoint >= 0) {
     content = content.substring(0, insertPoint) + versionInfo + content.substring(insertPoint);
     fs.writeFileSync(mainJsPath, content, 'utf-8');
     console.log('✅ Version info injected into build/0_main.js');

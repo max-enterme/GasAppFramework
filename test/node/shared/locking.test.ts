@@ -3,12 +3,7 @@
  */
 
 import { setupGASMocks } from '../../../modules/testing-utils/test-utils';
-import { setupTestAdapter, registerCollectedTests } from '../../../modules/testing-utils/test-adapter';
-import { registerLockingCoreTests } from '../../shared/locking/core.test';
 import * as LockingModule from '../../../modules/locking';
-
-// テストアダプターをセットアップ
-setupTestAdapter();
 
 // Lockingモジュールをグローバルに注入
 (globalThis as any).Locking = LockingModule;
@@ -18,7 +13,11 @@ beforeAll(() => {
     setupGASMocks();
 });
 
+// 共通テストをimport（自動的にテストが登録される）
+import '../../shared/locking/core.test';
+
 describe('Locking Core Tests (Shared)', () => {
-    registerLockingCoreTests();
-    registerCollectedTests();
+    it('should run shared tests', () => {
+        expect(true).toBe(true);
+    });
 });

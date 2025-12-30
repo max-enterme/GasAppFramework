@@ -26,12 +26,11 @@
   },
   "include": [
     "modules/**/*",
+    "test/**/*",
     "gas-main.ts"
   ],
   "exclude": [
     "node_modules",
-    "build",
-    "src",
-    "test"
+    "build"
   ]
 }

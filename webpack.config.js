@@ -9,9 +9,10 @@ module.exports = {
     mode: 'none',
     context: __dirname,
     entry: {
-        // Only build main.js - includes everything
-        // Use "0_" prefix to ensure it loads first (before test/@entrypoint.ts)
-        '0_main': './gas-main.ts'
+        // Main framework bundle - loads first
+        '0_main': './gas-main.ts',
+        // Test bundle - includes all tests
+        '1_tests': './test/@entrypoint.ts'
     },
     output: {
         filename: '[name].js',
@@ -45,7 +46,7 @@ module.exports = {
         })
     ],
     optimization: {
-        minimize: false,
+        minimize: true,  // Minification有効化
         concatenateModules: true
     }
 };

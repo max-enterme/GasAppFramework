@@ -3,8 +3,31 @@
  * Comprehensive Node.js tests for the Repository module functionality
  */
 
-import { setupGASMocks, createMockLogger, createTestUser, createTestUsers } from '../../../modules/testing-utils/test-utils';
-import { MemoryStore, createSimpleCodec, createRepository } from './repository-module';
+import { setupGASMocks, createMockLogger } from '../../../modules/testing-utils/test-utils';
+import * as Repository from '../../../modules/repository';
+
+// Test utility functions
+function createTestUser(overrides: Partial<User> = {}): User {
+    return {
+        id: overrides.id ?? 'test-id',
+        org: overrides.org ?? 'test-org',
+        name: overrides.name ?? 'Test User',
+        email: overrides.email ?? 'test@example.com'
+    };
+}
+
+function createTestUsers(count: number): User[] {
+    return Array.from({ length: count }, (_, i) => ({
+        id: `user-${i}`,
+        org: `org-${i}`,
+        name: `User ${i}`,
+        email: `user${i}@example.com`
+    }));
+}
+
+const MemoryStore = Repository.Adapters.Memory.Store;
+const createSimpleCodec = Repository.Codec.simple;
+const createRepository = Repository.Engine.create;
 
 // Set up GAS environment mocks before tests
 beforeAll(() => {

@@ -2,7 +2,11 @@
  * Locking Module - GAS Adapters
  */
 
-/// <reference path="../../types/gas-globals.d.ts" />
+/// <reference types="google-apps-script" />
+
+// GAS global types (from @types/google-apps-script)
+declare const Logger: GoogleAppsScript.Base.Logger;
+declare const PropertiesService: GoogleAppsScript.Properties.PropertiesService;
 
 import type * as LockingTypes from './Types';
 import type { Clock, Logger as ILogger } from '../shared/index';

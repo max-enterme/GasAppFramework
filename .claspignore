@@ -1,7 +1,8 @@
 # Source files (use build/ instead)
 modules/**
-test/node/**
-test/shared/**
+test/**
+@entrypoints/**
+!@entrypoints/test-entry.ts
 src/**
 types/**
 scripts/**

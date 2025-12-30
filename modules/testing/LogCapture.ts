@@ -38,20 +38,19 @@ export class LogCapture {
         // Try to override console.log - if it fails, just continue without it
         // In GAS, this will fail silently and testLog() should be used instead
         if (!this.consoleOverridden) {
-            const self = this;
             try {
-                console.log = function (...args: any[]) {
+                console.log = (...args: any[]) => {
                     // Store the log entry
-                    self.logs.push({
+                    this.logs.push({
                         timestamp: Date.now(),
                         message: args.map(arg => String(arg)).join(' '),
                         args: args
                     });
                     // Also call the original console.log
-                    self.originalConsoleLog.apply(console, args);
+                    this.originalConsoleLog.apply(console, args);
                 };
                 this.consoleOverridden = true;
-            } catch (e) {
+            } catch {
                 // Silently fail - GAS environment doesn't allow console.log override
                 // Users should use testLog() instead
             }
@@ -69,7 +68,7 @@ export class LogCapture {
         if (this.consoleOverridden) {
             try {
                 console.log = this.originalConsoleLog;
-            } catch (e) {
+            } catch {
                 // Ignore errors during restoration
             }
         }

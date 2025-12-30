@@ -1,10 +1,11 @@
 /* eslint-env node */
+ 
 module.exports = {
     preset: 'ts-jest',
     testEnvironment: 'node',
     roots: ['<rootDir>/test/node'],
     testMatch: [
-        '**/test/node/**/*.test.ts',
+        '**/test/node/**/*.test.ts'
     ],
     moduleFileExtensions: ['ts', 'js'],
     transform: {
@@ -15,11 +16,11 @@ module.exports = {
                 types: ['jest', 'node'],
                 typeRoots: ['./node_modules/@types', './test/shared']
             }
-        }],
+        }]
     },
     collectCoverageFrom: [
         'modules/**/*.ts',
         '!modules/**/*.d.ts',
-        '!modules/**/index.ts',
-    ],
+        '!modules/**/index.ts'
+    ]
 };

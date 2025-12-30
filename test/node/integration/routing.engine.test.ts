@@ -1,26 +1,28 @@
 /**
- * Routing Engine Tests
- * Comprehensive Node.js tests for the Routing module functionality
+ * Routing Engine Integration Tests
+ * ロギング、ミドルウェアスタックの実行順序など、統合テスト特有のテスト
  */
 
 import { setupGASMocks, createMockLogger } from '../../../modules/testing-utils/test-utils';
-import { createRouter, RouteContext, RouteHandler } from './routing-module';
+import * as Routing from '../../../modules/routing';
+
+type RouteHandler = Routing.Types.Ports.Handler;
 
 // Set up GAS environment mocks before tests
 beforeAll(() => {
     setupGASMocks();
 });
 
-describe('Routing Engine Tests', () => {
+describe('Routing Engine Integration Tests', () => {
     let logger: ReturnType<typeof createMockLogger>;
 
     beforeEach(() => {
         logger = createMockLogger();
     });
 
-    describe('Router Creation and Basic Functionality', () => {
-        test('should register and dispatch to simple route', () => {
-            const router = createRouter(logger);
+    describe('Logger Integration', () => {
+        test('should log route registration and dispatch', () => {
+            const router = Routing.create(logger);
             const handler: RouteHandler = (ctx) => `Hello, ${ctx.params.name}!`;
 
             router.register('/hello/:name', handler);
@@ -30,164 +32,11 @@ describe('Routing Engine Tests', () => {
             expect(logger.info).toHaveBeenCalledWith('[Router] registered route: /hello/:name');
             expect(logger.info).toHaveBeenCalledWith('[Router] dispatching to route: /hello/world');
         });
-
-        test('should handle static routes', () => {
-            const router = createRouter();
-
-            router.register('/api/status', () => ({ status: 'ok' }));
-            router.register('/api/health', () => ({ health: 'good' }));
-
-            const statusResult = router.dispatch('/api/status', { params: {} });
-            const healthResult = router.dispatch('/api/health', { params: {} });
-
-            expect(statusResult).toEqual({ status: 'ok' });
-            expect(healthResult).toEqual({ health: 'good' });
-        });
     });
 
-    describe('Route Parameters', () => {
-        test('should extract single parameter', () => {
-            const router = createRouter();
-
-            router.register('/user/:id', (ctx) => `User ID: ${ctx.params.id}`);
-
-            const result = router.dispatch('/user/123', { params: {} });
-            expect(result).toBe('User ID: 123');
-        });
-
-        test('should extract multiple parameters', () => {
-            const router = createRouter();
-
-            router.register('/org/:orgId/user/:userId', (ctx) => ({
-                org: ctx.params.orgId,
-                user: ctx.params.userId
-            }));
-
-            const result = router.dispatch('/org/acme/user/john', { params: {} });
-            expect(result).toEqual({ org: 'acme', user: 'john' });
-        });
-
-        test('should handle URL encoded parameters', () => {
-            const router = createRouter();
-
-            router.register('/search/:query', (ctx) => `Query: ${ctx.params.query}`);
-
-            expect(router.dispatch('/search/hello%20world', { params: {} })).toBe('Query: hello world');
-            expect(router.dispatch('/search/hello%2Bworld', { params: {} })).toBe('Query: hello+world');
-        });
-
-        test('should preserve existing context parameters', () => {
-            const router = createRouter();
-
-            router.register('/api/:version', (ctx) => ({
-                version: ctx.params.version,
-                existing: ctx.params.existing
-            }));
-
-            const result = router.dispatch('/api/v1', {
-                params: { existing: 'value' }
-            });
-
-            expect(result).toEqual({
-                version: 'v1',
-                existing: 'value'
-            });
-        });
-    });
-
-    describe('Wildcard Routes', () => {
-        test('should handle wildcard routes', () => {
-            const router = createRouter();
-
-            router.register('/files/*', (ctx) => `File path: ${ctx.params['*']}`);
-
-            const result = router.dispatch('/files/docs/readme.txt', { params: {} });
-            expect(result).toBe('File path: docs/readme.txt');
-        });
-
-        test('should handle wildcard at root', () => {
-            const router = createRouter();
-
-            router.register('/*', (ctx) => `Catch all: ${ctx.params['*']}`);
-
-            const result = router.dispatch('/any/path/here', { params: {} });
-            expect(result).toBe('Catch all: any/path/here');
-        });
-    });
-
-    describe('Route Resolution and Specificity', () => {
-        test('should resolve routes by specificity order', () => {
-            const router = createRouter();
-
-            // Register in order of increasing specificity
-            router.register('/*', () => 'wildcard');
-            router.register('/api/:action', () => 'param');
-            router.register('/api/status', () => 'static');
-
-            // Static route should take precedence
-            expect(router.dispatch('/api/status', { params: {} })).toBe('static');
-
-            // Should use param route for non-status API calls
-            expect(router.dispatch('/api/users', { params: {} })).toBe('param');
-
-            // Should use wildcard for non-matching paths
-            expect(router.dispatch('/other/path', { params: {} })).toBe('wildcard');
-        });
-
-        test('should resolve route without dispatching', () => {
-            const router = createRouter();
-            const handler = (_ctx: RouteContext) => 'handled';
-
-            router.register('/test/:id', handler);
-
-            const resolved = router.resolve('/test/123');
-            expect(resolved).toBeDefined();
-            expect(resolved!.handler).toBe(handler);
-            expect(resolved!.params).toEqual({ id: '123' });
-        });
-
-        test('should return null for unmatched routes', () => {
-            const router = createRouter();
-
-            router.register('/api/users', () => 'users');
-
-            const resolved = router.resolve('/api/products');
-            expect(resolved).toBeNull();
-        });
-    });
-
-    describe('Route Registration', () => {
-        test('should register multiple routes with registerAll', () => {
-            const router = createRouter();
-
-            const routes = {
-                '/api/users': () => 'users',
-                '/api/products': () => 'products',
-                '/api/orders': () => 'orders'
-            };
-
-            router.registerAll(routes);
-
-            expect(router.dispatch('/api/users', { params: {} })).toBe('users');
-            expect(router.dispatch('/api/products', { params: {} })).toBe('products');
-            expect(router.dispatch('/api/orders', { params: {} })).toBe('orders');
-        });
-
-        test('should handle path normalization', () => {
-            const router = createRouter();
-
-            // Register without leading slash
-            router.register('api/test', () => 'normalized');
-
-            // Should work with leading slash
-            const result = router.dispatch('/api/test', { params: {} });
-            expect(result).toBe('normalized');
-        });
-    });
-
-    describe('Middleware Support', () => {
-        test('should apply middleware to routes', () => {
-            const router = createRouter();
+    describe('Middleware Execution Order', () => {
+        test('should apply middleware to routes in correct order', () => {
+            const router = Routing.create();
             const executionOrder: string[] = [];
 
             // Add middleware that logs execution
@@ -209,8 +58,8 @@ describe('Routing Engine Tests', () => {
             expect(executionOrder).toEqual(['middleware-start', 'handler', 'middleware-end']);
         });
 
-        test('should apply multiple middleware in order', () => {
-            const router = createRouter();
+        test('should apply multiple middleware in correct order', () => {
+            const router = Routing.create();
             const executionOrder: string[] = [];
 
             router.use((ctx, next) => {
@@ -240,7 +89,7 @@ describe('Routing Engine Tests', () => {
         });
 
         test('should allow middleware to modify context', () => {
-            const router = createRouter();
+            const router = Routing.create();
 
             // Middleware that adds authentication info
             router.use((_ctx, next) => {
@@ -261,33 +110,28 @@ describe('Routing Engine Tests', () => {
         });
     });
 
-    describe('Error Handling', () => {
-        test('should throw error for unmatched routes', () => {
-            const router = createRouter();
+    describe('Complex Integration Scenarios', () => {
+        test('should handle complex REST API routing with mixed types', () => {
+            const router = Routing.create();
 
-            router.register('/api/users', () => 'users');
-
-            expect(() => {
-                router.dispatch('/api/products', { params: {} });
-            }).toThrow('No route found for path: /api/products');
-        });
-
-        test('should propagate handler errors', () => {
-            const router = createRouter();
-
-            router.register('/error', () => {
-                throw new Error('Handler error');
+            // Mix of static, parameterized, and wildcard routes
+            router.registerAll({
+                '/': () => 'home',
+                '/about': () => 'about',
+                '/user/:id': (ctx) => `user-${ctx.params.id}`,
+                '/admin/*': (ctx) => `admin-${ctx.params['*']}`,
+                '/api/:version/:resource': (ctx) => `api-${ctx.params.version}-${ctx.params.resource}`
             });
 
-            expect(() => {
-                router.dispatch('/error', { params: {} });
-            }).toThrow('Handler error');
+            expect(router.dispatch('/', { params: {} })).toBe('home');
+            expect(router.dispatch('/about', { params: {} })).toBe('about');
+            expect(router.dispatch('/user/john', { params: {} })).toBe('user-john');
+            expect(router.dispatch('/admin/settings/security', { params: {} })).toBe('admin-settings/security');
+            expect(router.dispatch('/api/v2/users', { params: {} })).toBe('api-v2-users');
         });
-    });
 
-    describe('Complex Routing Scenarios', () => {
-        test('should handle complex REST API routing', () => {
-            const router = createRouter();
+        test('should handle nested resource routing', () => {
+            const router = Routing.create();
 
             // Simulate REST API routes
             router.registerAll({
@@ -313,24 +157,6 @@ describe('Routing Engine Tests', () => {
             expect(router.dispatch('/api/users/123/posts/456', { params: {} }))
                 .toEqual({ action: 'get_post', userId: '123', postId: '456' });
         });
-
-        test('should handle mixed route types effectively', () => {
-            const router = createRouter();
-
-            // Mix of static, parameterized, and wildcard routes
-            router.registerAll({
-                '/': () => 'home',
-                '/about': () => 'about',
-                '/user/:id': (ctx) => `user-${ctx.params.id}`,
-                '/admin/*': (ctx) => `admin-${ctx.params['*']}`,
-                '/api/:version/:resource': (ctx) => `api-${ctx.params.version}-${ctx.params.resource}` // Simplified pattern
-            });
-
-            expect(router.dispatch('/', { params: {} })).toBe('home');
-            expect(router.dispatch('/about', { params: {} })).toBe('about');
-            expect(router.dispatch('/user/john', { params: {} })).toBe('user-john');
-            expect(router.dispatch('/admin/settings/security', { params: {} })).toBe('admin-settings/security');
-            expect(router.dispatch('/api/v2/users', { params: {} })).toBe('api-v2-users');
-        });
     });
 });
+

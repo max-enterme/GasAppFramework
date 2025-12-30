@@ -3,22 +3,21 @@
  */
 
 import { setupGASMocks } from '../../../modules/testing-utils/test-utils';
-import { createRouter } from '../integration/routing-module';
-import { registerRoutingCoreTests } from '../../shared/routing/core.test';
-import { setupTestAdapter, registerCollectedTests } from '../../../modules/testing-utils/test-adapter';
-
-// テストアダプターをセットアップ
-setupTestAdapter();
+import * as Routing from '../../../modules/routing';
 
 // Routingモジュールをグローバルに注入
-(globalThis as any).Routing = { create: createRouter };
+(globalThis as any).Routing = Routing;
 
 // GASモックをセットアップ
 beforeAll(() => {
     setupGASMocks();
 });
 
+// 共通テストをimport（自動的にテストが登録される）
+import '../../shared/routing/core.test';
+
 describe('Routing Core Tests (Shared)', () => {
-    registerRoutingCoreTests();
-    registerCollectedTests();
+    it('should run shared tests', () => {
+        expect(true).toBe(true);
+    });
 });

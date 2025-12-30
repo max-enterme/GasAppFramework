@@ -137,6 +137,17 @@ export namespace Assertions {
  */
 export namespace GAS {
     /**
+     * GAS Logger API mock interface
+     */
+    export interface MockLogger {
+        logs: string[];
+        log(message: string): void;
+        getLastLog(): string | undefined;
+        getAllLogs(): string[];
+        reset(): void;
+    }
+
+    /**
      * Mock SpreadsheetApp for testing spreadsheet operations
      */
     export class MockSpreadsheetApp {
