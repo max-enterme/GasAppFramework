@@ -37,7 +37,7 @@ jobs:
         run: npm install -g @google/clasp
 
       - name: Generate clasp.json
-        run: node scripts/generate-clasp-json.js --scriptId ${{ secrets.GAS_SCRIPT_ID }}
+        run: node scripts/generate-clasp-json.js --scriptId=${{ secrets.GAS_SCRIPT_ID }}
 
       - name: Setup clasp authentication
         if: inputs.deploy == true
