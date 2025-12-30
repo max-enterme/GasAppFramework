@@ -21,6 +21,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Check GAS Secrets
+        run: |
+          if [ -z "$CLASPRC_JSON" ] || [ -z "$GAS_CONFIG_JSON" ]; then
+            echo "❌ GAS関連シークレットが不足しています"
+            exit 1
+          fi
+
       - name: Checkout code
         uses: actions/checkout@v4
 
