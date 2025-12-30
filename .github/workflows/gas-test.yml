@@ -91,7 +91,7 @@ jobs:
         id: gas_test
         continue-on-error: true
         run: |
-          npm run gas:test 2>&1 | tee gas-test-output.txt
+          npm run gas:test -- --target 2>&1 | tee gas-test-output.txt
           echo "gas_test_exit_code=${PIPESTATUS[0]}" >> $GITHUB_OUTPUT
 
       - name: Display test results

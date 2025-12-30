@@ -69,8 +69,12 @@ function getAuthToken(config) {
 }
 
 // Build URL from deployment ID
-function buildUrl(deploymentId) {
-    return `https://script.google.com/macros/s/${deploymentId}/dev`;
+function buildUrl(deploymentId, isDev = true) {
+    if (isDev) {
+        return `https://script.google.com/macros/s/${deploymentId}/dev`;
+    } else {
+        return `https://script.google.com/macros/s/${deploymentId}/exec`;
+    }
 }
 
 // Parse command line arguments
@@ -114,7 +118,7 @@ if (!deploymentId) {
     process.exit(1);
 }
 
-const TEST_URL = process.env.GAS_TEST_URL || buildUrl(deploymentId);
+const TEST_URL = process.env.GAS_TEST_URL || buildUrl(deploymentId, options.deployment === 'head');
 
 // Build URL
 let url = TEST_URL;
