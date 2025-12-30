@@ -5,6 +5,18 @@
 import * as Test from './Test';
 import { LogEntry, getGlobalLogCapture } from './LogCapture';
 
+/**
+ * Custom output generator function
+ * Called after all tests complete to generate additional output
+ */
+export type CustomOutputGenerator = (results: TestResult[]) => CustomOutput | null;
+
+export interface CustomOutput {
+    title: string;
+    content: string;
+    type?: 'text' | 'html' | 'json';
+}
+
 export interface TestResult {
     name: string;
     ok: boolean;
@@ -13,6 +25,27 @@ export interface TestResult {
     category: string;
     logs?: LogEntry[];
     metadata?: Record<string, any>;
+}
+
+export interface TestRunContext {
+    customOutputGenerator?: CustomOutputGenerator;
+}
+
+// Global test run context
+let globalTestRunContext: TestRunContext = {};
+
+/**
+ * Set custom output generator
+ */
+export function setCustomOutputGenerator(generator: CustomOutputGenerator | undefined): void {
+    globalTestRunContext.customOutputGenerator = generator;
+}
+
+/**
+ * Get custom output generator
+ */
+export function getCustomOutputGenerator(): CustomOutputGenerator | undefined {
+    return globalTestRunContext.customOutputGenerator;
 }
 
 /**

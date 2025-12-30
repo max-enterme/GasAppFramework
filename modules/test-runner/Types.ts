@@ -2,7 +2,7 @@
  * Test Runner Module - Type Definitions
  */
 
-// import type { TestResult } from '../testing/Runner';
+import type { CustomOutputGenerator } from '../testing/Runner';
 
 /** Configuration for test execution */
 export interface TestRunnerConfig {
@@ -14,6 +14,8 @@ export interface TestRunnerConfig {
     showTiming?: boolean;
     /** Maximum execution time before warning (ms) */
     warningThreshold?: number;
+    /** Custom output generator for additional information */
+    customOutputGenerator?: CustomOutputGenerator;
 }
 
 /** Options for HTML reporting */

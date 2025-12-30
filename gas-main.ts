@@ -197,6 +197,63 @@ function getFrameworkDebugInfo(): Record<string, string> {
 }
 
 /**
+ * Create custom output generator for test results
+ * Displays version information and captured logs
+ */
+function createCustomOutputGenerator(): Framework.Testing.Runner.CustomOutputGenerator {
+    return (results) => {
+        const lines: string[] = [];
+        
+        // Version information
+        lines.push('=== バージョン情報 ===');
+        lines.push('');
+        
+        // Try to get version from package.json (injected by scripts/inject-version.js)
+        const version = (globalThis as any).__FRAMEWORK_VERSION__ || '1.0.0';
+        const buildDate = (globalThis as any).__BUILD_DATE__ || new Date().toISOString();
+        
+        lines.push(`フレームワークバージョン: ${version}`);
+        lines.push(`ビルド日時: ${buildDate}`);
+        lines.push('');
+        
+        // Test execution logs
+        lines.push('=== テスト実行ログ ===');
+        lines.push('');
+        
+        // Collect all logs from test results
+        const allLogs: Array<{testName: string; log: Framework.Testing.LogCapture.LogEntry}> = [];
+        for (const result of results) {
+            if (result.logs && result.logs.length > 0) {
+                for (const log of result.logs) {
+                    allLogs.push({
+                        testName: result.name,
+                        log
+                    });
+                }
+            }
+        }
+        
+        if (allLogs.length > 0) {
+            // Sort by timestamp
+            allLogs.sort((a, b) => a.log.timestamp - b.log.timestamp);
+            
+            for (const {testName, log} of allLogs) {
+                const time = new Date(log.timestamp).toLocaleTimeString('ja-JP');
+                lines.push(`[${time}] [${testName}] ${log.message}`);
+            }
+        } else {
+            lines.push('(ログなし)');
+        }
+        
+        return {
+            title: '📊 実行情報',
+            content: lines.join('\n'),
+            type: 'text'
+        };
+    };
+}
+
+/**
  * Google Apps Script doGet handler
  * Provides web interface for test execution
  */
@@ -236,7 +293,8 @@ function doGet(e: GoogleAppsScript.Events.DoGet): GoogleAppsScript.HTML.HtmlOutp
         title: 'GasAppFramework Test Suite',
         baseUrl: ScriptApp.getService().getUrl(),
         showTiming: true,
-        warningThreshold: 1000
+        warningThreshold: 1000,
+        customOutputGenerator: createCustomOutputGenerator()
     });
 
     return runner.handleRequest(e);

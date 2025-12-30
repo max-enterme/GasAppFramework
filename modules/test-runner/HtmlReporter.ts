@@ -2,8 +2,9 @@
  * Test Runner Module - HTML Reporter
  */
 
-import type { TestResult } from '../testing/Runner';
+import type { TestResult, CustomOutput } from '../testing/Runner';
 import type { HtmlReporterOptions } from './Types';
+import { getCustomOutputGenerator } from '../testing/Runner';
 
 const DEFAULT_CSS = `
 body {
@@ -52,6 +53,35 @@ body {
     background: #f8d7da;
     border: 1px solid #f5c6cb;
     color: #721c24;
+}
+
+.custom-output {
+    margin-top: 24px;
+    padding: 16px;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+}
+
+.custom-output h3 {
+    margin-top: 0;
+    color: #495057;
+    font-size: 18px;
+}
+
+.custom-output pre {
+    background: white;
+    padding: 12px;
+    border-radius: 4px;
+    overflow-x: auto;
+    font-size: 13px;
+    line-height: 1.5;
+    margin: 8px 0;
+}
+
+.custom-output .logs {
+    max-height: 400px;
+    overflow-y: auto;
 }
 
 .summary-item {
@@ -270,6 +300,19 @@ export function generate(
         }
     }
 
+    // Custom output section
+    const customOutputGenerator = getCustomOutputGenerator();
+    if (customOutputGenerator) {
+        try {
+            const customOutput = customOutputGenerator(results);
+            if (customOutput) {
+                html += generateCustomOutputSection(customOutput);
+            }
+        } catch (e) {
+            console.error('Error generating custom output:', e);
+        }
+    }
+
     // Footer
     html += '<div class="footer">';
     html += 'Powered by GAS App Framework Test Runner';
@@ -314,6 +357,26 @@ function generateCategoryView(results: TestResult[]): string {
         html += '</div>';
     }
 
+    return html;
+}
+
+/**
+ * Generate custom output section
+ */
+function generateCustomOutputSection(customOutput: CustomOutput): string {
+    let html = '<div class="custom-output">';
+    html += `<h3>${escapeHtml(customOutput.title)}</h3>`;
+    
+    if (customOutput.type === 'html') {
+        html += customOutput.content; // Assume content is safe HTML
+    } else if (customOutput.type === 'json') {
+        html += '<pre>' + escapeHtml(JSON.stringify(JSON.parse(customOutput.content), null, 2)) + '</pre>';
+    } else {
+        // Default: text
+        html += '<pre>' + escapeHtml(customOutput.content) + '</pre>';
+    }
+    
+    html += '</div>';
     return html;
 }
 

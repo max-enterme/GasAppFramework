@@ -4,7 +4,7 @@
  * Provides a web-based test runner accessible via doGet() in Google Apps Script
  */
 
-import { runAll, runByCategory } from '../testing/Runner';
+import { runAll, runByCategory, setCustomOutputGenerator } from '../testing/Runner';
 import { all } from '../testing/Test';
 import type { TestRunnerConfig, TestRequest } from './Types';
 import * as HtmlReporter from './HtmlReporter';
@@ -13,7 +13,12 @@ import * as HtmlReporter from './HtmlReporter';
  * Main Web Test Runner
  */
 export class WebTestRunner {
-    constructor(private config: TestRunnerConfig = {}) {}
+    constructor(private config: TestRunnerConfig = {}) {
+        // Set custom output generator if provided
+        if (config.customOutputGenerator) {
+            setCustomOutputGenerator(config.customOutputGenerator);
+        }
+    }
 
     /**
      * Handle doGet request for test execution
