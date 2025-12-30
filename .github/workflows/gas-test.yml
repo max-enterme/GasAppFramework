@@ -21,16 +21,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check GAS Secrets
-        env:
-          CLASPRC_JSON: ${{ secrets.CLASPRC_JSON }}
-          GAS_CONFIG_JSON: ${{ secrets.GAS_CONFIG_JSON }}
-        run: |
-          if [ -z "$CLASPRC_JSON" ] || [ -z "$GAS_CONFIG_JSON" ]; then
-            echo "❌ GAS関連シークレットが不足しています"
-            exit 1
-          fi
-
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -80,10 +70,6 @@ jobs:
         env:
           CLASPRC_JSON: ${{ secrets.CLASPRC_JSON }}
         run: |
-          if [ -z "$CLASPRC_JSON" ]; then
-            echo "⚠️ CLASPRCが設定されていないためデプロイをスキップ"
-            exit 0
-          fi
           npm run gas:push
 
       - name: Run GAS tests
@@ -91,7 +77,7 @@ jobs:
         id: gas_test
         continue-on-error: true
         run: |
-          npm run gas:test -- --target 2>&1 | tee gas-test-output.txt
+          npm run gas:test 2>&1 | tee gas-test-output.txt
           echo "gas_test_exit_code=${PIPESTATUS[0]}" >> $GITHUB_OUTPUT
 
       - name: Display test results

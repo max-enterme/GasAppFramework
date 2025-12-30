@@ -156,6 +156,7 @@ function makeRequest(requestUrl, redirectCount = 0) {
 
     // Add authentication header if available
     if (AUTH_TOKEN && AUTH_TOKEN.access_token) {
+        console.log('🔐 Using authentication token for request');
         requestOptions.headers['Authorization'] = `Bearer ${AUTH_TOKEN.access_token}`;
     }
 
