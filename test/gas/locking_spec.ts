@@ -9,10 +9,10 @@
  * 共通ロジックテスト（両環境で実行）: test/shared/locking/core.test.ts
  */
 
-import * as Test from '../../modules/testing/Test';
-import * as Assert from '../../modules/testing/Assert';
-import * as TestHelpers from '../../modules/testing/TestHelpers';
-import * as Locking from '../../modules/locking';
+import * as Test from '@/testing/Test';
+import * as Assert from '@/testing/Assert';
+import * as TestHelpers from '@/testing/TestHelpers';
+import * as Locking from '@/locking';
 
 // ============================================================================
 // 注意: 以下の共通ロジックテストは test/shared/locking/core.test.ts に移動済み

@@ -2,8 +2,8 @@
  * Locking共通テストのNode.js実行ラッパー
  */
 
-import { setupGASMocks } from '../../../modules/testing-utils/test-utils';
-import * as LockingModule from '../../../modules/locking';
+import { setupGASMocks } from '@/testing-utils/test-utils';
+import * as LockingModule from '@/locking';
 
 // Lockingモジュールをグローバルに注入
 (globalThis as any).Locking = LockingModule;

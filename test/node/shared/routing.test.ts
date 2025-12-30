@@ -2,8 +2,8 @@
  * Routing共通テストのNode.js実行ラッパー
  */
 
-import { setupGASMocks } from '../../../modules/testing-utils/test-utils';
-import * as Routing from '../../../modules/routing';
+import { setupGASMocks } from '@/testing-utils/test-utils';
+import * as Routing from '@/routing';
 
 // Routingモジュールをグローバルに注入
 (globalThis as any).Routing = Routing;

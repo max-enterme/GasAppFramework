@@ -5,9 +5,9 @@
  * and advanced GAS runtime features like execution transcripts and quotas.
  */
 
-import * as Test from '../../modules/testing/Test';
-import * as Assert from '../../modules/testing/Assert';
-import * as TestHelpers from '../../modules/testing/TestHelpers';
+import * as Test from '@/testing/Test';
+import * as Assert from '@/testing/Assert';
+import * as TestHelpers from '@/testing/TestHelpers';
 
 Test.it('GAS ScriptApp trigger management', () => {
     // Test Case: ScriptApp should manage time-based and event-based triggers

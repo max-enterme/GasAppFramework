@@ -9,42 +9,14 @@
  * 共通ロジックテスト（両環境で実行）: test/shared/gasdi/core.test.ts
  */
 
-import * as Test from '../../modules/testing/Test';
-import * as Assert from '../../modules/testing/Assert';
-import * as TestHelpersModule from '../../modules/testing/TestHelpers';
-import * as Framework from '../../modules/index';
+import * as Test from '@/testing/Test';
+import * as Assert from '@/testing/Assert';
+import * as TestHelpersModule from '@/testing/TestHelpers';
+import * as Framework from '@/index';
 
 // Get Container from Framework
 const Container = Framework.Container;
 const TestHelpers = TestHelpersModule;
-
-// 基本テスト
-Test.it('register and resolve values/factories with lifetimes', () => {
-    const c = new Container();
-    c.registerValue('pi', 3.14);
-    c.registerFactory('now', () => ({ t: Math.random() }), 'transient');
-    c.registerFactory('cfg', () => ({ a: 1 }), 'singleton');
-    const a = c.resolve<number>('pi');
-    const n1 = c.resolve<{ t: number }>('now');
-    const n2 = c.resolve<{ t: number }>('now');
-    const g1 = c.resolve<{ a: number }>('cfg');
-    const g2 = c.resolve<{ a: number }>('cfg');
-    Assert.isTrue(a === 3.14, 'value ok');
-    Assert.isTrue(n1 !== n2, 'transient new each time');
-    Assert.isTrue(g1 === g2, 'singleton same instance');
-}, 'GasDI');
-
-Test.it('scoped lifetime differs per scope', () => {
-    const root = new Container();
-    root.registerFactory('req', () => ({ id: Math.random() }), 'scoped');
-    const s1 = root.createScope('req-1');
-    const s2 = root.createScope('req-2');
-    const a1 = s1.resolve<any>('req');
-    const a2 = s1.resolve<any>('req');
-    const b1 = s2.resolve<any>('req');
-    Assert.isTrue(a1 === a2, 'same scope same instance');
-    Assert.isTrue(a1 !== b1, 'different scope different instance');
-}, 'GasDI');
 
 // GAS統合テスト
 Test.it('GasDI Container works with GAS global services', () => {

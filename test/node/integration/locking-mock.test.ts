@@ -3,9 +3,9 @@
  * このテストはNode.js環境で実行可能
  */
 
-import { MockLogger, MockClock } from '../../../modules/testing-utils/test-utils';
-import { PropertiesStore } from '../../../modules/locking/Adapters';
-import { create as createLockEngine } from '../../../modules/locking/Engine';
+import { MockLogger, MockClock } from '@/testing-utils/test-utils';
+import { PropertiesStore } from '@/locking/Adapters';
+import { create as createLockEngine } from '@/locking/Engine';
 
 describe('Locking PropertiesStore with Mocks', () => {
     let mockProperties: { [key: string]: string };

@@ -3,9 +3,9 @@
  * このファイルは GAS と Node.js 両方で実行される
  */
 
-import * as Test from '../../../modules/testing/Test';
-import * as Assert from '../../../modules/testing/Assert';
-import * as Routing from '../../../modules/routing';
+import * as Test from '@/testing/Test';
+import * as Assert from '@/testing/Assert';
+import * as Routing from '@/routing';
 
 Test.it('静的ルートの登録とディスパッチ', () => {
   const r = Routing.create();

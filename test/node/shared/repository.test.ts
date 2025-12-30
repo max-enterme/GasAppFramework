@@ -2,8 +2,8 @@
  * Repository共通テストのNode.js実行ラッパー
  */
 
-import { setupGASMocks } from '../../../modules/testing-utils/test-utils';
-import * as Repository from '../../../modules/repository';
+import { setupGASMocks } from '@/testing-utils/test-utils';
+import * as Repository from '@/repository';
 
 // Repositoryモジュールをグローバルに注入
 (globalThis as any).Repository = Repository;

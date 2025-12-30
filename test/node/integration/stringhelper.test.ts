@@ -3,8 +3,8 @@
  * GAS環境特有の統合テスト（formatDateのGAS API連携など）
  */
 
-import { setupGASMocks } from '../../../modules/testing-utils/test-utils';
-import * as StringHelper from '../../../modules/string-helper';
+import { setupGASMocks } from '@/testing-utils/test-utils';
+import * as StringHelper from '@/string-helper';
 
 // Set up GAS environment mocks before tests
 beforeAll(() => {
@@ -30,8 +30,8 @@ describe('StringHelper GAS Integration Tests', () => {
                 getScriptTimeZone: jest.fn(() => 'America/New_York')
             }
 
-            ;(globalThis as any).Utilities = mockUtilities
-            ;(globalThis as any).Session = mockSession;
+                ; (globalThis as any).Utilities = mockUtilities
+                ; (globalThis as any).Session = mockSession;
 
             const result = StringHelper.formatDate(testDate, 'yyyy-MM-dd', 'America/Los_Angeles');
 
@@ -51,8 +51,8 @@ describe('StringHelper GAS Integration Tests', () => {
                 getScriptTimeZone: jest.fn(() => 'America/New_York')
             }
 
-            ;(globalThis as any).Utilities = mockUtilities
-            ;(globalThis as any).Session = mockSession;
+                ; (globalThis as any).Utilities = mockUtilities
+                ; (globalThis as any).Session = mockSession;
 
             StringHelper.formatDate(testDate, 'yyyy-MM-dd');
 

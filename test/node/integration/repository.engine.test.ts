@@ -3,8 +3,8 @@
  * Comprehensive Node.js tests for the Repository module functionality
  */
 
-import { setupGASMocks, createMockLogger } from '../../../modules/testing-utils/test-utils';
-import * as Repository from '../../../modules/repository';
+import { setupGASMocks, createMockLogger } from '@/testing-utils/test-utils';
+import * as Repository from '@/repository';
 
 // Test utility functions
 function createTestUser(overrides: Partial<User> = {}): User {

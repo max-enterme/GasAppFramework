@@ -2,8 +2,8 @@
  * GasDI共通テストのNode.js実行ラッパー
  */
 
-import { setupGASMocks } from '../../../modules/testing-utils/test-utils';
-import * as GasDI from '../../../modules/di';
+import { setupGASMocks } from '@/testing-utils/test-utils';
+import * as GasDI from '@/di';
 
 // GasDIモジュールをグローバルに注入
 (globalThis as any).GasDI = GasDI;

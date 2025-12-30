@@ -14,7 +14,7 @@
 // GAS global types
 declare const Session: GoogleAppsScript.Base.Session;
 
-import { setupGASMocks, createMockLogger } from '../../../modules/testing-utils/test-utils';
+import { setupGASMocks, createMockLogger } from '@/testing-utils/test-utils';
 
 // Expected timezone from test-utils.ts mock
 const MOCK_TIMEZONE = 'America/New_York';

@@ -3,10 +3,10 @@
  * このテストはNode.js環境で実行可能
  */
 
-import { MockLogger, GAS } from '../../../modules/testing-utils/test-utils';
-import { SpreadsheetStore } from '../../../modules/repository/SpreadsheetAdapter';
-import { create as createRepository } from '../../../modules/repository/Engine';
-import { simple as createSimpleCodec } from '../../../modules/repository/Codec';
+import { MockLogger, GAS } from '@/testing-utils/test-utils';
+import { SpreadsheetStore } from '@/repository/SpreadsheetAdapter';
+import { create as createRepository } from '@/repository/Engine';
+import { simple as createSimpleCodec } from '@/repository/Codec';
 
 // Test entity type
 interface Product {

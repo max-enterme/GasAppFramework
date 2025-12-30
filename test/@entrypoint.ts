@@ -5,7 +5,7 @@
  */
 
 // Import test framework
-import * as Framework from '../modules/index';
+import * as Framework from '@/index';
 
 // Import test spec files (import/exportスタイル)
 import './gas/di_spec';

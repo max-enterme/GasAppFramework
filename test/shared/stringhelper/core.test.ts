@@ -3,9 +3,9 @@
  * このファイルは GAS と Node.js 両方で実行される
  */
 
-import * as Test from '../../../modules/testing/Test';
-import * as Assert from '../../../modules/testing/Assert';
-import * as StringHelper from '../../../modules/string-helper';
+import * as Test from '@/testing/Test';
+import * as Assert from '@/testing/Assert';
+import * as StringHelper from '@/string-helper';
 
 Test.it('formatString: 単一プレースホルダー', () => {
   const result = StringHelper.formatString('Hello {0}!', 'World');

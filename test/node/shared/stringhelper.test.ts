@@ -2,8 +2,8 @@
  * StringHelper共通テストのNode.js実行ラッパー
  */
 
-import { setupGASMocks } from '../../../modules/testing-utils/test-utils';
-import * as StringHelper from '../../../modules/string-helper';
+import { setupGASMocks } from '@/testing-utils/test-utils';
+import * as StringHelper from '@/string-helper';
 
 // StringHelperモジュールをグローバルに注入
 (globalThis as any).StringHelper = StringHelper;

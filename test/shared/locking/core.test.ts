@@ -3,9 +3,9 @@
  * このファイルは GAS と Node.js 両方で実行される
  */
 
-import * as Test from '../../../modules/testing/Test';
-import * as Assert from '../../../modules/testing/Assert';
-import * as Locking from '../../../modules/locking';
+import * as Test from '@/testing/Test';
+import * as Assert from '@/testing/Assert';
+import * as Locking from '@/locking';
 
 class MemStore implements Locking.Types.Ports.Store {
   private m = new Map<string, string>();

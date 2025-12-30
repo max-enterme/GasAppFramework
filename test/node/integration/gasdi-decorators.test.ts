@@ -5,7 +5,7 @@
  * GAS環境ではロード順の問題でテストが困難なため、Node.js環境でテスト
  */
 
-import { Container, Context, Inject, Resolve } from '../../../modules/di';
+import { Container, Context, Inject, Resolve } from '@/di';
 
 describe('GasDI Decorators', () => {
     describe('property and parameter injection with Root', () => {

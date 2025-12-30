@@ -12,8 +12,8 @@
  * 注: デコレータテストはwebpackタイミング問題により除外
  */
 
-import { Container } from '../../../modules/di/Container';
-import { MockLogger, GAS } from '../../../modules/testing-utils/test-utils';
+import { Container } from '@/di/Container';
+import { MockLogger, GAS } from '@/testing-utils/test-utils';
 
 describe('GasDI with GAS Mocks', () => {
     describe('Container Core Features', () => {

@@ -3,9 +3,9 @@
  * このファイルは GAS と Node.js 両方で実行される
  */
 
-import * as Test from '../../../modules/testing/Test';
-import * as Assert from '../../../modules/testing/Assert';
-import * as Repository from '../../../modules/repository';
+import * as Test from '@/testing/Test';
+import * as Assert from '@/testing/Assert';
+import * as Repository from '@/repository';
 
 type User = { id: string; org: string; name: string; age: number | null };
 type Key = 'id' | 'org';

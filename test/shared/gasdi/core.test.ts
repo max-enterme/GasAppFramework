@@ -3,9 +3,9 @@
  * このファイルは GAS と Node.js 両方で実行される
  */
 
-import * as Test from '../../../modules/testing/Test';
-import * as Assert from '../../../modules/testing/Assert';
-import * as GasDI from '../../../modules/di';
+import * as Test from '@/testing/Test';
+import * as Assert from '@/testing/Assert';
+import * as GasDI from '@/di';
 
 Test.it('値の登録と解決', () => {
   const c = new GasDI.Container();
@@ -97,4 +97,35 @@ Test.it('スコープのチェーン解決', () => {
 
   const value = scope2.resolve<string>('global');
   Assert.equals(value, 'global-value', '孫スコープから親の値を解決');
+}, 'GasDI');
+
+Test.it('複数のライフタイムを一度にテスト', () => {
+  const c = new GasDI.Container();
+  c.registerValue('pi', 3.14);
+  c.registerFactory('now', () => ({ t: Math.random() }), 'transient');
+  c.registerFactory('cfg', () => ({ a: 1 }), 'singleton');
+
+  const a = c.resolve<number>('pi');
+  const n1 = c.resolve<{ t: number }>('now');
+  const n2 = c.resolve<{ t: number }>('now');
+  const g1 = c.resolve<{ a: number }>('cfg');
+  const g2 = c.resolve<{ a: number }>('cfg');
+
+  Assert.equals(a, 3.14, '値が正しく解決');
+  Assert.isTrue(n1 !== n2, 'transientは毎回新しいインスタンス');
+  Assert.isTrue(g1 === g2, 'singletonは同じインスタンス');
+}, 'GasDI');
+
+Test.it('scopedライフタイム - 総合テスト', () => {
+  const root = new GasDI.Container();
+  root.registerFactory('req', () => ({ id: Math.random() }), 'scoped');
+
+  const s1 = root.createScope('req-1');
+  const s2 = root.createScope('req-2');
+  const a1 = s1.resolve<any>('req');
+  const a2 = s1.resolve<any>('req');
+  const b1 = s2.resolve<any>('req');
+
+  Assert.isTrue(a1 === a2, '同じスコープでは同じインスタンス');
+  Assert.isTrue(a1 !== b1, '異なるスコープでは異なるインスタンス');
 }, 'GasDI');

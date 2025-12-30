@@ -2,7 +2,7 @@
  * RouteExecutor Tests
  */
 
-import { Logger, ErrorHandler } from '../../../../modules/rest-framework';
+import { Logger, ErrorHandler } from '@/rest-framework';
 
 // Mock GasDI Container
 class MockContainer {

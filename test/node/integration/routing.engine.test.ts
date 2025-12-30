@@ -3,8 +3,8 @@
  * ロギング、ミドルウェアスタックの実行順序など、統合テスト特有のテスト
  */
 
-import { setupGASMocks, createMockLogger } from '../../../modules/testing-utils/test-utils';
-import * as Routing from '../../../modules/routing';
+import { setupGASMocks, createMockLogger } from '@/testing-utils/test-utils';
+import * as Routing from '@/routing';
 
 type RouteHandler = Routing.Types.Ports.Handler;
 

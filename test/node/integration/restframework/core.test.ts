@@ -2,7 +2,7 @@
  * RestFramework Core Components Tests
  */
 
-import { Logger, ApiResponseFormatter, ErrorHandler } from '../../../../modules/rest-framework';
+import { Logger, ApiResponseFormatter, ErrorHandler } from '@/rest-framework';
 
 describe('RestFramework Core Components', () => {
     describe('Logger', () => {

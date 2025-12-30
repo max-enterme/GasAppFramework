@@ -1,5 +1,5 @@
 /* eslint-env node */
- 
+
 module.exports = {
     preset: 'ts-jest',
     testEnvironment: 'node',
@@ -8,6 +8,9 @@ module.exports = {
         '**/test/node/**/*.test.ts'
     ],
     moduleFileExtensions: ['ts', 'js'],
+    moduleNameMapper: {
+        '^@/(.*)$': '<rootDir>/modules/$1'
+    },
     transform: {
         '^.+\\.tsx?$': ['ts-jest', {
             tsconfig: {
