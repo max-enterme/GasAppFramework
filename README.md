@@ -46,7 +46,6 @@ cp .gas-config.example.json .gas-config.json
 `.gas-config.json`を編集:
 ```json
 {
-  "clasprcPath": null,
   "deployments": {
     "headDeployId": "AKfycby...",
     "targetDeployId": "AKfycbx..."

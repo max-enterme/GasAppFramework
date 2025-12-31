@@ -1,7 +1,5 @@
 {
     "_comment": "GAS deployment configuration",
-    "clasprcPath": null,
-    "_clasprcPath_comment": "Path to clasp authentication file. null = use default (~/.clasprc.json)",
     "deployments": {
         "headDeployId": "YOUR_HEAD_DEPLOY_ID",
         "_headDeployId_comment": "HEAD deployment ID for development (auto-updates with clasp push)",

@@ -106,7 +106,6 @@ Secret: (.gas-config.json の内容)
 例：
 ```json
 {
-  "clasprcPath": null,
   "deployments": {
     "headDeployId": "AKfycby...",
     "targetDeployId": "AKfycby..."
