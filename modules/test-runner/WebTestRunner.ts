@@ -6,6 +6,7 @@
 
 import { runAll, runByCategory, setCustomOutputGenerator } from '../testing/Runner';
 import { all } from '../testing/Test';
+import type { TestResult } from '../testing/Runner';
 import type { TestRunnerConfig, TestRequest } from './Types';
 import * as HtmlReporter from './HtmlReporter';
 
@@ -27,6 +28,9 @@ export class WebTestRunner {
         const request = this.parseRequest(e);
 
         if (request.list) {
+            if (request.format === 'json') {
+                return this.renderTestListJson();
+            }
             return this.renderTestList();
         }
 
@@ -147,6 +151,41 @@ export class WebTestRunner {
         return HtmlService.createHtmlOutput(html)
             .setTitle('Available Tests')
             .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+    }
+
+    private renderTestListJson(): GoogleAppsScript.Content.TextOutput {
+        const tests = all();
+        const categories = new Map<string, number>();
+
+        tests.forEach((t) => {
+            const cat = t.category || 'Uncategorized';
+            categories.set(cat, (categories.get(cat) || 0) + 1);
+        });
+
+        const lines: string[] = [];
+        lines.push(`Total: ${tests.length} tests in ${categories.size} categories`);
+        for (const [cat, count] of categories) {
+            lines.push(`- ${cat} (${count})`);
+        }
+
+        const report = {
+            timestamp: new Date().toISOString(),
+            summary: {
+                total: 0,
+                passed: 0,
+                failed: 0
+            },
+            results: [] as TestResult[],
+            customOutput: {
+                title: '?? Available Test Categories',
+                content: lines.join('\n'),
+                type: 'text'
+            }
+        };
+
+        return ContentService
+            .createTextOutput(JSON.stringify(report, null, 2))
+            .setMimeType(ContentService.MimeType.JSON);
     }
 
     /**

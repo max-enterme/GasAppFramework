@@ -2,6 +2,13 @@
 
 /**
  * Inject version information (git commit hash) into the build
+ *
+ * Options:
+ *   --projectRoot <path>   Project root to resolve git + bundle paths (default: this script's package root)
+ *   --input <path>         Bundle path relative to projectRoot (default: build/0_main.js)
+ *
+ * Env:
+ *   GAS_PROJECT_ROOT       Same as --projectRoot
  */
 
 /* eslint-disable */
@@ -9,26 +16,51 @@ const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 
+function parseArgValue(name) {
+    const prefix = `--${name}=`;
+    const index = process.argv.findIndex((arg) => arg === `--${name}` || arg.startsWith(prefix));
+    if (index < 0) return null;
+    const arg = process.argv[index];
+    if (arg.startsWith(prefix)) return arg.slice(prefix.length);
+    const next = process.argv[index + 1];
+    if (!next || next.startsWith('--')) return null;
+    return next;
+}
+
+function resolveProjectRoot() {
+    const defaultRoot = path.resolve(__dirname, '..');
+    const argRoot = parseArgValue('projectRoot');
+    const envRoot = process.env.GAS_PROJECT_ROOT;
+    return path.resolve(argRoot || envRoot || defaultRoot);
+}
+
+function resolveInputPath(projectRoot) {
+    const input = parseArgValue('input');
+    return path.resolve(projectRoot, input || 'build/0_main.js');
+}
+
+const projectRoot = resolveProjectRoot();
+const mainJsPath = resolveInputPath(projectRoot);
+
 // Get git commit hash
 let commitHash = 'unknown';
 let commitDate = 'unknown';
 let branch = 'unknown';
 
 try {
-    commitHash = execSync('git rev-parse HEAD').toString().trim();
-    const gitCommitDate = execSync('git log -1 --format=%cd --date=iso').toString().trim();
+    commitHash = execSync('git rev-parse HEAD', { cwd: projectRoot }).toString().trim();
+    const gitCommitDate = execSync('git log -1 --format=%cd --date=iso', { cwd: projectRoot }).toString().trim();
     commitDate = new Date(gitCommitDate).toISOString();
-    branch = execSync('git rev-parse --abbrev-ref HEAD').toString().trim();
-    console.log('✅ Git info retrieved:');
+    branch = execSync('git rev-parse --abbrev-ref HEAD', { cwd: projectRoot }).toString().trim();
+    console.log('? Git info retrieved:');
     console.log('   Commit: ' + commitHash.substring(0, 8));
     console.log('   Branch: ' + branch);
     console.log('   Date: ' + commitDate);
 } catch (e) {
-    console.warn('⚠️  Could not retrieve git information:', e.message);
+    console.warn('??  Could not retrieve git information:', e.message);
 }
 
 // Read the bundled file
-const mainJsPath = path.join(__dirname, '../build/0_main.js');
 let content = fs.readFileSync(mainJsPath, 'utf-8');
 
 // Inject version info at the beginning after the webpack bootstrap
@@ -70,8 +102,9 @@ if (insertPoint < 0) {
 if (insertPoint >= 0) {
     content = content.substring(0, insertPoint) + versionInfo + content.substring(insertPoint);
     fs.writeFileSync(mainJsPath, content, 'utf-8');
-    console.log('✅ Version info injected into build/0_main.js');
+    console.log(`? Version info injected into ${path.relative(projectRoot, mainJsPath)}`);
 } else {
-    console.error('❌ Could not find injection point in build/0_main.js');
+    console.error(`? Could not find injection point in ${path.relative(projectRoot, mainJsPath)}`);
     process.exit(1);
 }
+

@@ -3,15 +3,45 @@
 /**
  * Deploy script - Build, inject version, push, and deploy to GAS
  *
- * Usage:
- *   node scripts/deploy.js
- *   npm run deploy
+ * Options:
+ *   --projectRoot <path>   Project root (default: this script's package root)
+ *
+ * Env:
+ *   GAS_PROJECT_ROOT       Same as --projectRoot
+ *
+ * Notes:
+ * - Windows互換のため、シェル依存の `$(date ...)` は使用しない。
+ * - `npm run gas:push` を先に実行してから `clasp deploy` を実行する。
  */
 
 /* eslint-disable */
 const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
+
+function parseArgValue(name) {
+    const prefix = `--${name}=`;
+    const index = process.argv.findIndex((arg) => arg === `--${name}` || arg.startsWith(prefix));
+    if (index < 0) return null;
+    const arg = process.argv[index];
+    if (arg.startsWith(prefix)) return arg.slice(prefix.length);
+    const next = process.argv[index + 1];
+    if (!next || next.startsWith('--')) return null;
+    return next;
+}
+
+function resolveProjectRoot() {
+    const defaultRoot = path.resolve(__dirname, '..');
+    const argRoot = parseArgValue('projectRoot');
+    const envRoot = process.env.GAS_PROJECT_ROOT;
+    return path.resolve(argRoot || envRoot || defaultRoot);
+}
+
+function getTimestamp() {
+    const d = new Date();
+    const pad = (n) => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}_${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+}
 
 // Colors for terminal output
 const colors = {
@@ -26,14 +56,16 @@ function log(message, color = 'reset') {
     console.log(colors[color] + message + colors.reset);
 }
 
+const projectRoot = resolveProjectRoot();
+
 function exec(command, description) {
-    log(`\n▶ ${description}...`, 'blue');
+    log(`\n? ${description}...`, 'blue');
     try {
-        execSync(command, { stdio: 'inherit' });
-        log(`✅ ${description} completed`, 'green');
+        execSync(command, { stdio: 'inherit', cwd: projectRoot });
+        log(`? ${description} completed`, 'green');
         return true;
     } catch (error) {
-        log(`❌ ${description} failed`, 'red');
+        log(`? ${description} failed`, 'red');
         throw error;
     }
 }
@@ -41,65 +73,61 @@ function exec(command, description) {
 // Read deployment ID from .gas-config.json
 function getDeploymentId() {
     try {
-        const configPath = path.join(__dirname, '../.gas-config.json');
+        const configPath = path.join(projectRoot, '.gas-config.json');
         const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
 
-        // Use targetDeployId from config
         if (config.deployments && config.deployments.targetDeployId) {
             return config.deployments.targetDeployId;
         }
 
-        log('⚠️  targetDeployId not found in .gas-config.json, will create new deployment', 'yellow');
+        log('??  targetDeployId not found in .gas-config.json, will create new deployment', 'yellow');
         return null;
     } catch (e) {
-        log('⚠️  .gas-config.json not found, will create new deployment', 'yellow');
+        log('??  .gas-config.json not found, will create new deployment', 'yellow');
         return null;
     }
 }
 
 async function main() {
-    log('\n🚀 Starting deployment process...', 'blue');
+    log('\n?? Starting deployment process...', 'blue');
     log('='.repeat(60), 'blue');
 
     try {
-        // Step 1: Build, inject version, and push
         exec('npm run gas:push', 'Build and push to Google Apps Script');
 
-        // Step 2: Deploy
         const deploymentId = getDeploymentId();
         if (deploymentId) {
-            log(`\n📌 Using deployment ID: ${deploymentId}`, 'blue');
-            const deployCmd = `clasp deploy -i ${deploymentId} -d "Auto-deploy $(date +%Y-%m-%d_%H:%M:%S)"`;
+            log(`\n?? Using deployment ID: ${deploymentId}`, 'blue');
+            const deployCmd = `clasp deploy -i ${deploymentId} -d "Auto-deploy ${getTimestamp()}"`;
             exec(deployCmd, 'Deploy to existing deployment');
         } else {
-            log('\n📌 Creating new deployment', 'blue');
-            const commitHash = execSync('git rev-parse --short HEAD').toString().trim();
+            log('\n?? Creating new deployment', 'blue');
+            const commitHash = execSync('git rev-parse --short HEAD', { cwd: projectRoot }).toString().trim();
             const deployCmd = `clasp deploy -d "Deploy ${commitHash}"`;
             exec(deployCmd, 'Create new deployment');
         }
 
         log('\n' + '='.repeat(60), 'green');
-        log('✅ Deployment completed successfully!', 'green');
+        log('? Deployment completed successfully!', 'green');
         log('='.repeat(60), 'green');
 
-        // Show version info
-        log('\n📋 Version Information:', 'blue');
+        log('\n?? Version Information:', 'blue');
         try {
-            const commitHash = execSync('git rev-parse HEAD').toString().trim();
-            const commitShort = execSync('git rev-parse --short HEAD').toString().trim();
-            const branch = execSync('git rev-parse --abbrev-ref HEAD').toString().trim();
+            const commitHash = execSync('git rev-parse HEAD', { cwd: projectRoot }).toString().trim();
+            const commitShort = execSync('git rev-parse --short HEAD', { cwd: projectRoot }).toString().trim();
+            const branch = execSync('git rev-parse --abbrev-ref HEAD', { cwd: projectRoot }).toString().trim();
             log(`   Commit: ${commitShort} (${commitHash})`, 'blue');
             log(`   Branch: ${branch}`, 'blue');
-        } catch (e) {
+        } catch {
             log('   (Git info not available)', 'yellow');
         }
-
     } catch (error) {
         log('\n' + '='.repeat(60), 'red');
-        log('❌ Deployment failed!', 'red');
+        log('? Deployment failed!', 'red');
         log('='.repeat(60), 'red');
         process.exit(1);
     }
 }
 
 main();
+
