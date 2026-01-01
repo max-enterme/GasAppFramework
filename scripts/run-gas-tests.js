@@ -45,9 +45,9 @@ function loadConfig(projectRoot) {
         const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
         return config;
     } catch (e) {
-        console.error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-        console.error('? GAS設定未設定エラー');
-        console.error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        console.error('========================================================');
+        console.error('[ERROR] GAS設定未設定エラー');
+        console.error('========================================================');
         console.error('');
         console.error('.gas-config.json ファイルを作成してください:');
         console.error('');
@@ -69,7 +69,7 @@ function loadConfig(projectRoot) {
         console.error('     }');
         console.error('');
         console.error(`(探索パス: ${path.resolve(projectRoot, '.gas-config.json')})`);
-        console.error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        console.error('========================================================');
         process.exit(1);
     }
 }
@@ -104,7 +104,7 @@ const config = loadConfig(projectRoot);
 
 const deploymentId = config?.deployments?.targetDeployId;
 if (!deploymentId) {
-    console.error('? Deployment ID not configured');
+    console.error('[ERROR] Deployment ID not configured');
     console.error('   Please set deployments.targetDeployId in .gas-config.json');
     process.exit(1);
 }
@@ -120,14 +120,14 @@ params.append('format', options.format);
 if (params.toString()) url += '?' + params.toString();
 
 if (!options.raw) {
-    console.log('?? Running GAS tests...');
-    console.log(`?? URL: ${url}`);
+    console.log('[*] Running GAS tests...');
+    console.log(`[*] URL: ${url}`);
     console.log('');
 }
 
 function makeRequest(requestUrl, redirectCount = 0) {
     if (redirectCount > 5) {
-        console.error('? Too many redirects');
+        console.error('[ERROR] Too many redirects');
         process.exit(1);
     }
 
@@ -143,7 +143,7 @@ function makeRequest(requestUrl, redirectCount = 0) {
     protocol.get(requestOptions, (res) => {
         if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
             if (!options.raw) {
-                console.log('??  Following redirect...');
+                console.log('[->] Following redirect...');
             }
             const nextUrl = res.headers.location.startsWith('http')
                 ? res.headers.location
@@ -167,9 +167,9 @@ function makeRequest(requestUrl, redirectCount = 0) {
                         return;
                     }
 
-                    console.log('???????????????????????????????????????????????????????');
-                    console.log('?? Test Results');
-                    console.log('???????????????????????????????????????????????????????');
+                    console.log('========================================================');
+                    console.log('** Test Results');
+                    console.log('========================================================');
                     console.log('');
 
                     if (result.results) {
@@ -185,12 +185,12 @@ function makeRequest(requestUrl, redirectCount = 0) {
                         for (const [category, tests] of categories) {
                             const passed = tests.filter(t => t.ok).length;
                             const total = tests.length;
-                            const icon = passed === total ? '?' : '?';
+                            const icon = passed === total ? '[PASS]' : '[FAIL]';
 
                             console.log(`${icon} ${category}: ${passed}/${total} passed`);
 
                             tests.forEach(test => {
-                                const status = test.ok ? '  ?' : '  ?';
+                                const status = test.ok ? '  ✓' : '  ✗';
                                 console.log(`${status} ${test.name} (${test.ms}ms)`);
                                 if (!test.ok && test.error) {
                                     console.log(`    Error: ${test.error}`);
@@ -202,19 +202,19 @@ function makeRequest(requestUrl, redirectCount = 0) {
 
                     const totalMs = (result.results || []).reduce((sum, t) => sum + (t.ms || 0), 0);
                     const summary = result.summary || {};
-                    console.log('───────────────────────────────────────────────────────');
+                    console.log('--------------------------------------------------------');
                     console.log(`Total: ${summary.passed}/${summary.total} passed in ${totalMs}ms`);
                     console.log(`Executed: ${result.timestamp || new Date().toISOString()}`);
 
                     if (result.customOutput) {
                         console.log('');
-                        console.log('───────────────────────────────────────────────────────');
+                        console.log('--------------------------------------------------------');
                         console.log(result.customOutput.title);
-                        console.log('───────────────────────────────────────────────────────');
+                        console.log('--------------------------------------------------------');
                         console.log(result.customOutput.content);
                     }
 
-                    console.log('???????????????????????????????????????????????????????');
+                    console.log('========================================================');
 
                     process.exit(summary.failed > 0 ? 1 : 0);
                 } else {
@@ -222,13 +222,13 @@ function makeRequest(requestUrl, redirectCount = 0) {
                     process.exit(0);
                 }
             } catch (e) {
-                console.error('? Error parsing response:', e.message);
+                console.error('[ERROR] Error parsing response:', e.message);
                 console.error('Response:', data);
                 process.exit(1);
             }
         });
     }).on('error', (e) => {
-        console.error('? Request failed:', e.message);
+        console.error('[ERROR] Request failed:', e.message);
         process.exit(1);
     });
 }
