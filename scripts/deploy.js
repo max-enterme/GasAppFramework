@@ -59,13 +59,13 @@ function log(message, color = 'reset') {
 const projectRoot = resolveProjectRoot();
 
 function exec(command, description) {
-    log(`\n? ${description}...`, 'blue');
+    log(`\n▶ ${description}...`, 'blue');
     try {
         execSync(command, { stdio: 'inherit', cwd: projectRoot });
-        log(`? ${description} completed`, 'green');
+        log(`✓ ${description} completed`, 'green');
         return true;
     } catch (error) {
-        log(`? ${description} failed`, 'red');
+        log(`✗ ${description} failed`, 'red');
         throw error;
     }
 }
@@ -80,16 +80,16 @@ function getDeploymentId() {
             return config.deployments.targetDeployId;
         }
 
-        log('??  targetDeployId not found in .gas-config.json, will create new deployment', 'yellow');
+        log('ℹ  targetDeployId not found in .gas-config.json, will create new deployment', 'yellow');
         return null;
     } catch (e) {
-        log('??  .gas-config.json not found, will create new deployment', 'yellow');
+        log('ℹ  .gas-config.json not found, will create new deployment', 'yellow');
         return null;
     }
 }
 
 async function main() {
-    log('\n?? Starting deployment process...', 'blue');
+    log('\nℹ Starting deployment process...', 'blue');
     log('='.repeat(60), 'blue');
 
     try {
@@ -97,21 +97,21 @@ async function main() {
 
         const deploymentId = getDeploymentId();
         if (deploymentId) {
-            log(`\n?? Using deployment ID: ${deploymentId}`, 'blue');
+            log(`\nℹ Using deployment ID: ${deploymentId}`, 'blue');
             const deployCmd = `clasp deploy -i ${deploymentId} -d "Auto-deploy ${getTimestamp()}"`;
             exec(deployCmd, 'Deploy to existing deployment');
         } else {
-            log('\n?? Creating new deployment', 'blue');
+            log('\nℹ Creating new deployment', 'blue');
             const commitHash = execSync('git rev-parse --short HEAD', { cwd: projectRoot }).toString().trim();
             const deployCmd = `clasp deploy -d "Deploy ${commitHash}"`;
             exec(deployCmd, 'Create new deployment');
         }
 
         log('\n' + '='.repeat(60), 'green');
-        log('? Deployment completed successfully!', 'green');
+        log('✓ Deployment completed successfully!', 'green');
         log('='.repeat(60), 'green');
 
-        log('\n?? Version Information:', 'blue');
+        log('\nℹ Version Information:', 'blue');
         try {
             const commitHash = execSync('git rev-parse HEAD', { cwd: projectRoot }).toString().trim();
             const commitShort = execSync('git rev-parse --short HEAD', { cwd: projectRoot }).toString().trim();
@@ -123,7 +123,7 @@ async function main() {
         }
     } catch (error) {
         log('\n' + '='.repeat(60), 'red');
-        log('? Deployment failed!', 'red');
+        log('✗ Deployment failed!', 'red');
         log('='.repeat(60), 'red');
         process.exit(1);
     }
