@@ -17,15 +17,25 @@
 /* eslint-disable */
 
 const fs = require('fs');
+const path = require('path');
 const { exec } = require('child_process');
 
-const claspConfigPath = '.clasp.json';
+// Support --projectRoot or GAS_PROJECT_ROOT
+const projectRoot = (() => {
+  const idx = process.argv.indexOf('--projectRoot');
+  if (idx !== -1 && process.argv[idx + 1]) {
+    return process.argv[idx + 1];
+  }
+  return process.env.GAS_PROJECT_ROOT || process.cwd();
+})();
+
+const claspConfigPath = path.join(projectRoot, '.clasp.json');
 if (!fs.existsSync(claspConfigPath)) {
   console.error('No .clasp.json config found');
   process.exit(1);
 }
 
-const deployConfigPath = '.gas-config.json';
+const deployConfigPath = path.join(projectRoot, '.gas-config.json');
 if (!fs.existsSync(deployConfigPath)) {
   console.error('No .gas-config.json found');
   process.exit(1);
