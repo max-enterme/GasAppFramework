@@ -63,5 +63,11 @@ export function normalizeDoPost(e: GoogleAppsScript.Events.DoPost): NormalizedRe
         }
     }
 
-    return { ...params, ...body };
+    // Shallow coerce top-level body values (keep nested objects intact)
+    const coercedBody: NormalizedRequest = {};
+    for (const k of Object.keys(body)) {
+        coercedBody[k] = coerceParamValue((body as any)[k]);
+    }
+
+    return { ...params, ...coercedBody };
 }
