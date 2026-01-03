@@ -114,6 +114,8 @@ const baseUrl = process.env.GAS_TEST_URL || buildExecUrl(deploymentId);
 // Build URL with params
 let url = baseUrl;
 const params = new URLSearchParams();
+// Add api=runTests parameter for ES Modules compatibility
+params.append('api', 'runTests');
 if (options.category) params.append('category', options.category);
 if (options.list) params.append('list', 'true');
 params.append('format', options.format);
