@@ -1,17 +1,18 @@
 #!/usr/bin/env node
 
 /**
- * Deploy script - Build, inject version, push, and deploy to GAS
+ * Deploy script - Deploy to GAS (does NOT push by default)
  *
  * Options:
- *   --projectRoot <path>   Project root (default: this script's package root)
+ *   --projectRoot <path>      Project root (default: this script's package root)
+ *   --pushScript <npm-script> (optional) Run `npm run <npm-script>` before deploy
  *
  * Env:
- *   GAS_PROJECT_ROOT       Same as --projectRoot
+ *   GAS_PROJECT_ROOT          Same as --projectRoot
  *
  * Notes:
  * - Windows互換のため、シェル依存の `$(date ...)` は使用しない。
- * - `npm run gas:push` を先に実行してから `clasp deploy` を実行する。
+ * - 本番/開発など push 手順を分けたいケースがあるため、push は明示指定時のみ実行する。
  */
 
 /* eslint-disable */
@@ -57,6 +58,7 @@ function log(message, color = 'reset') {
 }
 
 const projectRoot = resolveProjectRoot();
+const pushScript = parseArgValue('pushScript');
 
 function exec(command, description) {
     log(`\n▶ ${description}...`, 'blue');
@@ -93,7 +95,14 @@ async function main() {
     log('='.repeat(60), 'blue');
 
     try {
-        exec('npm run gas:push', 'Build and push to Google Apps Script');
+        if (pushScript) {
+            exec(`npm run ${pushScript}`, `Build and push to Google Apps Script (${pushScript})`);
+        } else {
+            log('\nℹ Skipping push step (no --pushScript provided).', 'yellow');
+            log('  If you need to update code before deploy, run one of:', 'yellow');
+            log('    npm run gas:push', 'yellow');
+            log('    npm run gas:push:prod', 'yellow');
+        }
 
         const deploymentId = getDeploymentId();
         if (deploymentId) {

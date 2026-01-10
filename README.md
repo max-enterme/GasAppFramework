@@ -130,7 +130,7 @@ npm run gas:test -- --target  # GASテスト（Target）
 
 # デプロイ
 npm run gas:push          # Build + Push to GAS
-npm run gas:deploy        # Deploy as Web App
+npm run gas:deploy        # Deploy as Web App (does not push)
 npm run gas:open          # Open GAS Editor
 ```
 

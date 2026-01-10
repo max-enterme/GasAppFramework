@@ -85,7 +85,7 @@ GasAppFramework/
    ```bash
    npm run build      # main.jsバンドルをビルド
    npm run gas:push   # GASにプッシュ
-   npm run gas:deploy # Webアプリとしてデプロイ
+   npm run gas:deploy # Webアプリとしてデプロイ（`gas:deploy` は push しません）
    ```
 
 ## 🧪 テスト
@@ -121,7 +121,7 @@ npm run test:node -- --coverage
    ```bash
    npm run build       # main.jsをビルド
    npm run gas:push    # GASにプッシュ
-   npm run gas:deploy  # Webアプリとしてデプロイ
+   npm run gas:deploy  # Webアプリとしてデプロイ（`gas:deploy` は push しません）
    ```
 
 2. CLIからテスト実行：
@@ -215,7 +215,7 @@ GASへのデプロイ後、これらのモジュールがグローバルで利�
 ```bash
 npm run build      # すべてのモジュールをmain.jsにバンドル
 npm run gas:push   # build/ をGASにプッシュ
-npm run gas:deploy # Webアプリとしてデプロイ
+npm run gas:deploy # Webアプリとしてデプロイ（`gas:deploy` は push しません）
 ```
 
 #### 手動デプロイ

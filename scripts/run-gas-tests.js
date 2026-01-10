@@ -8,6 +8,10 @@
  *   --category=<name>      Run tests in a category
  *   --list                 List categories
  *   --format=json|html     Output format (default: json)
+ *   --param <k=v>          Append a query parameter (repeatable)
+ *   --param=<k=v>          Same as above
+ *   --params <querystring> Append querystring (e.g. "a=1&b=2")
+ *   --params=<querystring> Same as above
  *   --raw                  Print raw JSON and exit
  *
  * Env:
@@ -84,8 +88,18 @@ const options = {
     category: null,
     list: false,
     format: 'json',
-    raw: false
+    raw: false,
+    extraParams: []
 };
+
+function pushExtraParam(value) {
+    if (!value) return;
+    if (Array.isArray(value)) {
+        value.forEach(v => pushExtraParam(v));
+        return;
+    }
+    options.extraParams.push(String(value));
+}
 
 args.forEach(arg => {
     if (arg.startsWith('--category=')) {
@@ -96,8 +110,44 @@ args.forEach(arg => {
         options.format = arg.split('=')[1];
     } else if (arg === '--raw') {
         options.raw = true;
+    } else if (arg.startsWith('--param=')) {
+        pushExtraParam(arg.slice('--param='.length));
+    } else if (arg.startsWith('--params=')) {
+        const qs = arg.slice('--params='.length);
+        try {
+            const p = new URLSearchParams(qs);
+            for (const [k, v] of p.entries()) pushExtraParam(`${k}=${v}`);
+        } catch {
+            pushExtraParam(qs);
+        }
     }
 });
+
+// Handle space-separated forms: --param k=v / --params a=1&b=2
+for (let i = 0; i < args.length; i++) {
+    const arg = args[i];
+    if (arg === '--param') {
+        const next = args[i + 1];
+        if (next && !next.startsWith('--')) {
+            pushExtraParam(next);
+            i++;
+        }
+        continue;
+    }
+    if (arg === '--params') {
+        const next = args[i + 1];
+        if (next && !next.startsWith('--')) {
+            try {
+                const p = new URLSearchParams(next);
+                for (const [k, v] of p.entries()) pushExtraParam(`${k}=${v}`);
+            } catch {
+                pushExtraParam(next);
+            }
+            i++;
+        }
+        continue;
+    }
+}
 
 const projectRoot = resolveProjectRoot();
 const config = loadConfig(projectRoot);
@@ -114,11 +164,21 @@ const baseUrl = process.env.GAS_TEST_URL || buildExecUrl(deploymentId);
 // Build URL with params
 let url = baseUrl;
 const params = new URLSearchParams();
-// Add api=runTests parameter for ES Modules compatibility
-params.append('api', 'runTests');
 if (options.category) params.append('category', options.category);
 if (options.list) params.append('list', 'true');
 params.append('format', options.format);
+if (options.extraParams && options.extraParams.length > 0) {
+    for (const item of options.extraParams) {
+        const eqIndex = item.indexOf('=');
+        if (eqIndex <= 0) {
+            params.append(item, 'true');
+            continue;
+        }
+        const k = item.slice(0, eqIndex);
+        const v = item.slice(eqIndex + 1);
+        params.append(k, v);
+    }
+}
 if (params.toString()) url += '?' + params.toString();
 
 if (!options.raw) {
