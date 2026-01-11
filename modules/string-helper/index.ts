@@ -45,13 +45,26 @@ export function formatDate(date: Date, format: string, tz?: string | null): stri
         .replace(/ss/g, s);
 }
 
-export function resolveString(str: string, context: any): string {
+export type ResolveStringOptions = {
+    /**
+     * When true, unresolved expressions (evaluated to undefined) keep the original placeholder.
+     * Example: '{{missing}}' -> '{{missing}}'
+     */
+    keepUnresolved?: boolean;
+};
+
+export function resolveString(str: string, context: any, options?: ResolveStringOptions): string {
     const placeholderPattern = /{{(.*?)}}/g;
+    const keepUnresolved = options?.keepUnresolved === true;
     return String(str).replace(placeholderPattern, (_match, p1) => {
         const expr = String(p1).trim();
-        if (!expr || expr === '') return ''; // Return empty string for empty expressions
+        if (!expr || expr === '') return '';
+
         const v = resolveExpression(expr, context);
-        return v == null ? '' : String(v);
+        if (v === undefined) {
+            return keepUnresolved ? `{{${expr}}}` : '';
+        }
+        return v === null ? '' : String(v);
     });
 }
 
@@ -77,7 +90,7 @@ function resolveExpression(expr: string, root: any): any {
             const argStr = token.slice(parenIndex + 1, -1);
             const fn = resolveSimple(current, fnName);
 
-            if (typeof fn !== 'function') return null;
+            if (typeof fn !== 'function') return undefined;
 
             const args = parseArgs(argStr, root, current);
             current = fn.apply(current, args);
