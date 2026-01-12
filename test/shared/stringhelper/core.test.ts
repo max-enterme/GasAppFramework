@@ -112,6 +112,40 @@ Test.it('resolveString: プレースホルダーなし', () => {
   Assert.equals(result, 'No placeholders', 'プレースホルダーなし');
 }, 'StringHelper');
 
+Test.it('resolveString: 関数呼び出し（ルート関数）', () => {
+  const ctx = {
+    name: 'alice',
+    upper: (s: string) => String(s).toUpperCase(),
+  };
+  const result = StringHelper.resolveString('Hi {{upper(name)}}', ctx);
+  Assert.equals(result, 'Hi ALICE', '関数呼び出しが解決される');
+}, 'StringHelper');
+
+Test.it('resolveString: 関数呼び出し（ネストオブジェクトのメソッド）', () => {
+  const ctx = {
+    user: {
+      name: 'Alice',
+      greet(prefix: string) {
+        return `${prefix} ${this.name}`;
+      },
+    },
+  };
+  const result = StringHelper.resolveString('Hello {{user.greet("Ms")}}!', ctx);
+  Assert.equals(result, 'Hello Ms Alice!', 'this を維持したメソッド呼び出し');
+}, 'StringHelper');
+
+Test.it('resolveString: 文字列中に関数表記があっても壊れない', () => {
+  const ctx = { name: 'Alice', upper: (s: string) => String(s).toUpperCase() };
+  const result = StringHelper.resolveString('call() {{upper(name)}}', ctx);
+  Assert.equals(result, 'call() ALICE', 'プレースホルダー外の () はそのまま');
+}, 'StringHelper');
+
+Test.it('resolveString: 関数が解決できない場合は空文字列', () => {
+  const ctx = { name: 'Alice' };
+  const result = StringHelper.resolveString('X{{missingFn(name)}}Y', ctx);
+  Assert.equals(result, 'XY', '未解決関数は空文字列');
+}, 'StringHelper');
+
 Test.it('get: 存在するパス', () => {
   const ctx = { a: { b: { c: 42 } } };
   const result = StringHelper.get(ctx, 'a.b.c', 0);

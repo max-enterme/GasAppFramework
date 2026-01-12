@@ -1,5 +1,7 @@
 /* eslint-env node */
 
+const path = require('path');
+
 module.exports = {
     preset: 'ts-jest',
     testEnvironment: 'node',
@@ -17,7 +19,11 @@ module.exports = {
                 target: 'ES2020',
                 module: 'commonjs',
                 types: ['jest', 'node'],
-                typeRoots: ['./node_modules/@types', './test/shared']
+                typeRoots: [
+                    path.join(__dirname, 'node_modules/@types'),
+                    path.join(__dirname, '..', '..', 'node_modules/@types'),
+                    path.join(__dirname, 'test/shared'),
+                ]
             }
         }]
     },
