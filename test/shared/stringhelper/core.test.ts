@@ -130,7 +130,7 @@ Test.it('resolveString: 関数呼び出し（ネストオブジェクトのメ�
       },
     },
   };
-    const result = StringHelper.resolveString('Hello {{user.greet("Ms")}}!', ctx);
+  const result = StringHelper.resolveString('Hello {{user.greet("Ms")}}!', ctx);
   Assert.equals(result, 'Hello Ms Alice!', 'this を維持したメソッド呼び出し');
 }, 'StringHelper');
 
@@ -144,6 +144,36 @@ Test.it('resolveString: 関数が解決できない場合は空文字列', () =>
   const ctx = { name: 'Alice' };
   const result = StringHelper.resolveString('X{{missingFn(name)}}Y', ctx);
   Assert.equals(result, 'XY', '未解決関数は空文字列');
+}, 'StringHelper');
+
+Test.it('resolveString: テンプレートリテラル（${} 展開）', () => {
+  const ctx = { name: 'Alice' };
+  const result = StringHelper.resolveString('{{`Hello ${name}`}}', ctx);
+  Assert.equals(result, 'Hello Alice', 'バッククォート内の ${name} を解決');
+}, 'StringHelper');
+
+Test.it('resolveString: テンプレートリテラル（関数呼び出しも展開）', () => {
+  const ctx = {
+    user: { name: 'alice' },
+    upper: (s: string) => String(s).toUpperCase(),
+  };
+  const result = StringHelper.resolveString('{{`UP ${upper(user.name)}`}}', ctx);
+  Assert.equals(result, 'UP ALICE', 'テンプレート内で式を評価');
+}, 'StringHelper');
+
+Test.it('resolveString: テンプレートリテラル（未解決は空文字列）', () => {
+  const ctx = { name: 'Alice' };
+  const result = StringHelper.resolveString('{{`X${missing}Y`}}', ctx);
+  Assert.equals(result, 'XY', '未解決は空文字列');
+}, 'StringHelper');
+
+Test.it('resolveString: テンプレートリテラル（関数の引数として使用）', () => {
+  const ctx = {
+    name: 'Alice',
+    echo: (s: string) => s,
+  };
+  const result = StringHelper.resolveString('{{echo(`Ms ${name}`)}}', ctx);
+  Assert.equals(result, 'Ms Alice', '引数のバッククォートも展開');
 }, 'StringHelper');
 
 Test.it('get: 存在するパス', () => {

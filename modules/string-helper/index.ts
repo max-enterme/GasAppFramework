@@ -76,6 +76,11 @@ export function get(obj: any, path: string, defaultValue?: any): any {
 
 function resolveExpression(expr: string, root: any): any {
     if (!expr || expr.trim() === '') return ''; // Return empty string for empty expressions
+
+    // TypeScript-like template literal support: `Hello ${name}`
+    if (isBacktickLiteral(expr)) {
+        return evalTemplateLiteral(expr.slice(1, -1), root, root);
+    }
     // Supports: a.b, a[0], func(x, 'y'), and wildcard-free simple expressions chained by dots
     const tokens = splitTopLevel(expr, '.');
     let current = root;
@@ -121,6 +126,7 @@ function splitTopLevel(input: string, sep: string): string[] {
     let parenDepth = 0;
     let inSingleQuote = false;
     let inDoubleQuote = false;
+    let inBacktick = false;
 
     for (let i = 0; i < input.length; i++) {
         const char = input[i];
@@ -132,19 +138,25 @@ function splitTopLevel(input: string, sep: string): string[] {
         }
 
         // Track quote state
-        if (char === "'" && !inDoubleQuote) {
+        if (char === '`' && !inSingleQuote && !inDoubleQuote) {
+            inBacktick = !inBacktick;
+            currentToken += char;
+            continue;
+        }
+
+        if (char === "'" && !inDoubleQuote && !inBacktick) {
             inSingleQuote = !inSingleQuote;
             currentToken += char;
             continue;
         }
-        if (char === '"' && !inSingleQuote) {
+        if (char === '"' && !inSingleQuote && !inBacktick) {
             inDoubleQuote = !inDoubleQuote;
             currentToken += char;
             continue;
         }
 
         // Track parenthesis depth and handle separator when not in quotes
-        if (!inSingleQuote && !inDoubleQuote) {
+        if (!inSingleQuote && !inDoubleQuote && !inBacktick) {
             if (char === '(') parenDepth++;
             else if (char === ')') parenDepth--;
 
@@ -172,6 +184,12 @@ function parseArgs(argsStr: string, root: any, thisObj: any): any[] {
 function parseArg(src: string, root: any, thisObj: any): any {
     const s = src.trim();
     if (!s) return undefined;
+
+    // Template literal: `Hello ${name}`
+    if (isBacktickLiteral(s)) {
+        return evalTemplateLiteral(s.slice(1, -1), root, thisObj);
+    }
+
     if ((s.startsWith('"') && s.endsWith('"')) || (s.startsWith("'") && s.endsWith("'"))) {
         try {
             return JSON.parse(s.replace(/'/g, '"'));
@@ -188,4 +206,54 @@ function parseArg(src: string, root: any, thisObj: any): any {
     const fromThis = resolveExpression(s, thisObj);
     if (fromThis != null) return fromThis;
     return resolveExpression(s, root);
+}
+
+function isBacktickLiteral(input: string): boolean {
+    return input.length >= 2 && input.startsWith('`') && input.endsWith('`');
+}
+
+function evalTemplateLiteral(template: string, root: any, thisObj: any): string {
+    let out = '';
+    for (let i = 0; i < template.length; i++) {
+        const char = template[i];
+
+        // Support common escapes similar to template literals
+        if (char === '\\' && i + 1 < template.length) {
+            out += template[i + 1];
+            i++;
+            continue;
+        }
+
+        if (char === '$' && template[i + 1] === '{') {
+            i += 2; // skip ${
+            let depth = 1;
+            let expr = '';
+
+            for (; i < template.length; i++) {
+                const c = template[i];
+                if (c === '\\' && i + 1 < template.length) {
+                    expr += template[i + 1];
+                    i++;
+                    continue;
+                }
+                if (c === '{') depth++;
+                if (c === '}') {
+                    depth--;
+                    if (depth === 0) break;
+                }
+                expr += c;
+            }
+
+            const key = expr.trim();
+            if (!key) continue;
+
+            const fromThis = resolveExpression(key, thisObj);
+            const value = fromThis != null ? fromThis : resolveExpression(key, root);
+            out += value == null ? '' : String(value);
+            continue;
+        }
+
+        out += char;
+    }
+    return out;
 }
