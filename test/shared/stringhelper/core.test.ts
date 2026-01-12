@@ -130,7 +130,7 @@ Test.it('resolveString: 関数呼び出し（ネストオブジェクトのメ�
       },
     },
   };
-  const result = StringHelper.resolveString('Hello {{user.greet("Ms")}}!', ctx);
+    const result = StringHelper.resolveString('Hello {{user.greet("Ms")}}!', ctx);
   Assert.equals(result, 'Hello Ms Alice!', 'this を維持したメソッド呼び出し');
 }, 'StringHelper');
 
