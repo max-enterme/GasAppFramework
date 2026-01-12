@@ -30,24 +30,39 @@ export class SpreadsheetStore<TEntity extends object, Key extends keyof TEntity>
         return sh;
     }
 
+    private ensureHeaders_(sh: GoogleAppsScript.Spreadsheet.Sheet, required: string[], headerRow1Based: number): string[] {
+        const lastColumn = Math.max(1, sh.getLastColumn());
+        const headerValues = sh.getRange(headerRow1Based, 1, 1, lastColumn).getValues()[0] ?? [];
+        const header = headerValues.map((v) => String(v ?? '')).map((s) => s.trim());
+
+        const existing = new Set(header.filter((h) => h.length > 0));
+        const missing = required
+            .map((h) => String(h ?? '').trim())
+            .filter((h) => h.length > 0 && !existing.has(h));
+
+        if (!missing.length) return header;
+
+        const newHeader = header.concat(missing);
+        sh.getRange(headerRow1Based, 1, 1, newHeader.length).setValues([newHeader]);
+        return newHeader;
+    }
+
     load(): { rows: TEntity[] } {
         const sh = this.getSheet_();
         const values = sh.getDataRange().getValues();
         const headerRow = Math.max(1, this.options.headerRow ?? 1) - 1;
         if (values.length <= headerRow) return { rows: [] };
-        const header = values[headerRow].map(String);
+        const requiredHeaders = this.schema.parameters.map((p) => String(p));
+        const header = this.ensureHeaders_(sh, requiredHeaders, headerRow + 1);
         const nameToIdx = new Map<string, number>();
         for (let i = 0; i < header.length; i++) {
             const h = header[i];
+            if (!h) continue;
             if (nameToIdx.has(h))
                 throw new RepositoryError('HeaderDuplicate', `duplicate header: ${h}`);
             nameToIdx.set(h, i);
         }
-        for (const p of this.schema.parameters) {
-            const h = String(p);
-            if (!nameToIdx.has(h))
-                throw new RepositoryError('HeaderMissing', `missing header: ${h}`);
-        }
+        // Missing headers are auto-appended by ensureHeaders_().
         const rows: TEntity[] = [];
         for (let r = headerRow + 1; r < values.length; r++) {
             const raw: any = {};
@@ -65,10 +80,8 @@ export class SpreadsheetStore<TEntity extends object, Key extends keyof TEntity>
         if (!rows.length) return;
         const sh = this.getSheet_();
         const headerRow = Math.max(1, this.options.headerRow ?? 1) - 1;
-        const header = sh
-            .getRange(headerRow + 1, 1, 1, sh.getLastColumn())
-            .getValues()[0]
-            .map(String);
+        const requiredHeaders = this.schema.parameters.map((p) => String(p));
+        const header = this.ensureHeaders_(sh, requiredHeaders, headerRow + 1);
         const nameToIdx = new Map<string, number>();
         for (let i = 0; i < header.length; i++) nameToIdx.set(header[i], i);
         const data: any[][] = [];
@@ -97,10 +110,8 @@ export class SpreadsheetStore<TEntity extends object, Key extends keyof TEntity>
         if (!rows.length) return;
         const sh = this.getSheet_();
         const headerRow = Math.max(1, this.options.headerRow ?? 1) - 1;
-        const header = sh
-            .getRange(headerRow + 1, 1, 1, sh.getLastColumn())
-            .getValues()[0]
-            .map(String);
+        const requiredHeaders = this.schema.parameters.map((p) => String(p));
+        const header = this.ensureHeaders_(sh, requiredHeaders, headerRow + 1);
         const nameToIdx = new Map<string, number>();
         for (let i = 0; i < header.length; i++) nameToIdx.set(header[i], i);
 
@@ -148,10 +159,8 @@ export class SpreadsheetStore<TEntity extends object, Key extends keyof TEntity>
         if (this.options.softDelete?.enabled) {
             const flag = this.options.softDelete.flagField;
             const trueVal = this.options.softDelete.trueValue ?? true;
-            const header = sh
-                .getRange(headerRow + 1, 1, 1, sh.getLastColumn())
-                .getValues()[0]
-                .map(String);
+            const requiredHeaders = this.schema.parameters.map((p) => String(p));
+            const header = this.ensureHeaders_(sh, requiredHeaders, headerRow + 1);
             const nameToIdx = new Map<string, number>();
             for (let i = 0; i < header.length; i++) nameToIdx.set(header[i], i);
             const col = nameToIdx.get(flag);
