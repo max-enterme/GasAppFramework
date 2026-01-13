@@ -17,26 +17,10 @@
 
 /* eslint-disable */
 const { execSync } = require('child_process');
-const fs = require('fs');
 const path = require('path');
 
-function parseArgValue(name) {
-    const prefix = `--${name}=`;
-    const index = process.argv.findIndex((arg) => arg === `--${name}` || arg.startsWith(prefix));
-    if (index < 0) return null;
-    const arg = process.argv[index];
-    if (arg.startsWith(prefix)) return arg.slice(prefix.length);
-    const next = process.argv[index + 1];
-    if (!next || next.startsWith('--')) return null;
-    return next;
-}
-
-function resolveProjectRoot() {
-    const defaultRoot = path.resolve(__dirname, '..');
-    const argRoot = parseArgValue('projectRoot');
-    const envRoot = process.env.GAS_PROJECT_ROOT;
-    return path.resolve(argRoot || envRoot || defaultRoot);
-}
+const { getFlagValue, resolveProjectRoot } = require('./lib/cli-args');
+const { loadGasConfig } = require('./lib/gas-config');
 
 function getTimestamp() {
     const d = new Date();
@@ -57,8 +41,9 @@ function log(message, color = 'reset') {
     console.log(colors[color] + message + colors.reset);
 }
 
-const projectRoot = resolveProjectRoot();
-const pushScript = parseArgValue('pushScript');
+const argv = process.argv.slice(2);
+const projectRoot = resolveProjectRoot(argv, path.resolve(__dirname, '..'));
+const pushScript = getFlagValue(argv, 'pushScript');
 
 function exec(command, description) {
     log(`\n▶ ${description}...`, 'blue');
@@ -73,21 +58,25 @@ function exec(command, description) {
 }
 
 // Read deployment ID from .gas-config.json
-function getDeploymentId() {
-    try {
-        const configPath = path.join(projectRoot, '.gas-config.json');
-        const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+function readGasConfig() {
+    return loadGasConfig(projectRoot);
+}
 
-        if (config.deployments && config.deployments.targetDeployId) {
-            return config.deployments.targetDeployId;
-        }
+function getDeploymentId(config) {
+    const deploymentId = config?.deployments?.targetDeployId;
+    if (typeof deploymentId === 'string' && deploymentId.trim()) return deploymentId;
+    log('ℹ  targetDeployId not found in .gas-config.json, will create new deployment', 'yellow');
+    return null;
+}
 
-        log('ℹ  targetDeployId not found in .gas-config.json, will create new deployment', 'yellow');
-        return null;
-    } catch (e) {
-        log('ℹ  .gas-config.json not found, will create new deployment', 'yellow');
-        return null;
+function getTargetVersionNumber(config) {
+    const v = config?.deployments?.targetVersionNumber;
+    if (typeof v === 'number' && Number.isFinite(v) && v > 0) return v;
+    if (typeof v === 'string' && v.trim() && Number.isFinite(Number(v))) {
+        const n = Number(v);
+        if (n > 0) return n;
     }
+    return null;
 }
 
 async function main() {
@@ -104,10 +93,13 @@ async function main() {
             log('    npm run gas:push:prod', 'yellow');
         }
 
-        const deploymentId = getDeploymentId();
+        const config = readGasConfig();
+        const deploymentId = getDeploymentId(config);
         if (deploymentId) {
             log(`\nℹ Using deployment ID: ${deploymentId}`, 'blue');
-            const deployCmd = `clasp deploy -i ${deploymentId} -d "Auto-deploy ${getTimestamp()}"`;
+            const targetVersion = getTargetVersionNumber(config);
+            const versionArg = targetVersion ? ` -V ${targetVersion}` : '';
+            const deployCmd = `clasp deploy -i ${deploymentId}${versionArg} -d "Auto-deploy ${getTimestamp()}"`;
             exec(deployCmd, 'Deploy to existing deployment');
         } else {
             log('\nℹ Creating new deployment', 'blue');

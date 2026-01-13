@@ -14,6 +14,8 @@ const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 
+const { getFlagValue, resolveProjectRoot } = require('./lib/cli-args');
+
 const colors = {
     reset: '\x1b[0m',
     bright: '\x1b[1m',
@@ -29,17 +31,12 @@ function log(message, color = 'reset') {
 
 // Parse command line arguments
 const args = process.argv.slice(2);
-let scriptId = null;
-
-args.forEach(arg => {
-    if (arg.startsWith('--scriptId=')) {
-        scriptId = arg.split('=')[1];
-    }
-});
+const projectRoot = resolveProjectRoot(args, path.resolve(__dirname, '..'));
+let scriptId = getFlagValue(args, 'scriptId');
 
 // Try to get scriptId from existing .clasp.json if not provided
 function getExistingScriptId() {
-    const claspJsonPath = path.join(__dirname, '../.clasp.json');
+    const claspJsonPath = path.join(projectRoot, '.clasp.json');
     if (fs.existsSync(claspJsonPath)) {
         try {
             const existingConfig = JSON.parse(fs.readFileSync(claspJsonPath, 'utf8'));
@@ -54,7 +51,7 @@ function getExistingScriptId() {
 // Try to get scriptId from clasp status
 function getScriptIdFromClasp() {
     try {
-        const output = execSync('clasp status', { encoding: 'utf8' });
+        const output = execSync('clasp status', { encoding: 'utf8', cwd: projectRoot });
         const match = output.match(/scriptId:\s*([^\s]+)/);
         return match ?  match[1] : null;
     } catch (e) {
@@ -68,7 +65,7 @@ function generateClaspJson(scriptId) {
         scriptId: scriptId
     };
 
-    const claspJsonPath = path.join(__dirname, '../.clasp.json');
+    const claspJsonPath = path.join(projectRoot, '.clasp.json');
     fs.writeFileSync(claspJsonPath, JSON.stringify(claspConfig, null, 2) + '\n', 'utf8');
 
     log('\n✅ .clasp.json が生成されました', 'green');

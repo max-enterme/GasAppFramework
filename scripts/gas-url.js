@@ -18,16 +18,12 @@
 
 const fs = require('fs');
 const path = require('path');
-const { exec } = require('child_process');
+const { resolveProjectRoot } = require('./lib/cli-args');
+const { openInBrowser } = require('./lib/open-in-browser');
+const { buildWebAppDevUrl, resolveExecUrlFromGasConfig, loadGasConfig } = require('./lib/gas-config');
 
 // Support --projectRoot or GAS_PROJECT_ROOT
-const projectRoot = (() => {
-  const idx = process.argv.indexOf('--projectRoot');
-  if (idx !== -1 && process.argv[idx + 1]) {
-    return process.argv[idx + 1];
-  }
-  return process.env.GAS_PROJECT_ROOT || process.cwd();
-})();
+const projectRoot = resolveProjectRoot(process.argv.slice(2));
 
 const claspConfigPath = path.join(projectRoot, '.clasp.json');
 if (!fs.existsSync(claspConfigPath)) {
@@ -42,25 +38,32 @@ if (!fs.existsSync(deployConfigPath)) {
 }
 
 const claspConfig = JSON.parse(fs.readFileSync(claspConfigPath, 'utf8'));
-const deployConfig = JSON.parse(fs.readFileSync(deployConfigPath, 'utf8'));
+const deployConfig = loadGasConfig(projectRoot);
 
 const type = process.argv[2] || 'project';
 let url;
 if (type === 'project') {
   url = `https://script.google.com/d/${claspConfig.scriptId}/edit`;
 } else if (type === 'dev') {
-  url = `https://script.google.com/macros/s/${deployConfig.deployments.headDeployId}/dev`;
+  if (!deployConfig?.deployments?.headDeployId) {
+    console.error('deployments.headDeployId not found in .gas-config.json');
+    process.exit(1);
+  }
+  url = buildWebAppDevUrl(deployConfig.deployments.headDeployId);
 } else if (type === 'exec') {
-  url = `https://script.google.com/macros/s/${deployConfig.deployments.targetDeployId}/exec`;
+  url = resolveExecUrlFromGasConfig(deployConfig);
+  if (!url) {
+    console.error('proxy.execUrl / proxy.targetDeployId / deployments.targetDeployId not found in .gas-config.json');
+    process.exit(1);
+  }
 } else {
   console.error('Unknown type. Use dev, webapp, or exec');
   process.exit(1);
 }
 
 if (process.argv[3] === 'open') {
-  // Windows: start, Mac: open, Linux: xdg-open
-  const openCmd = process.platform === 'win32' ? 'start' : process.platform === 'darwin' ? 'open' : 'xdg-open';
-  exec(`${openCmd} ${url}`);
+  const child = openInBrowser(url);
+  child.unref();
 } else {
   console.log(url);
 }

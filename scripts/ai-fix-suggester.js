@@ -10,34 +10,47 @@
 const fs = require('fs');
 const path = require('path');
 
-// コマンドライン引数のパース
-function parseArgs() {
-  const args = process.argv.slice(2);
-  const options = {
-    lintOutput: null,
-    typecheckOutput: null,
-    testOutput: null,
-    output: 'suggestions.md'
-  };
+const { getFlagValue } = require('./lib/cli-args');
 
-  for (let i = 0; i < args.length; i++) {
-    switch (args[i]) {
-      case '--lint-output':
-        options.lintOutput = args[++i];
-        break;
-      case '--typecheck-output':
-        options.typecheckOutput = args[++i];
-        break;
-      case '--test-output':
-        options.testOutput = args[++i];
-        break;
-      case '--output':
-        options.output = args[++i];
-        break;
-    }
+function printHelp() {
+  console.log(`AI Fix Suggester
+
+Usage:
+  node scripts/ai-fix-suggester.js [options]
+
+Options:
+  --lint-output <path>       ESLintログファイル
+  --typecheck-output <path>  tscログファイル
+  --test-output <path>       テストログファイル
+  --output <path>            出力先 (default: suggestions.md)
+  --projectRoot <path>       相対パス解決の基準 (指定時のみ)
+  --help                     ヘルプを表示
+
+Env (いずれか):
+  GITHUB_TOKEN | ANTHROPIC_API_KEY | OPENAI_API_KEY
+`);
+}
+
+function parseArgs(argv) {
+  if (argv.includes('--help') || argv.includes('-h')) {
+    printHelp();
+    process.exit(0);
   }
 
-  return options;
+  const projectRootArg = getFlagValue(argv, 'projectRoot');
+  const baseDir = projectRootArg ? path.resolve(projectRootArg) : process.cwd();
+
+  const lintOutput = getFlagValue(argv, 'lint-output');
+  const typecheckOutput = getFlagValue(argv, 'typecheck-output');
+  const testOutput = getFlagValue(argv, 'test-output');
+  const output = getFlagValue(argv, 'output') || 'suggestions.md';
+
+  return {
+    lintOutput: lintOutput ? path.resolve(baseDir, lintOutput) : null,
+    typecheckOutput: typecheckOutput ? path.resolve(baseDir, typecheckOutput) : null,
+    testOutput: testOutput ? path.resolve(baseDir, testOutput) : null,
+    output: path.resolve(process.cwd(), output),
+  };
 }
 
 // ファイルからエラーログを読み込む
@@ -199,7 +212,7 @@ function formatErrors(lintLog, typecheckLog, testLog) {
 
 // メイン処理
 async function main() {
-  const options = parseArgs();
+  const options = parseArgs(process.argv.slice(2));
 
   // ログファイルを読み込む
   const lintLog = readLogFile(options.lintOutput);

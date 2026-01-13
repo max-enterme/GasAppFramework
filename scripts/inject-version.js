@@ -16,30 +16,14 @@ const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 
-function parseArgValue(name) {
-    const prefix = `--${name}=`;
-    const index = process.argv.findIndex((arg) => arg === `--${name}` || arg.startsWith(prefix));
-    if (index < 0) return null;
-    const arg = process.argv[index];
-    if (arg.startsWith(prefix)) return arg.slice(prefix.length);
-    const next = process.argv[index + 1];
-    if (!next || next.startsWith('--')) return null;
-    return next;
-}
-
-function resolveProjectRoot() {
-    const defaultRoot = path.resolve(__dirname, '..');
-    const argRoot = parseArgValue('projectRoot');
-    const envRoot = process.env.GAS_PROJECT_ROOT;
-    return path.resolve(argRoot || envRoot || defaultRoot);
-}
+const { getFlagValue, resolveProjectRoot } = require('./lib/cli-args');
 
 function resolveInputPath(projectRoot) {
-    const input = parseArgValue('input');
+    const input = getFlagValue(process.argv.slice(2), 'input');
     return path.resolve(projectRoot, input || 'build/0_main.js');
 }
 
-const projectRoot = resolveProjectRoot();
+const projectRoot = resolveProjectRoot(process.argv.slice(2), path.resolve(__dirname, '..'));
 const mainJsPath = resolveInputPath(projectRoot);
 
 // Get git commit hash

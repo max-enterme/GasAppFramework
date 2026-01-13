@@ -1,5 +1,14 @@
+#!/usr/bin/env node
+
 /**
  * Post-build script to ensure global exports are properly set
+ *
+ * Options:
+ *   --projectRoot <path>   Project root to resolve bundle path (default: this package root)
+ *   --input <path>         Bundle path relative to projectRoot (default: build/0_main.js)
+ *
+ * Env:
+ *   GAS_PROJECT_ROOT       Same as --projectRoot
  */
 
 /* eslint-disable */
@@ -7,7 +16,15 @@
 const fs = require('fs');
 const path = require('path');
 
-const mainJsPath = path.join(__dirname, '../build/0_main.js');
+const { getFlagValue, resolveProjectRoot } = require('./lib/cli-args');
+
+function resolveInputPath(projectRoot) {
+    const input = getFlagValue(process.argv.slice(2), 'input');
+    return path.resolve(projectRoot, input || 'build/0_main.js');
+}
+
+const projectRoot = resolveProjectRoot(process.argv.slice(2), path.resolve(__dirname, '..'));
+const mainJsPath = resolveInputPath(projectRoot);
 
 // Read the bundled file
 let content = fs.readFileSync(mainJsPath, 'utf-8');

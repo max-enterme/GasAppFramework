@@ -5,5 +5,9 @@
         "_headDeployId_comment": "HEAD deployment ID for development (auto-updates with clasp push)",
         "targetDeployId": "YOUR_TARGET_DEPLOY_ID",
         "_targetDeployId_comment": "Target deployment ID for production/testing"
+    },
+    "proxy": {
+        "targetDeployId": "YOUR_PROXY_TARGET_DEPLOY_ID",
+        "_targetDeployId_comment": "Target deployment ID for proxy (if applicable)"
     }
 }
