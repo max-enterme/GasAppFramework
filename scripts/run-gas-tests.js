@@ -202,5 +202,3 @@ function makeRequest(requestUrl, redirectCount = 0) {
 }
 
 makeRequest(url);
-                process.exit(1);
-
