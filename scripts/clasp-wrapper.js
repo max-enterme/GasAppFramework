@@ -25,10 +25,21 @@ const path = require('path');
 const { resolveProjectRoot } = require('./lib/cli-args');
 
 const argv = process.argv.slice(2);
-const projectRoot = resolveProjectRoot(argv, path.resolve(__dirname, '..'));
+const projectRoot = resolveProjectRoot(argv, process.cwd());
 
 const env = process.env.GAS_ENV || 'dev';
-const claspCommand = argv.filter((a) => !a.startsWith('--projectRoot')).join(' ');
+// Strip --projectRoot (and its value) so only clasp args remain
+const claspArgs = [];
+for (let i = 0; i < argv.length; i++) {
+  if (argv[i] === '--projectRoot') {
+    i++; // skip value
+  } else if (argv[i].startsWith('--projectRoot=')) {
+    // skip
+  } else {
+    claspArgs.push(argv[i]);
+  }
+}
+const claspCommand = claspArgs.join(' ');
 
 if (!claspCommand) {
   console.error('Usage: clasp-wrapper.js <clasp-command> [args...]');
@@ -93,7 +104,7 @@ function cleanup() {
 setup();
 try {
   log(`[clasp-wrapper] clasp ${claspCommand}`, 'blue');
-  execSync(`npx clasp ${claspCommand}`, { stdio: 'inherit', cwd: projectRoot });
+  execSync(`clasp ${claspCommand}`, { stdio: 'inherit', cwd: projectRoot });
 } catch (error) {
   cleanup();
   process.exit(error.status || 1);
